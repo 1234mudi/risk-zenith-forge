@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,6 +34,12 @@ const RiskAssessmentForm = () => {
             Complete the assessment by filling all required sections
           </CardDescription>
         </CardHeader>
+        
+        <div className="bg-amber-50 p-4 border-b border-amber-200">
+          <h3 className="font-medium text-amber-800">
+            Risk: Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
+          </h3>
+        </div>
         
         <CardContent className="p-0">
           <Tabs defaultValue="main" value={activeTab} onValueChange={setActiveTab} className="w-full">
