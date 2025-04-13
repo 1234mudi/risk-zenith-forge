@@ -1,8 +1,6 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import FormHeader from "@/components/FormHeader";
 import MainFormSection from "@/components/MainFormSection";
 import InherentRatingSection from "@/components/InherentRatingSection";
 import ControlEffectivenessSection from "@/components/ControlEffectivenessSection";
@@ -28,9 +26,7 @@ const RiskAssessmentForm = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
-      <FormHeader />
-      
-      <Card className="mt-6 shadow-md">
+      <Card className="shadow-md">
         <CardHeader className="bg-slate-50 border-b">
           <CardTitle className="text-2xl font-bold text-slate-800">Enhanced Risk Assessment</CardTitle>
           <CardDescription className="text-slate-600">
