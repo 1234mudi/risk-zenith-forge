@@ -27,6 +27,12 @@ const RiskAssessmentForm = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
+      <div className="bg-amber-50 p-4 mb-4 rounded-lg border border-amber-200">
+        <h3 className="font-medium text-amber-800">
+          Risk: Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
+        </h3>
+      </div>
+      
       <Card className="shadow-md">
         <CardHeader className="bg-slate-50 border-b">
           <CardTitle className="text-2xl font-bold text-slate-800">Enhanced Risk Assessment</CardTitle>
@@ -34,12 +40,6 @@ const RiskAssessmentForm = () => {
             Complete the assessment by filling all required sections
           </CardDescription>
         </CardHeader>
-        
-        <div className="bg-amber-50 p-4 border-b border-amber-200">
-          <h3 className="font-medium text-amber-800">
-            Risk: Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
-          </h3>
-        </div>
         
         <CardContent className="p-0">
           <Tabs defaultValue="main" value={activeTab} onValueChange={setActiveTab} className="w-full">
