@@ -10,7 +10,7 @@ import ResidualRatingSection from "@/components/ResidualRatingSection";
 import IssuesSection from "@/components/IssuesSection";
 import CommentsAttachmentsSection from "@/components/CommentsAttachmentsSection";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
 
 const RiskAssessmentForm = () => {
