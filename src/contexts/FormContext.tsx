@@ -13,6 +13,10 @@ type FormState = {
   assessableItem: string;
   risk: string;
   
+  // Assessment Guidance
+  scope: string;
+  instructions: string;
+  
   // Treatment Plan
   riskTreatment: string;
   treatmentOwner: string;
@@ -44,6 +48,9 @@ const initialFormState: FormState = {
   organization: "",
   assessableItem: "",
   risk: "",
+  
+  scope: "",
+  instructions: "",
   
   riskTreatment: "",
   treatmentOwner: "",

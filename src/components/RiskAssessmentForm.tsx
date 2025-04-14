@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
 
 const RiskAssessmentForm = () => {
-  const [activeTab, setActiveTab] = useState("main");
+  const [activeTab, setActiveTab] = useState("general");
   const { toast } = useToast();
   const { formState } = useForm();
 
@@ -27,25 +27,24 @@ const RiskAssessmentForm = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
-      <div className="bg-amber-50 p-4 mb-4 rounded-lg border border-amber-200">
-        <h3 className="font-medium text-amber-800">
-          Risk: Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
-        </h3>
-      </div>
-      
       <Card className="shadow-md">
         <CardHeader className="bg-slate-50 border-b">
           <CardTitle className="text-2xl font-bold text-slate-800">Enhanced Risk Assessment</CardTitle>
-          <CardDescription className="text-slate-600">
-            Complete the assessment by filling all required sections
-          </CardDescription>
+          <div className="bg-amber-50 p-3 mt-2 rounded-lg border border-amber-200">
+            <h3 className="font-medium text-amber-800">
+              Risk: Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
+            </h3>
+          </div>
         </CardHeader>
         
         <CardContent className="p-0">
-          <Tabs defaultValue="main" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full justify-start px-6 pt-4 bg-white border-b h-auto flex-wrap">
-              <TabsTrigger value="main" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-                Main Form
+              <TabsTrigger value="general" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+                General
+              </TabsTrigger>
+              <TabsTrigger value="treatment" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+                Treatment
               </TabsTrigger>
               <TabsTrigger value="inherent" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Inherent Rating
@@ -65,8 +64,12 @@ const RiskAssessmentForm = () => {
             </TabsList>
             
             <div className="p-6">
-              <TabsContent value="main">
-                <MainFormSection onNext={() => setActiveTab("inherent")} />
+              <TabsContent value="general">
+                <MainFormSection onNext={() => setActiveTab("treatment")} />
+              </TabsContent>
+              
+              <TabsContent value="treatment">
+                <TreatmentSection onNext={() => setActiveTab("inherent")} />
               </TabsContent>
               
               <TabsContent value="inherent">
@@ -93,17 +96,17 @@ const RiskAssessmentForm = () => {
           
           <div className="flex justify-end p-6 pt-2 gap-4 border-t mt-4">
             <Button variant="outline" onClick={() => {
-              if (activeTab === "main") return;
-              const tabs = ["main", "inherent", "control", "residual", "issues", "comments"];
+              if (activeTab === "general") return;
+              const tabs = ["general", "treatment", "inherent", "control", "residual", "issues", "comments"];
               const currentIndex = tabs.indexOf(activeTab);
               setActiveTab(tabs[currentIndex - 1]);
-            }} disabled={activeTab === "main"}>
+            }} disabled={activeTab === "general"}>
               Previous
             </Button>
             
             {activeTab !== "comments" ? (
               <Button onClick={() => {
-                const tabs = ["main", "inherent", "control", "residual", "issues", "comments"];
+                const tabs = ["general", "treatment", "inherent", "control", "residual", "issues", "comments"];
                 const currentIndex = tabs.indexOf(activeTab);
                 setActiveTab(tabs[currentIndex + 1]);
               }}>
