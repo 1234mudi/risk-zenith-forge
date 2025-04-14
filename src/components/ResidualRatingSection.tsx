@@ -1,11 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Eye, EyeOff, Copy, Clock } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Copy, Clock, AlertTriangle } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Card } from "@/components/ui/card";
 import { 
@@ -14,6 +14,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
+import HistoricalAssessmentsDialog from "./HistoricalAssessmentsDialog";
+import { useToast } from "@/hooks/use-toast";
 
 type ResidualFactor = {
   id: string;
@@ -46,10 +48,11 @@ const ResidualRatingSection = ({
   previousDate = "",
 }: ResidualRatingSectionProps) => {
   const [factors, setFactors] = useState<ResidualFactor[]>(DEFAULT_FACTORS);
-  const { updateForm, formState } = useForm();
+  const { updateForm, formState, addAppetiteBreachIssue } = useForm();
   const [overallScore, setOverallScore] = useState<string>(formState.residualRatingScore || "0.0");
   const [localShowWeights, setLocalShowWeights] = useState(showWeights);
   const [showPreviousAssessment, setShowPreviousAssessment] = useState(true);
+  const { toast } = useToast();
 
   const handleAddFactor = () => {
     const newId = (factors.length + 1).toString();
@@ -134,6 +137,41 @@ const ResidualRatingSection = ({
     }
   };
 
+  const handleCopyHistoricalAssessment = (assessment: any) => {
+    if (assessment && assessment.residualFactors && assessment.residualFactors.length > 0) {
+      setFactors(assessment.residualFactors);
+      updateForm({ residualFactors: assessment.residualFactors });
+      calculateScore(assessment.residualFactors);
+    }
+  };
+
+  // Check against risk appetite
+  useEffect(() => {
+    const residualScore = parseFloat(overallScore || "0");
+    const appetiteThreshold = parseFloat(formState.riskAppetite.threshold || "0");
+    const isWithinAppetite = residualScore <= appetiteThreshold;
+    
+    updateForm({ isWithinAppetite });
+  }, [overallScore]);
+
+  const createAppetiteBreachIssue = () => {
+    const newIssue = {
+      id: (formState.issues.length + 1).toString(),
+      issueKey: `ISS-APP-${String(formState.issues.length + 1).padStart(3, '0')}`,
+      title: "Risk Appetite Breach",
+      description: `The current residual risk rating (${overallScore}) exceeds the defined risk appetite threshold (${formState.riskAppetite.threshold}). A remediation plan is required to bring the risk within appetite.`,
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+      owner: formState.treatmentOwner,
+    };
+    
+    addAppetiteBreachIssue(newIssue);
+    
+    toast({
+      title: "Risk Appetite Issue Created",
+      description: "A new issue has been created to address the risk appetite breach.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-green-50 p-4 rounded-md">
@@ -169,6 +207,12 @@ const ResidualRatingSection = ({
                 <Copy size={14} />
                 <span>Copy Values</span>
               </Button>
+              
+              <HistoricalAssessmentsDialog 
+                historicalAssessments={formState.historicalAssessments}
+                onCopyAssessment={handleCopyHistoricalAssessment}
+              />
+              
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm">
                   {showPreviousAssessment ? "Hide" : "Show"}
@@ -209,11 +253,12 @@ const ResidualRatingSection = ({
         </Collapsible>
       )}
       
-      <div className="flex justify-between items-center p-4 bg-slate-50 rounded-md border">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center p-4 bg-slate-50 rounded-md border gap-4">
         <div>
           <h3 className="font-medium text-slate-700">Overall Residual Risk Rating</h3>
           <p className="text-sm text-slate-500">Calculated based on weighted factors</p>
         </div>
+        
         <div className="flex items-center gap-4">
           <Button 
             variant="outline" 
@@ -230,6 +275,28 @@ const ResidualRatingSection = ({
           </div>
         </div>
       </div>
+      
+      {/* Risk Appetite Alert */}
+      {parseFloat(overallScore) > parseFloat(formState.riskAppetite.threshold) && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-red-800">Outside Risk Appetite</h3>
+            <p className="text-sm text-red-700 mt-1">
+              The current residual risk rating ({overallScore}) exceeds the defined risk appetite threshold ({formState.riskAppetite.threshold}).
+              This requires a remediation plan to bring the risk within appetite.
+            </p>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              className="mt-3" 
+              onClick={createAppetiteBreachIssue}
+            >
+              Create Remediation Issue
+            </Button>
+          </div>
+        </div>
+      )}
       
       <div className="space-y-4">
         {factors.map((factor) => (

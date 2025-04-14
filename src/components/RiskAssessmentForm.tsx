@@ -14,8 +14,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
 import RiskSummary from "@/components/RiskSummary";
-import RelatedRisks from "@/components/RelatedRisks";
+import ScopeSharingRisks from "@/components/RelatedRisks";
 import FormHeader from "@/components/FormHeader";
+import RiskAppetiteIndicator from "@/components/RiskAppetiteIndicator";
 
 const RiskAssessmentForm = () => {
   const [activeTab, setActiveTab] = useState("general");
@@ -130,7 +131,7 @@ const RiskAssessmentForm = () => {
               getScoreLabel={getScoreLabel}
             />
             
-            <RelatedRisks />
+            <ScopeSharingRisks />
           </div>
         </div>
         

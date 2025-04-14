@@ -14,6 +14,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
+import HistoricalAssessmentsDialog from "./HistoricalAssessmentsDialog";
 
 type InherentFactor = {
   id: string;
@@ -134,6 +135,14 @@ const InherentRatingSection = ({
     }
   };
 
+  const handleCopyHistoricalAssessment = (assessment: any) => {
+    if (assessment && assessment.inherentFactors && assessment.inherentFactors.length > 0) {
+      setFactors(assessment.inherentFactors);
+      updateForm({ inherentFactors: assessment.inherentFactors });
+      calculateScore(assessment.inherentFactors);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-blue-50 p-4 rounded-md">
@@ -169,6 +178,12 @@ const InherentRatingSection = ({
                 <Copy size={14} />
                 <span>Copy Values</span>
               </Button>
+              
+              <HistoricalAssessmentsDialog 
+                historicalAssessments={formState.historicalAssessments}
+                onCopyAssessment={handleCopyHistoricalAssessment}
+              />
+              
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm">
                   {showPreviousAssessment ? "Hide" : "Show"}

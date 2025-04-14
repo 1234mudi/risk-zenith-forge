@@ -21,11 +21,13 @@ import {
 } from "@/components/ui/dialog";
 import { ChevronRight, InfoIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import RiskAppetiteIndicator from "./RiskAppetiteIndicator";
 
 const MainFormSection = ({ onNext }: { onNext: () => void }) => {
   const { formState, updateForm } = useForm();
   const [isOpenRiskDef, setIsOpenRiskDef] = useState(true);
   const [isOpenGuidance, setIsOpenGuidance] = useState(true);
+  const [isOpenAppetite, setIsOpenAppetite] = useState(true);
   
   return (
     <div className="space-y-8">
@@ -238,6 +240,23 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
               />
             </div>
           </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <Collapsible
+        open={isOpenAppetite}
+        onOpenChange={setIsOpenAppetite}
+        className="w-full space-y-2"
+      >
+        <div className="flex items-center justify-between">
+          <CollapsibleTrigger className="flex items-center gap-2 text-base font-semibold">
+            <ChevronRight className={`h-5 w-5 transition-transform ${isOpenAppetite ? 'rotate-90' : ''}`} />
+            Risk Appetite
+          </CollapsibleTrigger>
+        </div>
+        
+        <CollapsibleContent className="space-y-4">
+          <RiskAppetiteIndicator className="mt-4" />
         </CollapsibleContent>
       </Collapsible>
       
