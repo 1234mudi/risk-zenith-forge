@@ -6,12 +6,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Search, X, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { Plus, Trash2, Search, X, Eye, EyeOff, ExternalLink, Copy, Clock } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 type Control = {
   id: string;
@@ -37,13 +42,13 @@ const DEFAULT_CONTROLS: Control[] = [
     id: "1",
     controlId: "CTL-001",
     name: "Access Control Management",
-    designEffect: "",
-    operativeEffect: "",
-    effectiveness: "",
+    designEffect: "effective",
+    operativeEffect: "partially",
+    effectiveness: "3",
     weighting: "25",
     isKeyControl: true,
     category: "preventive",
-    comments: "",
+    comments: "Works well in most cases",
     testResults: {
       lastTested: "2023-12-15",
       result: "pass",
@@ -55,13 +60,13 @@ const DEFAULT_CONTROLS: Control[] = [
     id: "2",
     controlId: "CTL-002",
     name: "Change Management Process",
-    designEffect: "",
-    operativeEffect: "",
-    effectiveness: "",
+    designEffect: "highly",
+    operativeEffect: "effective",
+    effectiveness: "2",
     weighting: "25",
     isKeyControl: false,
     category: "detective",
-    comments: "",
+    comments: "Well designed but some implementation issues",
     testResults: {
       lastTested: "2024-01-20",
       result: "partial",
@@ -83,13 +88,28 @@ const CONTROL_LIBRARY = [
   { id: "CTL-010", name: "Encryption", category: "preventive", description: "Protects data by converting it into coded format." },
 ];
 
-const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
+type ControlEffectivenessSectionProps = {
+  onNext: () => void;
+  showWeights: boolean;
+  previousControls?: Control[];
+  previousScore?: string;
+  previousDate?: string;
+};
+
+const ControlEffectivenessSection = ({ 
+  onNext, 
+  showWeights,
+  previousControls = [],
+  previousScore = "0.0",
+  previousDate = "",
+}: ControlEffectivenessSectionProps) => {
   const [controls, setControls] = useState<Control[]>(DEFAULT_CONTROLS);
   const { updateForm, formState } = useForm();
-  const [overallScore, setOverallScore] = useState<string>("0.0");
+  const [overallScore, setOverallScore] = useState<string>(formState.controlEffectivenessScore || "0.0");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredControls, setFilteredControls] = useState(CONTROL_LIBRARY);
-  const [showWeights, setShowWeights] = useState(formState.showWeights);
+  const [localShowWeights, setLocalShowWeights] = useState(showWeights);
+  const [showPreviousAssessment, setShowPreviousAssessment] = useState(true);
 
   const handleAddControl = () => {
     const newId = (controls.length + 1).toString();
@@ -184,6 +204,14 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
     return "text-green-600 bg-green-50 px-2 py-1 rounded";
   };
 
+  const getCellColor = (value: string) => {
+    const numValue = parseInt(value || "0");
+    if (numValue >= 4) return "bg-red-50";
+    if (numValue >= 3) return "bg-orange-50";
+    if (numValue >= 2) return "bg-yellow-50";
+    return "bg-green-50";
+  };
+
   const getEffectivenessColor = (value: string) => {
     if (value === "ineffective") return "text-red-600 bg-red-50 px-2 py-1 rounded";
     if (value === "partially") return "text-orange-600 bg-orange-50 px-2 py-1 rounded";
@@ -211,8 +239,16 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
   };
 
   const toggleWeights = () => {
-    setShowWeights(!showWeights);
-    updateForm({ showWeights: !showWeights });
+    setLocalShowWeights(!localShowWeights);
+    updateForm({ showWeights: !localShowWeights });
+  };
+
+  const copyFromPrevious = () => {
+    if (previousControls && previousControls.length > 0) {
+      setControls(previousControls);
+      updateForm({ controls: previousControls });
+      calculateScore(previousControls);
+    }
   };
 
   return (
@@ -221,6 +257,125 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
         <h2 className="text-xl font-medium text-purple-800 mb-2">Control Effectiveness</h2>
         <p className="text-purple-700 text-sm">Evaluate the quality of controls applied to mitigate the risk.</p>
       </div>
+      
+      {previousControls && previousControls.length > 0 && (
+        <Collapsible 
+          open={showPreviousAssessment} 
+          onOpenChange={setShowPreviousAssessment}
+          className="border rounded-md overflow-hidden"
+        >
+          <div className="bg-slate-50 p-3 flex justify-between items-center border-b">
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-slate-500" />
+              <h3 className="font-medium text-slate-700">Previous Assessment</h3>
+              <Badge variant="outline" className="text-xs">
+                {previousDate}
+              </Badge>
+              <Badge className={getScoreColor(previousScore)}>
+                Score: {previousScore} ({getScoreLabel(previousScore)})
+              </Badge>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyFromPrevious}
+                className="flex items-center gap-1"
+              >
+                <Copy size={14} />
+                <span>Copy Values</span>
+              </Button>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  {showPreviousAssessment ? "Hide" : "Show"}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+          </div>
+          
+          <CollapsibleContent>
+            <div className="p-4 space-y-4 bg-white">
+              {previousControls.map((control) => (
+                <div key={control.id} className="p-3 rounded-md bg-slate-50 space-y-3">
+                  <div className="flex justify-between">
+                    <div className="font-medium">{control.name} <span className="text-xs font-mono text-slate-500">{control.controlId}</span></div>
+                    <div className="text-xs font-medium capitalize">
+                      {control.category === "preventive" && <Badge variant="outline" className="bg-blue-50">Preventive</Badge>}
+                      {control.category === "detective" && <Badge variant="outline" className="bg-purple-50">Detective</Badge>}
+                      {control.category === "corrective" && <Badge variant="outline" className="bg-green-50">Corrective</Badge>}
+                      {control.category === "directive" && <Badge variant="outline" className="bg-yellow-50">Directive</Badge>}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <span className="text-xs text-slate-500">Design Effectiveness:</span>
+                      <div className={getEffectivenessColor(control.designEffect)}>
+                        {control.designEffect === "ineffective" ? "Ineffective" : 
+                         control.designEffect === "partially" ? "Partially Effective" : 
+                         control.designEffect === "effective" ? "Effective" : 
+                         control.designEffect === "highly" ? "Highly Effective" : "Not Rated"}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-slate-500">Operating Effectiveness:</span>
+                      <div className={getEffectivenessColor(control.operativeEffect)}>
+                        {control.operativeEffect === "ineffective" ? "Ineffective" : 
+                         control.operativeEffect === "partially" ? "Partially Effective" : 
+                         control.operativeEffect === "effective" ? "Effective" : 
+                         control.operativeEffect === "highly" ? "Highly Effective" : "Not Rated"}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <span className="text-xs text-slate-500">Overall Effectiveness:</span>
+                      <div className={getRatingColor(control.effectiveness)}>
+                        {control.effectiveness === "1" ? "Very Low (1)" : 
+                         control.effectiveness === "2" ? "Low (2)" : 
+                         control.effectiveness === "3" ? "Medium (3)" : 
+                         control.effectiveness === "4" ? "High (4)" : 
+                         control.effectiveness === "5" ? "Very High (5)" : "Not Rated"}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {showWeights && (
+                    <div className="text-xs">
+                      <span className="text-slate-500">Weight:</span> {control.weighting}%
+                    </div>
+                  )}
+                  
+                  {control.testResults && (
+                    <div className="text-xs bg-blue-50 p-2 rounded">
+                      <div className="font-medium text-blue-700">Test Results</div>
+                      <div className="grid grid-cols-3 gap-2 mt-1">
+                        <div>Last Tested: {control.testResults.lastTested}</div>
+                        <div>
+                          Result: <span className={getTestResultColor(control.testResults.result)}>
+                            {control.testResults.result === "pass" ? "Pass" : 
+                             control.testResults.result === "partial" ? "Partial Pass" : 
+                             control.testResults.result === "fail" ? "Fail" : control.testResults.result}
+                          </span>
+                        </div>
+                        <div>Tester: {control.testResults.tester}</div>
+                      </div>
+                      <div className="mt-1">Findings: {control.testResults.findings}</div>
+                    </div>
+                  )}
+                  
+                  {control.comments && (
+                    <div className="text-sm text-slate-600">
+                      <span className="text-xs text-slate-500">Comments:</span> {control.comments}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
       
       <div className="flex justify-between items-center p-4 bg-slate-50 rounded-md border">
         <div>
@@ -234,8 +389,8 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
             onClick={toggleWeights}
             className="flex items-center gap-1"
           >
-            {showWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {showWeights ? "Hide Weights" : "Show Weights"}
+            {localShowWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {localShowWeights ? "Hide Weights" : "Show Weights"}
           </Button>
           <div className={`px-4 py-2 rounded border ${getScoreColor(overallScore)}`}>
             <div className="text-sm font-medium">Score: {overallScore}</div>
@@ -245,14 +400,37 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
       </div>
       
       <div className="flex space-x-2">
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={handleAddControl}
-          className="flex items-center gap-1"
-        >
-          <Plus className="h-4 w-4" /> Add Control
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-1"
+            >
+              <Plus className="h-4 w-4" /> Add Control
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Add Control</DialogTitle>
+            </DialogHeader>
+            <div className="mt-4 space-y-4">
+              <Button 
+                variant="outline" 
+                onClick={handleAddControl}
+                className="w-full justify-start"
+              >
+                <Plus className="h-4 w-4 mr-2" /> Add Blank Control
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start"
+                onClick={() => handleAddFromLibrary(CONTROL_LIBRARY[0])}
+              >
+                <Search className="h-4 w-4 mr-2" /> Add from Control Library
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
         
         <Dialog>
           <DialogTrigger asChild>
@@ -260,7 +438,7 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
               variant="outline" 
               className="flex items-center gap-1"
             >
-              <Search className="h-4 w-4" /> Add from Control Library
+              <Search className="h-4 w-4" /> Control Library
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[625px]">
@@ -409,7 +587,7 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
                     value={control.designEffect}
                     onValueChange={(value) => handleControlChange(control.id, "designEffect", value)}
                   >
-                    <SelectTrigger id={`design-effect-${control.id}`} className="mt-1">
+                    <SelectTrigger id={`design-effect-${control.id}`} className={`mt-1 ${getEffectivenessColor(control.designEffect)}`}>
                       <SelectValue placeholder="Select rating" />
                     </SelectTrigger>
                     <SelectContent>
@@ -435,7 +613,7 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
                     value={control.operativeEffect}
                     onValueChange={(value) => handleControlChange(control.id, "operativeEffect", value)}
                   >
-                    <SelectTrigger id={`operative-effect-${control.id}`} className="mt-1">
+                    <SelectTrigger id={`operative-effect-${control.id}`} className={`mt-1 ${getEffectivenessColor(control.operativeEffect)}`}>
                       <SelectValue placeholder="Select rating" />
                     </SelectTrigger>
                     <SelectContent>
@@ -461,7 +639,7 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
                     value={control.effectiveness}
                     onValueChange={(value) => handleControlChange(control.id, "effectiveness", value)}
                   >
-                    <SelectTrigger id={`effectiveness-${control.id}`} className="mt-1">
+                    <SelectTrigger id={`effectiveness-${control.id}`} className={`mt-1 ${getCellColor(control.effectiveness)}`}>
                       <SelectValue placeholder="Select rating" />
                     </SelectTrigger>
                     <SelectContent>
@@ -547,7 +725,7 @@ const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
                   </Select>
                 </div>
                 
-                {showWeights && (
+                {localShowWeights && (
                   <div>
                     <Label htmlFor={`weighting-${control.id}`} className="text-xs">Weight (%)</Label>
                     <Input

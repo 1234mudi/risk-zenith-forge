@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +9,7 @@ import ResidualRatingSection from "@/components/ResidualRatingSection";
 import IssuesSection from "@/components/IssuesSection";
 import CommentsAttachmentsSection from "@/components/CommentsAttachmentsSection";
 import TreatmentSection from "@/components/TreatmentSection";
+import RiskHeatMapSection from "@/components/RiskHeatMapSection";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
@@ -19,7 +21,6 @@ const RiskAssessmentForm = () => {
   const [activeTab, setActiveTab] = useState("general");
   const { toast } = useToast();
   const { formState, updateForm } = useForm();
-  const [showWeights, setShowWeights] = useState(true);
 
   useEffect(() => {
     calculateRatings();
@@ -96,7 +97,7 @@ const RiskAssessmentForm = () => {
     return "Very Low";
   };
 
-  const tabOrder = ["general", "inherent", "control", "residual", "treatment", "issues", "comments"];
+  const tabOrder = ["general", "inherent", "control", "residual", "heatmap", "treatment", "issues", "comments"];
 
   const handleNext = () => {
     const currentIndex = tabOrder.indexOf(activeTab);
@@ -148,6 +149,9 @@ const RiskAssessmentForm = () => {
               <TabsTrigger value="residual" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Residual Rating
               </TabsTrigger>
+              <TabsTrigger value="heatmap" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+                Risk Heat Map
+              </TabsTrigger>
               <TabsTrigger value="treatment" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Treatment
               </TabsTrigger>
@@ -165,15 +169,44 @@ const RiskAssessmentForm = () => {
               </TabsContent>
               
               <TabsContent value="inherent">
-                <InherentRatingSection onNext={handleNext} showWeights={formState.showWeights} />
+                <InherentRatingSection 
+                  onNext={handleNext} 
+                  showWeights={formState.showWeights}
+                  previousFactors={formState.previousInherentFactors}
+                  previousScore={formState.previousInherentRatingScore}
+                  previousDate={formState.previousAssessmentDate}
+                />
               </TabsContent>
               
               <TabsContent value="control">
-                <ControlEffectivenessSection onNext={handleNext} showWeights={formState.showWeights} />
+                <ControlEffectivenessSection 
+                  onNext={handleNext} 
+                  showWeights={formState.showWeights}
+                  previousControls={formState.previousControls}
+                  previousScore={formState.previousControlEffectivenessScore}
+                  previousDate={formState.previousAssessmentDate}
+                />
               </TabsContent>
               
               <TabsContent value="residual">
-                <ResidualRatingSection onNext={handleNext} showWeights={formState.showWeights} />
+                <ResidualRatingSection 
+                  onNext={handleNext} 
+                  showWeights={formState.showWeights}
+                  previousFactors={formState.previousResidualFactors}
+                  previousScore={formState.previousResidualRatingScore}
+                  previousDate={formState.previousAssessmentDate}
+                />
+              </TabsContent>
+              
+              <TabsContent value="heatmap">
+                <RiskHeatMapSection 
+                  onNext={handleNext}
+                  inherentScore={formState.inherentRatingScore} 
+                  residualScore={formState.residualRatingScore}
+                  previousInherentScore={formState.previousInherentRatingScore}
+                  previousResidualScore={formState.previousResidualRatingScore}
+                  riskName={formState.risk}
+                />
               </TabsContent>
               
               <TabsContent value="treatment">

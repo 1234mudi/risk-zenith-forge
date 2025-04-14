@@ -5,8 +5,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, Copy, Clock } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
+import { Card } from "@/components/ui/card";
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
 
 type InherentFactor = {
   id: string;
@@ -17,17 +24,32 @@ type InherentFactor = {
 };
 
 const DEFAULT_FACTORS: InherentFactor[] = [
-  { id: "1", name: "Financial Impact", value: "", weighting: "25", comments: "" },
-  { id: "2", name: "Reputational Impact", value: "", weighting: "25", comments: "" },
-  { id: "3", name: "Operational Impact", value: "", weighting: "25", comments: "" },
-  { id: "4", name: "Regulatory Impact", value: "", weighting: "25", comments: "" },
+  { id: "1", name: "Financial Impact", value: "4", weighting: "25", comments: "Significant financial penalties could be imposed" },
+  { id: "2", name: "Reputational Impact", value: "3", weighting: "25", comments: "Media coverage and customer trust issues" },
+  { id: "3", name: "Operational Impact", value: "2", weighting: "25", comments: "Some processes would need revision" },
+  { id: "4", name: "Regulatory Impact", value: "5", weighting: "25", comments: "Direct violation of key regulations" },
 ];
 
-const InherentRatingSection = ({ onNext }: { onNext: () => void }) => {
+type InherentRatingSectionProps = {
+  onNext: () => void;
+  showWeights: boolean;
+  previousFactors?: InherentFactor[];
+  previousScore?: string;
+  previousDate?: string;
+};
+
+const InherentRatingSection = ({ 
+  onNext, 
+  showWeights, 
+  previousFactors = [],
+  previousScore = "0.0",
+  previousDate = "",
+}: InherentRatingSectionProps) => {
   const [factors, setFactors] = useState<InherentFactor[]>(DEFAULT_FACTORS);
   const { updateForm, formState } = useForm();
-  const [overallScore, setOverallScore] = useState<string>("0.0");
-  const [showWeights, setShowWeights] = useState(formState.showWeights);
+  const [overallScore, setOverallScore] = useState<string>(formState.inherentRatingScore || "0.0");
+  const [localShowWeights, setLocalShowWeights] = useState(showWeights);
+  const [showPreviousAssessment, setShowPreviousAssessment] = useState(true);
 
   const handleAddFactor = () => {
     const newId = (factors.length + 1).toString();
@@ -91,9 +113,25 @@ const InherentRatingSection = ({ onNext }: { onNext: () => void }) => {
     return "text-green-600 bg-green-50 px-2 py-1 rounded";
   };
 
+  const getCellColor = (value: string) => {
+    const numValue = parseInt(value || "0");
+    if (numValue >= 4) return "bg-red-50";
+    if (numValue >= 3) return "bg-orange-50";
+    if (numValue >= 2) return "bg-yellow-50";
+    return "bg-green-50";
+  };
+
   const toggleWeights = () => {
-    setShowWeights(!showWeights);
-    updateForm({ showWeights: !showWeights });
+    setLocalShowWeights(!localShowWeights);
+    updateForm({ showWeights: !localShowWeights });
+  };
+
+  const copyFromPrevious = () => {
+    if (previousFactors && previousFactors.length > 0) {
+      setFactors(previousFactors);
+      updateForm({ inherentFactors: previousFactors });
+      calculateScore(previousFactors);
+    }
   };
 
   return (
@@ -102,6 +140,74 @@ const InherentRatingSection = ({ onNext }: { onNext: () => void }) => {
         <h2 className="text-xl font-medium text-blue-800 mb-2">Inherent Risk Rating</h2>
         <p className="text-blue-700 text-sm">Assess the initial impact of the risk before any controls are applied.</p>
       </div>
+      
+      {previousFactors && previousFactors.length > 0 && (
+        <Collapsible 
+          open={showPreviousAssessment} 
+          onOpenChange={setShowPreviousAssessment}
+          className="border rounded-md overflow-hidden"
+        >
+          <div className="bg-slate-50 p-3 flex justify-between items-center border-b">
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-slate-500" />
+              <h3 className="font-medium text-slate-700">Previous Assessment</h3>
+              <Badge variant="outline" className="text-xs">
+                {previousDate}
+              </Badge>
+              <Badge className={getScoreColor(previousScore)}>
+                Score: {previousScore} ({getScoreLabel(previousScore)})
+              </Badge>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyFromPrevious}
+                className="flex items-center gap-1"
+              >
+                <Copy size={14} />
+                <span>Copy Values</span>
+              </Button>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  {showPreviousAssessment ? "Hide" : "Show"}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+          </div>
+          
+          <CollapsibleContent>
+            <div className="p-4 space-y-4 bg-white">
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 text-sm font-medium text-slate-500 px-4">
+                <div className="md:col-span-3">Factor Name</div>
+                <div className="md:col-span-2">Rating</div>
+                {showWeights && <div className="md:col-span-2">Weight (%)</div>}
+                <div className={showWeights ? "md:col-span-5" : "md:col-span-7"}>Comments</div>
+              </div>
+              
+              {previousFactors.map((factor) => (
+                <div key={factor.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-3 rounded-md bg-slate-50">
+                  <div className="md:col-span-3 font-medium">{factor.name}</div>
+                  <div className="md:col-span-2">
+                    <div className={`text-sm font-medium ${getRatingColor(factor.value)}`}>
+                      {factor.value === "1" ? "Very Low (1)" : 
+                       factor.value === "2" ? "Low (2)" : 
+                       factor.value === "3" ? "Medium (3)" : 
+                       factor.value === "4" ? "High (4)" : 
+                       factor.value === "5" ? "Very High (5)" : ""}
+                    </div>
+                  </div>
+                  {showWeights && <div className="md:col-span-2">{factor.weighting}%</div>}
+                  <div className={showWeights ? "md:col-span-5" : "md:col-span-7"}>
+                    <div className="text-sm text-slate-600">{factor.comments}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      )}
       
       <div className="flex justify-between items-center p-4 bg-slate-50 rounded-md border">
         <div>
@@ -115,8 +221,8 @@ const InherentRatingSection = ({ onNext }: { onNext: () => void }) => {
             onClick={toggleWeights}
             className="flex items-center gap-1"
           >
-            {showWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {showWeights ? "Hide Weights" : "Show Weights"}
+            {localShowWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {localShowWeights ? "Hide Weights" : "Show Weights"}
           </Button>
           <div className={`px-4 py-2 rounded border ${getScoreColor(overallScore)}`}>
             <div className="text-sm font-medium">Score: {overallScore}</div>
@@ -145,7 +251,7 @@ const InherentRatingSection = ({ onNext }: { onNext: () => void }) => {
                 value={factor.value}
                 onValueChange={(value) => handleFactorChange(factor.id, "value", value)}
               >
-                <SelectTrigger id={`factor-value-${factor.id}`} className="mt-1">
+                <SelectTrigger id={`factor-value-${factor.id}`} className={`mt-1 ${getCellColor(factor.value)}`}>
                   <SelectValue placeholder="Select rating" />
                 </SelectTrigger>
                 <SelectContent>
@@ -167,7 +273,7 @@ const InherentRatingSection = ({ onNext }: { onNext: () => void }) => {
               )}
             </div>
             
-            {showWeights && (
+            {localShowWeights && (
               <div className="md:col-span-1">
                 <Label htmlFor={`factor-weight-${factor.id}`}>Weight (%)</Label>
                 <Input
@@ -182,7 +288,7 @@ const InherentRatingSection = ({ onNext }: { onNext: () => void }) => {
               </div>
             )}
             
-            <div className={`${showWeights ? 'md:col-span-2' : 'md:col-span-3'}`}>
+            <div className={`${localShowWeights ? 'md:col-span-2' : 'md:col-span-3'}`}>
               <Label htmlFor={`factor-comments-${factor.id}`}>Comments</Label>
               <Textarea
                 id={`factor-comments-${factor.id}`}
