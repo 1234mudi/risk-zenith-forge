@@ -6,9 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Search, X } from "lucide-react";
+import { Plus, Trash2, Search, X, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 
 type Control = {
   id: string;
@@ -21,6 +24,12 @@ type Control = {
   isKeyControl: boolean;
   category: string;
   comments: string;
+  testResults?: {
+    lastTested: string;
+    result: string;
+    tester: string;
+    findings: string;
+  }
 };
 
 const DEFAULT_CONTROLS: Control[] = [
@@ -34,7 +43,13 @@ const DEFAULT_CONTROLS: Control[] = [
     weighting: "25",
     isKeyControl: true,
     category: "preventive",
-    comments: ""
+    comments: "",
+    testResults: {
+      lastTested: "2023-12-15",
+      result: "pass",
+      tester: "John Smith",
+      findings: "No significant issues found"
+    }
   },
   {
     id: "2",
@@ -46,7 +61,13 @@ const DEFAULT_CONTROLS: Control[] = [
     weighting: "25",
     isKeyControl: false,
     category: "detective",
-    comments: ""
+    comments: "",
+    testResults: {
+      lastTested: "2024-01-20",
+      result: "partial",
+      tester: "Emily Johnson",
+      findings: "Some approvals were missing"
+    }
   }
 ];
 
@@ -62,12 +83,13 @@ const CONTROL_LIBRARY = [
   { id: "CTL-010", name: "Encryption", category: "preventive", description: "Protects data by converting it into coded format." },
 ];
 
-const ControlEffectivenessSection = ({ onNext, showWeights = true }: { onNext: () => void; showWeights?: boolean }) => {
+const ControlEffectivenessSection = ({ onNext }: { onNext: () => void }) => {
   const [controls, setControls] = useState<Control[]>(DEFAULT_CONTROLS);
   const { updateForm, formState } = useForm();
   const [overallScore, setOverallScore] = useState<string>("0.0");
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredControls, setFilteredControls] = useState(CONTROL_LIBRARY);
+  const [showWeights, setShowWeights] = useState(formState.showWeights);
 
   const handleAddControl = () => {
     const newId = (controls.length + 1).toString();
@@ -140,10 +162,10 @@ const ControlEffectivenessSection = ({ onNext, showWeights = true }: { onNext: (
 
   const getScoreColor = (score: string) => {
     const numScore = parseFloat(score || "0");
-    if (numScore >= 4) return "bg-red-50 text-red-600 border-red-200";
-    if (numScore >= 3) return "bg-orange-50 text-orange-600 border-orange-200";
-    if (numScore >= 2) return "bg-yellow-50 text-yellow-600 border-yellow-200";
-    return "bg-green-50 text-green-600 border-green-200";
+    if (numScore >= 4) return "bg-red-100 text-red-700 border-red-200";
+    if (numScore >= 3) return "bg-orange-100 text-orange-700 border-orange-200";
+    if (numScore >= 2) return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    return "bg-green-100 text-green-700 border-green-200";
   };
 
   const getScoreLabel = (score: string) => {
@@ -156,10 +178,25 @@ const ControlEffectivenessSection = ({ onNext, showWeights = true }: { onNext: (
 
   const getRatingColor = (value: string) => {
     const numValue = parseInt(value || "0");
-    if (numValue >= 4) return "text-red-500";
-    if (numValue >= 3) return "text-orange-500";
-    if (numValue >= 2) return "text-yellow-500";
-    return "text-green-500";
+    if (numValue >= 4) return "text-red-600 bg-red-50 px-2 py-1 rounded";
+    if (numValue >= 3) return "text-orange-600 bg-orange-50 px-2 py-1 rounded";
+    if (numValue >= 2) return "text-yellow-600 bg-yellow-50 px-2 py-1 rounded";
+    return "text-green-600 bg-green-50 px-2 py-1 rounded";
+  };
+
+  const getEffectivenessColor = (value: string) => {
+    if (value === "ineffective") return "text-red-600 bg-red-50 px-2 py-1 rounded";
+    if (value === "partially") return "text-orange-600 bg-orange-50 px-2 py-1 rounded";
+    if (value === "effective") return "text-green-600 bg-green-50 px-2 py-1 rounded";
+    if (value === "highly") return "text-green-700 bg-green-100 px-2 py-1 rounded font-semibold";
+    return "";
+  };
+
+  const getTestResultColor = (result: string) => {
+    if (result === "fail") return "text-red-600 bg-red-50 px-2 py-1 rounded";
+    if (result === "partial") return "text-orange-600 bg-orange-50 px-2 py-1 rounded";
+    if (result === "pass") return "text-green-600 bg-green-50 px-2 py-1 rounded";
+    return "";
   };
 
   const handleSearch = (term: string) => {
@@ -171,6 +208,11 @@ const ControlEffectivenessSection = ({ onNext, showWeights = true }: { onNext: (
         control.category.toLowerCase().includes(term.toLowerCase())
     );
     setFilteredControls(filtered);
+  };
+
+  const toggleWeights = () => {
+    setShowWeights(!showWeights);
+    updateForm({ showWeights: !showWeights });
   };
 
   return (
@@ -185,13 +227,24 @@ const ControlEffectivenessSection = ({ onNext, showWeights = true }: { onNext: (
           <h3 className="font-medium text-slate-700">Overall Control Effectiveness</h3>
           <p className="text-sm text-slate-500">Calculated based on weighted controls</p>
         </div>
-        <div className={`px-4 py-2 rounded border ${getScoreColor(overallScore)}`}>
-          <div className="text-sm font-medium">Score: {overallScore}</div>
-          <div className="text-xs font-semibold">{getScoreLabel(overallScore)}</div>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={toggleWeights}
+            className="flex items-center gap-1"
+          >
+            {showWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showWeights ? "Hide Weights" : "Show Weights"}
+          </Button>
+          <div className={`px-4 py-2 rounded border ${getScoreColor(overallScore)}`}>
+            <div className="text-sm font-medium">Score: {overallScore}</div>
+            <div className="text-xs font-semibold">{getScoreLabel(overallScore)}</div>
+          </div>
         </div>
       </div>
       
-      <div className="flex justify-between">
+      <div className="flex space-x-2">
         <Button 
           type="button" 
           variant="outline" 
@@ -297,97 +350,233 @@ const ControlEffectivenessSection = ({ onNext, showWeights = true }: { onNext: (
               
               <div className="md:col-span-2">
                 <Label htmlFor={`control-name-${control.id}`}>Control Name</Label>
-                <Input
-                  id={`control-name-${control.id}`}
-                  value={control.name}
-                  onChange={(e) => handleControlChange(control.id, "name", e.target.value)}
-                  className="mt-1"
-                  placeholder="Enter control name"
-                />
+                <div className="relative">
+                  <Input
+                    id={`control-name-${control.id}`}
+                    value={control.name}
+                    onChange={(e) => handleControlChange(control.id, "name", e.target.value)}
+                    className="mt-1 pr-10"
+                    placeholder="Enter control name"
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 mt-1">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <ExternalLink className="h-4 w-4 text-blue-500" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Control Details: {control.name}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 mt-4">
+                          <div>
+                            <h4 className="font-semibold text-sm">Control ID</h4>
+                            <p className="text-sm text-slate-600 font-mono">{control.controlId}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-sm">Description</h4>
+                            <p className="text-sm text-slate-600">
+                              {control.comments || "Detailed description of the control purpose and function."}
+                            </p>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-sm">Category</h4>
+                            <p className="text-sm text-slate-600 capitalize">{control.category || "Not specified"}</p>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-sm">Owner</h4>
+                            <p className="text-sm text-slate-600">Information Security Team</p>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-sm">Standards Reference</h4>
+                            <p className="text-sm text-slate-600">ISO 27001, NIST 800-53</p>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
               </div>
             </div>
             
-            <div className={`grid grid-cols-1 md:grid-cols-${showWeights ? "8" : "7"} gap-4 mb-4`}>
-              <div className="md:col-span-2">
-                <Label htmlFor={`design-effect-${control.id}`}>Design Effectiveness</Label>
-                <Select
-                  value={control.designEffect}
-                  onValueChange={(value) => handleControlChange(control.id, "designEffect", value)}
-                >
-                  <SelectTrigger id={`design-effect-${control.id}`} className="mt-1">
-                    <SelectValue placeholder="Select rating" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ineffective" className="text-red-500">Ineffective</SelectItem>
-                    <SelectItem value="partially" className="text-orange-500">Partially Effective</SelectItem>
-                    <SelectItem value="effective" className="text-green-500">Effective</SelectItem>
-                    <SelectItem value="highly" className="text-green-600 font-semibold">Highly Effective</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="bg-slate-50 p-3 rounded-md mb-4">
+              <h4 className="text-sm font-medium text-slate-700 mb-3">Effectiveness Assessment</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor={`design-effect-${control.id}`} className="text-xs">Design Effectiveness</Label>
+                  <Select
+                    value={control.designEffect}
+                    onValueChange={(value) => handleControlChange(control.id, "designEffect", value)}
+                  >
+                    <SelectTrigger id={`design-effect-${control.id}`} className="mt-1">
+                      <SelectValue placeholder="Select rating" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ineffective" className="text-red-500">Ineffective</SelectItem>
+                      <SelectItem value="partially" className="text-orange-500">Partially Effective</SelectItem>
+                      <SelectItem value="effective" className="text-green-500">Effective</SelectItem>
+                      <SelectItem value="highly" className="text-green-600 font-semibold">Highly Effective</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {control.designEffect && (
+                    <div className={`text-xs font-medium mt-1 ${getEffectivenessColor(control.designEffect)}`}>
+                      {control.designEffect === "ineffective" ? "Ineffective" : 
+                       control.designEffect === "partially" ? "Partially Effective" : 
+                       control.designEffect === "effective" ? "Effective" : 
+                       control.designEffect === "highly" ? "Highly Effective" : ""}
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <Label htmlFor={`operative-effect-${control.id}`} className="text-xs">Operating Effectiveness</Label>
+                  <Select
+                    value={control.operativeEffect}
+                    onValueChange={(value) => handleControlChange(control.id, "operativeEffect", value)}
+                  >
+                    <SelectTrigger id={`operative-effect-${control.id}`} className="mt-1">
+                      <SelectValue placeholder="Select rating" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ineffective" className="text-red-500">Ineffective</SelectItem>
+                      <SelectItem value="partially" className="text-orange-500">Partially Effective</SelectItem>
+                      <SelectItem value="effective" className="text-green-500">Effective</SelectItem>
+                      <SelectItem value="highly" className="text-green-600 font-semibold">Highly Effective</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {control.operativeEffect && (
+                    <div className={`text-xs font-medium mt-1 ${getEffectivenessColor(control.operativeEffect)}`}>
+                      {control.operativeEffect === "ineffective" ? "Ineffective" : 
+                       control.operativeEffect === "partially" ? "Partially Effective" : 
+                       control.operativeEffect === "effective" ? "Effective" : 
+                       control.operativeEffect === "highly" ? "Highly Effective" : ""}
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <Label htmlFor={`effectiveness-${control.id}`} className="text-xs">Overall Effectiveness</Label>
+                  <Select
+                    value={control.effectiveness}
+                    onValueChange={(value) => handleControlChange(control.id, "effectiveness", value)}
+                  >
+                    <SelectTrigger id={`effectiveness-${control.id}`} className="mt-1">
+                      <SelectValue placeholder="Select rating" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1" className="text-green-500">Very Low (1)</SelectItem>
+                      <SelectItem value="2" className="text-yellow-500">Low (2)</SelectItem>
+                      <SelectItem value="3" className="text-orange-500">Medium (3)</SelectItem>
+                      <SelectItem value="4" className="text-red-500">High (4)</SelectItem>
+                      <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {control.effectiveness && (
+                    <div className={`text-xs font-medium mt-1 ${getRatingColor(control.effectiveness)}`}>
+                      {control.effectiveness === "1" ? "Very Low" : 
+                       control.effectiveness === "2" ? "Low" : 
+                       control.effectiveness === "3" ? "Medium" : 
+                       control.effectiveness === "4" ? "High" : 
+                       control.effectiveness === "5" ? "Very High" : ""}
+                    </div>
+                  )}
+                </div>
               </div>
-              
-              <div className="md:col-span-2">
-                <Label htmlFor={`operative-effect-${control.id}`}>Operating Effectiveness</Label>
-                <Select
-                  value={control.operativeEffect}
-                  onValueChange={(value) => handleControlChange(control.id, "operativeEffect", value)}
-                >
-                  <SelectTrigger id={`operative-effect-${control.id}`} className="mt-1">
-                    <SelectValue placeholder="Select rating" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ineffective" className="text-red-500">Ineffective</SelectItem>
-                    <SelectItem value="partially" className="text-orange-500">Partially Effective</SelectItem>
-                    <SelectItem value="effective" className="text-green-500">Effective</SelectItem>
-                    <SelectItem value="highly" className="text-green-600 font-semibold">Highly Effective</SelectItem>
-                  </SelectContent>
-                </Select>
+            </div>
+            
+            {control.testResults && (
+              <div className="bg-blue-50 p-3 rounded-md mb-4">
+                <h4 className="text-sm font-medium text-blue-700 mb-2">Latest Control Test Results</h4>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <Label className="text-xs text-blue-600">Test Date</Label>
+                    <div className="text-sm mt-1">{control.testResults.lastTested}</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-blue-600">Result</Label>
+                    <div className={`text-sm mt-1 ${getTestResultColor(control.testResults.result)}`}>
+                      {control.testResults.result === "pass" ? "Pass" : 
+                       control.testResults.result === "partial" ? "Partial Pass" : 
+                       control.testResults.result === "fail" ? "Fail" : control.testResults.result}
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-blue-600">Tester</Label>
+                    <div className="text-sm mt-1">{control.testResults.tester}</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-blue-600">Findings</Label>
+                    <div className="text-sm mt-1 text-slate-600">{control.testResults.findings}</div>
+                  </div>
+                </div>
               </div>
-              
-              <div className="md:col-span-2">
-                <Label htmlFor={`effectiveness-${control.id}`}>Overall Effectiveness</Label>
-                <Select
-                  value={control.effectiveness}
-                  onValueChange={(value) => handleControlChange(control.id, "effectiveness", value)}
-                >
-                  <SelectTrigger id={`effectiveness-${control.id}`} className="mt-1">
-                    <SelectValue placeholder="Select rating" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1" className="text-green-500">Very Low (1)</SelectItem>
-                    <SelectItem value="2" className="text-yellow-500">Low (2)</SelectItem>
-                    <SelectItem value="3" className="text-orange-500">Medium (3)</SelectItem>
-                    <SelectItem value="4" className="text-red-500">High (4)</SelectItem>
-                    <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
-                  </SelectContent>
-                </Select>
-                {control.effectiveness && (
-                  <div className={`text-xs font-medium mt-1 ${getRatingColor(control.effectiveness)}`}>
-                    {control.effectiveness === "1" ? "Very Low" : 
-                     control.effectiveness === "2" ? "Low" : 
-                     control.effectiveness === "3" ? "Medium" : 
-                     control.effectiveness === "4" ? "High" : 
-                     control.effectiveness === "5" ? "Very High" : ""}
+            )}
+            
+            <div className="bg-slate-50 p-3 rounded-md mb-4">
+              <h4 className="text-sm font-medium text-slate-700 mb-3">Control Properties</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor={`key-control-${control.id}`} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`key-control-${control.id}`} 
+                      checked={control.isKeyControl}
+                      onCheckedChange={(checked) => 
+                        handleControlChange(control.id, "isKeyControl", checked === true)
+                      }
+                    />
+                    <span className="text-sm ml-2">Key Control</span>
+                  </Label>
+                </div>
+                
+                <div>
+                  <Label htmlFor={`category-${control.id}`} className="text-xs">Control Category</Label>
+                  <Select
+                    value={control.category}
+                    onValueChange={(value) => handleControlChange(control.id, "category", value)}
+                  >
+                    <SelectTrigger id={`category-${control.id}`} className="mt-1">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="preventive">Preventive</SelectItem>
+                      <SelectItem value="detective">Detective</SelectItem>
+                      <SelectItem value="corrective">Corrective</SelectItem>
+                      <SelectItem value="directive">Directive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {showWeights && (
+                  <div>
+                    <Label htmlFor={`weighting-${control.id}`} className="text-xs">Weight (%)</Label>
+                    <Input
+                      id={`weighting-${control.id}`}
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={control.weighting}
+                      onChange={(e) => handleControlChange(control.id, "weighting", e.target.value)}
+                      className="mt-1"
+                    />
                   </div>
                 )}
               </div>
+            </div>
               
-              {showWeights && (
-                <div className="md:col-span-1">
-                  <Label htmlFor={`weighting-${control.id}`}>Weight (%)</Label>
-                  <Input
-                    id={`weighting-${control.id}`}
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={control.weighting}
-                    onChange={(e) => handleControlChange(control.id, "weighting", e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-              )}
+            <div className="flex items-center justify-between">
+              <div className="flex-grow">
+                <Label htmlFor={`comments-${control.id}`}>Comments</Label>
+                <Textarea
+                  id={`comments-${control.id}`}
+                  value={control.comments}
+                  onChange={(e) => handleControlChange(control.id, "comments", e.target.value)}
+                  className="min-h-[60px]"
+                  placeholder="Add comments about this control"
+                />
+              </div>
               
-              <div className="md:col-span-1 flex items-end justify-end">
+              <div className="ml-4 flex items-end">
                 <Button
                   variant="outline"
                   size="icon"
@@ -397,53 +586,6 @@ const ControlEffectivenessSection = ({ onNext, showWeights = true }: { onNext: (
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-8 gap-4">
-              <div className="md:col-span-1 flex items-center space-x-2">
-                <Checkbox 
-                  id={`key-control-${control.id}`} 
-                  checked={control.isKeyControl}
-                  onCheckedChange={(checked) => 
-                    handleControlChange(control.id, "isKeyControl", checked === true)
-                  }
-                />
-                <Label
-                  htmlFor={`key-control-${control.id}`}
-                  className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Key Control
-                </Label>
-              </div>
-              
-              <div className="md:col-span-3">
-                <Label htmlFor={`category-${control.id}`}>Control Category</Label>
-                <Select
-                  value={control.category}
-                  onValueChange={(value) => handleControlChange(control.id, "category", value)}
-                >
-                  <SelectTrigger id={`category-${control.id}`} className="mt-1">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="preventive">Preventive</SelectItem>
-                    <SelectItem value="detective">Detective</SelectItem>
-                    <SelectItem value="corrective">Corrective</SelectItem>
-                    <SelectItem value="directive">Directive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="md:col-span-4">
-                <Label htmlFor={`comments-${control.id}`}>Comments</Label>
-                <Textarea
-                  id={`comments-${control.id}`}
-                  value={control.comments}
-                  onChange={(e) => handleControlChange(control.id, "comments", e.target.value)}
-                  className="mt-1 min-h-[60px]"
-                  placeholder="Add comments about this control"
-                />
               </div>
             </div>
           </div>

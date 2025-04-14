@@ -29,13 +29,13 @@ const RelatedRisks = () => {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="flex items-center gap-1">
-          <span>Related Risks</span>
+          <span>Risks Sharing Same Scope</span>
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>Related Risk Assessments</DialogTitle>
+          <DialogTitle>Risks Sharing Same Scope</DialogTitle>
         </DialogHeader>
         
         <div className="mt-4 space-y-4">

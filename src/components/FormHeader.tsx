@@ -8,18 +8,15 @@ const FormHeader = () => {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border">
       <div className="space-y-1">
-        <h1 className="text-xl font-semibold text-slate-800">Enhanced Risk Assessment</h1>
-        <p className="text-sm text-slate-600">Complete all sections to submit your risk assessment</p>
-      </div>
-      
-      <div className="flex flex-wrap gap-3">
-        {/* Only showing ERA ID, hiding other IDs as requested */}
-        <div className="bg-slate-100 px-3 py-1.5 rounded-md text-sm">
-          <span className="font-medium text-slate-500">ERA ID: </span>
-          <Badge variant="outline" className="ml-1 font-mono">
+        <h1 className="text-xl font-semibold text-slate-800">
+          <span>Assess Risk: </span>
+          <span className="text-purple-700 italic">
+            {formState.risk || 'Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction'}
+          </span>
+          <span className="ml-2 font-mono text-slate-500 text-sm">
             {formState.eraId || 'ERA-7752'}
-          </Badge>
-        </div>
+          </span>
+        </h1>
       </div>
     </div>
   );

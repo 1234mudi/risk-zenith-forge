@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
 import RiskSummary from "@/components/RiskSummary";
 import RelatedRisks from "@/components/RelatedRisks";
-import { Eye, EyeOff } from "lucide-react";
+import FormHeader from "@/components/FormHeader";
 
 const RiskAssessmentForm = () => {
   const [activeTab, setActiveTab] = useState("general");
@@ -22,13 +21,11 @@ const RiskAssessmentForm = () => {
   const { formState, updateForm } = useForm();
   const [showWeights, setShowWeights] = useState(true);
 
-  // Calculate and update ratings whenever form state changes
   useEffect(() => {
     calculateRatings();
   }, [formState.inherentFactors, formState.controls, formState.residualFactors]);
 
   const calculateRatings = () => {
-    // Calculate Inherent Rating
     if (formState.inherentFactors && formState.inherentFactors.length > 0) {
       let total = 0;
       let weightSum = 0;
@@ -44,7 +41,6 @@ const RiskAssessmentForm = () => {
       updateForm({ inherentRatingScore: inherentScore });
     }
     
-    // Calculate Control Effectiveness
     if (formState.controls && formState.controls.length > 0) {
       let total = 0;
       let weightSum = 0;
@@ -60,7 +56,6 @@ const RiskAssessmentForm = () => {
       updateForm({ controlEffectivenessScore: controlScore });
     }
     
-    // Calculate Residual Rating
     if (formState.residualFactors && formState.residualFactors.length > 0) {
       let total = 0;
       let weightSum = 0;
@@ -101,7 +96,6 @@ const RiskAssessmentForm = () => {
     return "Very Low";
   };
 
-  // New tab order: General, Inherent, Control, Residual, Treatment, Issues, Comments
   const tabOrder = ["general", "inherent", "control", "residual", "treatment", "issues", "comments"];
 
   const handleNext = () => {
@@ -118,19 +112,11 @@ const RiskAssessmentForm = () => {
     }
   };
 
-  const toggleWeights = () => {
-    setShowWeights(!showWeights);
-    updateForm({ showWeights: !showWeights });
-  };
-
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <Card className="shadow-md">
-        <CardHeader className="bg-slate-50 border-b flex flex-row items-center justify-between">
-          <CardTitle className="text-2xl font-bold text-slate-800">Enhanced Risk Assessment</CardTitle>
-          <div className="text-amber-800 font-medium italic">
-            Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
-          </div>
+        <CardHeader className="bg-slate-50 border-b">
+          <FormHeader />
         </CardHeader>
         
         <div className="bg-white p-4 border-b sticky top-0 z-10 shadow-sm">
@@ -144,18 +130,6 @@ const RiskAssessmentForm = () => {
             />
             
             <RelatedRisks />
-          </div>
-          
-          <div className="flex justify-end">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={toggleWeights}
-              className="flex items-center gap-1"
-            >
-              {showWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              {showWeights ? "Hide Weights" : "Show Weights"}
-            </Button>
           </div>
         </div>
         
@@ -191,15 +165,15 @@ const RiskAssessmentForm = () => {
               </TabsContent>
               
               <TabsContent value="inherent">
-                <InherentRatingSection onNext={handleNext} showWeights={showWeights} />
+                <InherentRatingSection onNext={handleNext} showWeights={formState.showWeights} />
               </TabsContent>
               
               <TabsContent value="control">
-                <ControlEffectivenessSection onNext={handleNext} showWeights={showWeights} />
+                <ControlEffectivenessSection onNext={handleNext} showWeights={formState.showWeights} />
               </TabsContent>
               
               <TabsContent value="residual">
-                <ResidualRatingSection onNext={handleNext} showWeights={showWeights} />
+                <ResidualRatingSection onNext={handleNext} showWeights={formState.showWeights} />
               </TabsContent>
               
               <TabsContent value="treatment">

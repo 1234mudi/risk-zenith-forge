@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Search } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 
 type InherentFactor = {
@@ -23,10 +23,11 @@ const DEFAULT_FACTORS: InherentFactor[] = [
   { id: "4", name: "Regulatory Impact", value: "", weighting: "25", comments: "" },
 ];
 
-const InherentRatingSection = ({ onNext, showWeights = true }: { onNext: () => void; showWeights?: boolean }) => {
+const InherentRatingSection = ({ onNext }: { onNext: () => void }) => {
   const [factors, setFactors] = useState<InherentFactor[]>(DEFAULT_FACTORS);
   const { updateForm, formState } = useForm();
   const [overallScore, setOverallScore] = useState<string>("0.0");
+  const [showWeights, setShowWeights] = useState(formState.showWeights);
 
   const handleAddFactor = () => {
     const newId = (factors.length + 1).toString();
@@ -68,10 +69,10 @@ const InherentRatingSection = ({ onNext, showWeights = true }: { onNext: () => v
 
   const getScoreColor = (score: string) => {
     const numScore = parseFloat(score || "0");
-    if (numScore >= 4) return "bg-red-50 text-red-600 border-red-200";
-    if (numScore >= 3) return "bg-orange-50 text-orange-600 border-orange-200";
-    if (numScore >= 2) return "bg-yellow-50 text-yellow-600 border-yellow-200";
-    return "bg-green-50 text-green-600 border-green-200";
+    if (numScore >= 4) return "bg-red-100 text-red-700 border-red-200";
+    if (numScore >= 3) return "bg-orange-100 text-orange-700 border-orange-200";
+    if (numScore >= 2) return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    return "bg-green-100 text-green-700 border-green-200";
   };
 
   const getScoreLabel = (score: string) => {
@@ -84,10 +85,15 @@ const InherentRatingSection = ({ onNext, showWeights = true }: { onNext: () => v
 
   const getRatingColor = (value: string) => {
     const numValue = parseInt(value || "0");
-    if (numValue >= 4) return "text-red-500";
-    if (numValue >= 3) return "text-orange-500";
-    if (numValue >= 2) return "text-yellow-500";
-    return "text-green-500";
+    if (numValue >= 4) return "text-red-600 bg-red-50 px-2 py-1 rounded";
+    if (numValue >= 3) return "text-orange-600 bg-orange-50 px-2 py-1 rounded";
+    if (numValue >= 2) return "text-yellow-600 bg-yellow-50 px-2 py-1 rounded";
+    return "text-green-600 bg-green-50 px-2 py-1 rounded";
+  };
+
+  const toggleWeights = () => {
+    setShowWeights(!showWeights);
+    updateForm({ showWeights: !showWeights });
   };
 
   return (
@@ -102,9 +108,20 @@ const InherentRatingSection = ({ onNext, showWeights = true }: { onNext: () => v
           <h3 className="font-medium text-slate-700">Overall Inherent Risk Rating</h3>
           <p className="text-sm text-slate-500">Calculated based on weighted factors</p>
         </div>
-        <div className={`px-4 py-2 rounded border ${getScoreColor(overallScore)}`}>
-          <div className="text-sm font-medium">Score: {overallScore}</div>
-          <div className="text-xs font-semibold">{getScoreLabel(overallScore)}</div>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={toggleWeights}
+            className="flex items-center gap-1"
+          >
+            {showWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showWeights ? "Hide Weights" : "Show Weights"}
+          </Button>
+          <div className={`px-4 py-2 rounded border ${getScoreColor(overallScore)}`}>
+            <div className="text-sm font-medium">Score: {overallScore}</div>
+            <div className="text-xs font-semibold">{getScoreLabel(overallScore)}</div>
+          </div>
         </div>
       </div>
       

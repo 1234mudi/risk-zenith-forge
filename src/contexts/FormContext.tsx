@@ -12,6 +12,7 @@ type FormState = {
   organization: string;
   assessableItem: string;
   risk: string;
+  riskHierarchy: string;
   
   // Assessment Guidance
   scope: string;
@@ -53,9 +54,10 @@ const initialFormState: FormState = {
   eraId: "ERA-7752",
   riskIdDisplay: "RISK-2025-043",
   
-  organization: "",
-  assessableItem: "",
-  risk: "",
+  organization: "Global Banking Corp",
+  assessableItem: "Customer Due Diligence",
+  risk: "KYC Risk Assessment Inadequacy",
+  riskHierarchy: "Compliance Risk > Regulatory Risk > KYC Risk",
   
   scope: "",
   instructions: "",
