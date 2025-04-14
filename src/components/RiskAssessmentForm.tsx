@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MainFormSection from "@/components/MainFormSection";
@@ -12,11 +12,70 @@ import TreatmentSection from "@/components/TreatmentSection";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
+import RiskSummary from "@/components/RiskSummary";
+import RelatedRisks from "@/components/RelatedRisks";
+import { Eye, EyeOff } from "lucide-react";
 
 const RiskAssessmentForm = () => {
   const [activeTab, setActiveTab] = useState("general");
   const { toast } = useToast();
-  const { formState } = useForm();
+  const { formState, updateForm } = useForm();
+  const [showWeights, setShowWeights] = useState(true);
+
+  // Calculate and update ratings whenever form state changes
+  useEffect(() => {
+    calculateRatings();
+  }, [formState.inherentFactors, formState.controls, formState.residualFactors]);
+
+  const calculateRatings = () => {
+    // Calculate Inherent Rating
+    if (formState.inherentFactors && formState.inherentFactors.length > 0) {
+      let total = 0;
+      let weightSum = 0;
+      
+      formState.inherentFactors.forEach(factor => {
+        if (factor.value && factor.weighting) {
+          total += Number(factor.value) * (Number(factor.weighting) / 100);
+          weightSum += Number(factor.weighting);
+        }
+      });
+      
+      const inherentScore = weightSum > 0 ? (total / (weightSum / 100)).toFixed(1) : "0.0";
+      updateForm({ inherentRatingScore: inherentScore });
+    }
+    
+    // Calculate Control Effectiveness
+    if (formState.controls && formState.controls.length > 0) {
+      let total = 0;
+      let weightSum = 0;
+      
+      formState.controls.forEach(control => {
+        if (control.effectiveness && control.weighting) {
+          total += Number(control.effectiveness) * (Number(control.weighting) / 100);
+          weightSum += Number(control.weighting);
+        }
+      });
+      
+      const controlScore = weightSum > 0 ? (total / (weightSum / 100)).toFixed(1) : "0.0";
+      updateForm({ controlEffectivenessScore: controlScore });
+    }
+    
+    // Calculate Residual Rating
+    if (formState.residualFactors && formState.residualFactors.length > 0) {
+      let total = 0;
+      let weightSum = 0;
+      
+      formState.residualFactors.forEach(factor => {
+        if (factor.value && factor.weighting) {
+          total += Number(factor.value) * (Number(factor.weighting) / 100);
+          weightSum += Number(factor.weighting);
+        }
+      });
+      
+      const residualScore = weightSum > 0 ? (total / (weightSum / 100)).toFixed(1) : "0.0";
+      updateForm({ residualRatingScore: residualScore });
+    }
+  };
 
   const handleSubmit = () => {
     toast({
@@ -26,27 +85,85 @@ const RiskAssessmentForm = () => {
     console.log("Form data submitted:", formState);
   };
 
+  const getScoreColor = (score) => {
+    const numScore = parseFloat(score || 0);
+    if (numScore >= 4) return "text-red-600 bg-red-50";
+    if (numScore >= 3) return "text-orange-600 bg-orange-50";
+    if (numScore >= 2) return "text-yellow-600 bg-yellow-50";
+    return "text-green-600 bg-green-50";
+  };
+
+  const getScoreLabel = (score) => {
+    const numScore = parseFloat(score || 0);
+    if (numScore >= 4) return "High";
+    if (numScore >= 3) return "Medium";
+    if (numScore >= 2) return "Low";
+    return "Very Low";
+  };
+
+  // New tab order: General, Inherent, Control, Residual, Treatment, Issues, Comments
+  const tabOrder = ["general", "inherent", "control", "residual", "treatment", "issues", "comments"];
+
+  const handleNext = () => {
+    const currentIndex = tabOrder.indexOf(activeTab);
+    if (currentIndex < tabOrder.length - 1) {
+      setActiveTab(tabOrder[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevious = () => {
+    const currentIndex = tabOrder.indexOf(activeTab);
+    if (currentIndex > 0) {
+      setActiveTab(tabOrder[currentIndex - 1]);
+    }
+  };
+
+  const toggleWeights = () => {
+    setShowWeights(!showWeights);
+    updateForm({ showWeights: !showWeights });
+  };
+
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
-      <div className="bg-amber-50 p-4 mb-4 rounded-lg border border-amber-200">
-        <h3 className="font-medium text-amber-800">
-          Risk: Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
-        </h3>
-      </div>
-      
       <Card className="shadow-md">
-        <CardHeader className="bg-slate-50 border-b">
+        <CardHeader className="bg-slate-50 border-b flex flex-row items-center justify-between">
           <CardTitle className="text-2xl font-bold text-slate-800">Enhanced Risk Assessment</CardTitle>
+          <div className="text-amber-800 font-medium italic">
+            Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
+          </div>
         </CardHeader>
+        
+        <div className="bg-white p-4 border-b sticky top-0 z-10 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
+            <RiskSummary 
+              inherentScore={formState.inherentRatingScore} 
+              controlScore={formState.controlEffectivenessScore}
+              residualScore={formState.residualRatingScore}
+              getScoreColor={getScoreColor}
+              getScoreLabel={getScoreLabel}
+            />
+            
+            <RelatedRisks />
+          </div>
+          
+          <div className="flex justify-end">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={toggleWeights}
+              className="flex items-center gap-1"
+            >
+              {showWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showWeights ? "Hide Weights" : "Show Weights"}
+            </Button>
+          </div>
+        </div>
         
         <CardContent className="p-0">
           <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full justify-start px-6 pt-4 bg-white border-b h-auto flex-wrap">
               <TabsTrigger value="general" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 General
-              </TabsTrigger>
-              <TabsTrigger value="treatment" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-                Treatment
               </TabsTrigger>
               <TabsTrigger value="inherent" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Inherent Rating
@@ -57,37 +174,40 @@ const RiskAssessmentForm = () => {
               <TabsTrigger value="residual" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Residual Rating
               </TabsTrigger>
+              <TabsTrigger value="treatment" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+                Treatment
+              </TabsTrigger>
               <TabsTrigger value="issues" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Issues
               </TabsTrigger>
               <TabsTrigger value="comments" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-                Comments & Attachments
+                Additional Details
               </TabsTrigger>
             </TabsList>
             
             <div className="p-6">
               <TabsContent value="general">
-                <MainFormSection onNext={() => setActiveTab("treatment")} />
-              </TabsContent>
-              
-              <TabsContent value="treatment">
-                <TreatmentSection onNext={() => setActiveTab("inherent")} />
+                <MainFormSection onNext={handleNext} />
               </TabsContent>
               
               <TabsContent value="inherent">
-                <InherentRatingSection onNext={() => setActiveTab("control")} />
+                <InherentRatingSection onNext={handleNext} showWeights={showWeights} />
               </TabsContent>
               
               <TabsContent value="control">
-                <ControlEffectivenessSection onNext={() => setActiveTab("residual")} />
+                <ControlEffectivenessSection onNext={handleNext} showWeights={showWeights} />
               </TabsContent>
               
               <TabsContent value="residual">
-                <ResidualRatingSection onNext={() => setActiveTab("issues")} />
+                <ResidualRatingSection onNext={handleNext} showWeights={showWeights} />
+              </TabsContent>
+              
+              <TabsContent value="treatment">
+                <TreatmentSection onNext={handleNext} />
               </TabsContent>
               
               <TabsContent value="issues">
-                <IssuesSection onNext={() => setActiveTab("comments")} />
+                <IssuesSection onNext={handleNext} />
               </TabsContent>
               
               <TabsContent value="comments">
@@ -97,21 +217,12 @@ const RiskAssessmentForm = () => {
           </Tabs>
           
           <div className="flex justify-end p-6 pt-2 gap-4 border-t mt-4">
-            <Button variant="outline" onClick={() => {
-              if (activeTab === "general") return;
-              const tabs = ["general", "treatment", "inherent", "control", "residual", "issues", "comments"];
-              const currentIndex = tabs.indexOf(activeTab);
-              setActiveTab(tabs[currentIndex - 1]);
-            }} disabled={activeTab === "general"}>
+            <Button variant="outline" onClick={handlePrevious} disabled={activeTab === tabOrder[0]}>
               Previous
             </Button>
             
-            {activeTab !== "comments" ? (
-              <Button onClick={() => {
-                const tabs = ["general", "treatment", "inherent", "control", "residual", "issues", "comments"];
-                const currentIndex = tabs.indexOf(activeTab);
-                setActiveTab(tabs[currentIndex + 1]);
-              }}>
+            {activeTab !== tabOrder[tabOrder.length - 1] ? (
+              <Button onClick={handleNext}>
                 Next
               </Button>
             ) : (
