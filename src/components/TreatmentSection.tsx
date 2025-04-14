@@ -11,10 +11,10 @@ import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
 
 const TreatmentSection = ({ onNext }: { onNext: () => void }) => {
+  const { updateForm, formState } = useForm();
   const [date, setDate] = useState<Date | undefined>(
     formState.assessmentDate ? new Date(formState.assessmentDate) : new Date()
   );
-  const { updateForm, formState } = useForm();
 
   return (
     <div className="space-y-6">

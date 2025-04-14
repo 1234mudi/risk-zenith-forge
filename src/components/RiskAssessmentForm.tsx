@@ -8,6 +8,7 @@ import ControlEffectivenessSection from "@/components/ControlEffectivenessSectio
 import ResidualRatingSection from "@/components/ResidualRatingSection";
 import IssuesSection from "@/components/IssuesSection";
 import CommentsAttachmentsSection from "@/components/CommentsAttachmentsSection";
+import TreatmentSection from "@/components/TreatmentSection";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
@@ -27,14 +28,15 @@ const RiskAssessmentForm = () => {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
+      <div className="bg-amber-50 p-4 mb-4 rounded-lg border border-amber-200">
+        <h3 className="font-medium text-amber-800">
+          Risk: Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
+        </h3>
+      </div>
+      
       <Card className="shadow-md">
         <CardHeader className="bg-slate-50 border-b">
           <CardTitle className="text-2xl font-bold text-slate-800">Enhanced Risk Assessment</CardTitle>
-          <div className="bg-amber-50 p-3 mt-2 rounded-lg border border-amber-200">
-            <h3 className="font-medium text-amber-800">
-              Risk: Incomplete or inadequate assessment of key individuals or entities involved in a potential Direct Transaction
-            </h3>
-          </div>
         </CardHeader>
         
         <CardContent className="p-0">
