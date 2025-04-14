@@ -39,6 +39,11 @@ const contextDetails = {
 
 const MainFormSection = ({ onNext }: { onNext: () => void }) => {
   const { updateForm, formState } = useForm();
+  const [openCollapsible, setOpenCollapsible] = useState<Record<string, boolean>>({
+    organization: false,
+    assessableItem: false,
+    risk: false
+  });
 
   const handleSelectOrganization = (value) => {
     updateForm({ organization: value });
@@ -50,6 +55,13 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
 
   const handleSelectRisk = (value) => {
     updateForm({ risk: value });
+  };
+
+  const toggleCollapsible = (name: string) => {
+    setOpenCollapsible({
+      ...openCollapsible,
+      [name]: !openCollapsible[name]
+    });
   };
 
   return (
@@ -82,9 +94,29 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
             </div>
             
             <div className="flex justify-between">
-              <CollapsibleTrigger className="flex items-center text-blue-600 text-sm hover:underline">
-                <ChevronDown className="h-4 w-4 mr-1" /> Edit
-              </CollapsibleTrigger>
+              <Collapsible open={openCollapsible.organization} onOpenChange={(open) => setOpenCollapsible({...openCollapsible, organization: open})}>
+                <CollapsibleTrigger className="flex items-center text-blue-600 text-sm hover:underline">
+                  <ChevronDown className="h-4 w-4 mr-1" /> Edit
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="mt-2">
+                  <Select 
+                    onValueChange={handleSelectOrganization}
+                    defaultValue={formState.organization || "finance"}
+                  >
+                    <SelectTrigger id="organization">
+                      <SelectValue placeholder="Select organization" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="finance">Finance Department</SelectItem>
+                      <SelectItem value="it">IT Department</SelectItem>
+                      <SelectItem value="operations">Operations</SelectItem>
+                      <SelectItem value="hr">Human Resources</SelectItem>
+                      <SelectItem value="sales">Sales & Marketing</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CollapsibleContent>
+              </Collapsible>
               
               <Dialog>
                 <DialogTrigger asChild>
@@ -126,26 +158,6 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
                 </DialogContent>
               </Dialog>
             </div>
-            
-            <Collapsible>
-              <CollapsibleContent className="mt-2">
-                <Select 
-                  onValueChange={handleSelectOrganization}
-                  defaultValue={formState.organization || "finance"}
-                >
-                  <SelectTrigger id="organization">
-                    <SelectValue placeholder="Select organization" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="finance">Finance Department</SelectItem>
-                    <SelectItem value="it">IT Department</SelectItem>
-                    <SelectItem value="operations">Operations</SelectItem>
-                    <SelectItem value="hr">Human Resources</SelectItem>
-                    <SelectItem value="sales">Sales & Marketing</SelectItem>
-                  </SelectContent>
-                </Select>
-              </CollapsibleContent>
-            </Collapsible>
           </div>
           
           <div className="bg-slate-50 p-4 rounded-lg border">
@@ -164,9 +176,29 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
             </div>
             
             <div className="flex justify-between">
-              <CollapsibleTrigger className="flex items-center text-blue-600 text-sm hover:underline">
-                <ChevronDown className="h-4 w-4 mr-1" /> Edit
-              </CollapsibleTrigger>
+              <Collapsible open={openCollapsible.assessableItem} onOpenChange={(open) => setOpenCollapsible({...openCollapsible, assessableItem: open})}>
+                <CollapsibleTrigger className="flex items-center text-blue-600 text-sm hover:underline">
+                  <ChevronDown className="h-4 w-4 mr-1" /> Edit
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="mt-2">
+                  <Select 
+                    onValueChange={handleSelectAssessableItem}
+                    defaultValue={formState.assessableItem || "process"}
+                  >
+                    <SelectTrigger id="assessableItem">
+                      <SelectValue placeholder="Select assessable item" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="process">Business Process</SelectItem>
+                      <SelectItem value="system">IT System</SelectItem>
+                      <SelectItem value="project">Project</SelectItem>
+                      <SelectItem value="asset">Physical Asset</SelectItem>
+                      <SelectItem value="compliance">Compliance Area</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CollapsibleContent>
+              </Collapsible>
               
               <Dialog>
                 <DialogTrigger asChild>
@@ -208,26 +240,6 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
                 </DialogContent>
               </Dialog>
             </div>
-            
-            <Collapsible>
-              <CollapsibleContent className="mt-2">
-                <Select 
-                  onValueChange={handleSelectAssessableItem}
-                  defaultValue={formState.assessableItem || "process"}
-                >
-                  <SelectTrigger id="assessableItem">
-                    <SelectValue placeholder="Select assessable item" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="process">Business Process</SelectItem>
-                    <SelectItem value="system">IT System</SelectItem>
-                    <SelectItem value="project">Project</SelectItem>
-                    <SelectItem value="asset">Physical Asset</SelectItem>
-                    <SelectItem value="compliance">Compliance Area</SelectItem>
-                  </SelectContent>
-                </Select>
-              </CollapsibleContent>
-            </Collapsible>
           </div>
           
           <div className="bg-slate-50 p-4 rounded-lg border">
@@ -247,9 +259,30 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
             </div>
             
             <div className="flex justify-between">
-              <CollapsibleTrigger className="flex items-center text-blue-600 text-sm hover:underline">
-                <ChevronDown className="h-4 w-4 mr-1" /> Edit
-              </CollapsibleTrigger>
+              <Collapsible open={openCollapsible.risk} onOpenChange={(open) => setOpenCollapsible({...openCollapsible, risk: open})}>
+                <CollapsibleTrigger className="flex items-center text-blue-600 text-sm hover:underline">
+                  <ChevronDown className="h-4 w-4 mr-1" /> Edit
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent className="mt-2">
+                  <Select 
+                    onValueChange={handleSelectRisk}
+                    defaultValue={formState.risk || "compliance"}
+                  >
+                    <SelectTrigger id="risk">
+                      <SelectValue placeholder="Select risk type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="operational">Operational Risk</SelectItem>
+                      <SelectItem value="financial">Financial Risk</SelectItem>
+                      <SelectItem value="strategic">Strategic Risk</SelectItem>
+                      <SelectItem value="compliance">Compliance Risk</SelectItem>
+                      <SelectItem value="reputational">Reputational Risk</SelectItem>
+                      <SelectItem value="cyber">Cybersecurity Risk</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </CollapsibleContent>
+              </Collapsible>
               
               <Dialog>
                 <DialogTrigger asChild>
@@ -291,27 +324,6 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
                 </DialogContent>
               </Dialog>
             </div>
-            
-            <Collapsible>
-              <CollapsibleContent className="mt-2">
-                <Select 
-                  onValueChange={handleSelectRisk}
-                  defaultValue={formState.risk || "compliance"}
-                >
-                  <SelectTrigger id="risk">
-                    <SelectValue placeholder="Select risk type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="operational">Operational Risk</SelectItem>
-                    <SelectItem value="financial">Financial Risk</SelectItem>
-                    <SelectItem value="strategic">Strategic Risk</SelectItem>
-                    <SelectItem value="compliance">Compliance Risk</SelectItem>
-                    <SelectItem value="reputational">Reputational Risk</SelectItem>
-                    <SelectItem value="cyber">Cybersecurity Risk</SelectItem>
-                  </SelectContent>
-                </Select>
-              </CollapsibleContent>
-            </Collapsible>
           </div>
         </div>
       </div>

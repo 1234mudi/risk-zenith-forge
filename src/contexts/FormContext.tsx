@@ -32,6 +32,14 @@ type FormState = {
   // Comments & Attachments
   comments: string;
   attachments: any[];
+
+  // Scores
+  inherentRatingScore: string;
+  controlEffectivenessScore: string;
+  residualRatingScore: string;
+
+  // UI state
+  showWeights: boolean;
 };
 
 type FormContextType = {
@@ -63,7 +71,13 @@ const initialFormState: FormState = {
   issues: [],
   
   comments: "",
-  attachments: []
+  attachments: [],
+
+  inherentRatingScore: "0.0",
+  controlEffectivenessScore: "0.0",
+  residualRatingScore: "0.0",
+
+  showWeights: true
 };
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
