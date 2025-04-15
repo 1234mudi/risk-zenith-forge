@@ -1,3 +1,4 @@
+import { Control } from "@/types/control-types";
 
 export const getEffectivenessColor = (value: string) => {
   if (value === "ineffective") return "text-red-600 bg-red-50 px-2 py-1 rounded";
