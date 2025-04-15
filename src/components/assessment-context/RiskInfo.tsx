@@ -12,9 +12,10 @@ interface RiskInfoProps {
   riskHierarchy: string;
   riskIdDisplay: string;
   onRiskChange: (value: string) => void;
+  onRiskHierarchyChange: (value: string) => void; // Added the missing prop
 }
 
-const RiskInfo = ({ risk, riskHierarchy, riskIdDisplay, onRiskChange }: RiskInfoProps) => {
+const RiskInfo = ({ risk, riskHierarchy, riskIdDisplay, onRiskChange, onRiskHierarchyChange }: RiskInfoProps) => {
   return (
     <div className="flex flex-col space-y-2">
       <Label htmlFor="risk" className="text-slate-700 font-semibold">Risk</Label>
