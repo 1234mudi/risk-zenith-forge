@@ -1,23 +1,11 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Trash2, LineChart, Eye, EyeOff } from "lucide-react";
+import { LineChart, Eye, EyeOff } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { FactorProps, FactorType } from "@/types/control-types";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
+import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   {
@@ -463,6 +451,69 @@ const InherentRatingSection = ({
     }
   };
 
+  const gridData = factors.flatMap(parent => 
+    parent.children?.map(child => ({
+      ...child,
+      parentId: parent.id
+    })) || []
+  );
+
+  const columns: EditableGridColumn[] = [
+    {
+      field: "name",
+      header: "Factor",
+      editable: true,
+      type: "text"
+    },
+    {
+      field: "description",
+      header: "Description",
+      editable: true,
+      type: "text"
+    },
+    {
+      field: "value",
+      header: "Rating",
+      editable: true,
+      type: "select",
+      options: [
+        { value: "1", label: "Very Low (1)", className: "text-green-500" },
+        { value: "2", label: "Low (2)", className: "text-yellow-500" },
+        { value: "3", label: "Medium (3)", className: "text-orange-500" },
+        { value: "4", label: "High (4)", className: "text-red-500" },
+        { value: "5", label: "Very High (5)", className: "text-red-600 font-semibold" }
+      ],
+      type: "rating"
+    }
+  ];
+
+  if (localShowWeights) {
+    columns.push({
+      field: "weighting",
+      header: "Weight (%)",
+      editable: true,
+      type: "number"
+    });
+  }
+
+  const handleDataChange = (newData: any[]) => {
+    newData.forEach(item => {
+      if (item.parentId) {
+        const parent = factors.find(f => f.id === item.parentId);
+        if (parent && parent.children) {
+          const child = parent.children.find(c => c.id === item.id);
+          if (child) {
+            Object.keys(item).forEach(key => {
+              if (key !== 'id' && key !== 'parentId' && child[key as keyof typeof child] !== item[key]) {
+                handleFactorChange(item.parentId, key as keyof FactorProps, item[key], item.id);
+              }
+            });
+          }
+        }
+      }
+    });
+  };
+
   return (
     <div className="space-y-6">
       <PreviousAssessmentsSection
@@ -517,130 +568,20 @@ const InherentRatingSection = ({
         </Card>
       )}
       
-      <div className="border rounded-md overflow-x-auto">
-        <Table>
-          <TableHeader className="bg-slate-50">
-            <TableRow>
-              <TableHead>Factor</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Rating</TableHead>
-              {localShowWeights && <TableHead>Weight (%)</TableHead>}
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {factors.map((parentFactor) => (
-              <React.Fragment key={parentFactor.id}>
-                <TableRow className="bg-blue-50">
-                  <TableCell colSpan={localShowWeights ? 5 : 4} className="font-medium py-2">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <Input 
-                          value={parentFactor.name}
-                          onChange={(e) => handleFactorChange(parentFactor.id, "name", e.target.value)}
-                          className="font-medium border-blue-200"
-                          placeholder="Parent Factor Name"
-                        />
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAddFactor(parentFactor.id)}
-                        className="flex items-center gap-1"
-                      >
-                        <PlusCircle className="h-4 w-4" /> Add Child Factor
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-                {parentFactor.children?.map((factor) => (
-                  <TableRow key={factor.id}>
-                    <TableCell>
-                      <Input 
-                        value={factor.name}
-                        onChange={(e) => handleFactorChange(parentFactor.id, "name", e.target.value, factor.id)}
-                        placeholder="Factor name"
-                        className="w-full"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input 
-                        value={factor.description}
-                        onChange={(e) => handleFactorChange(parentFactor.id, "description", e.target.value, factor.id)}
-                        placeholder="Description"
-                        className="w-full"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Select
-                          value={factor.value}
-                          onValueChange={(value) => handleFactorChange(parentFactor.id, "value", value, factor.id)}
-                        >
-                          <SelectTrigger className={`w-full ${getCellColor(factor.value || "0")}`}>
-                            <SelectValue placeholder="Rating" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1" className="text-green-500">Very Low (1)</SelectItem>
-                            <SelectItem value="2" className="text-yellow-500">Low (2)</SelectItem>
-                            <SelectItem value="3" className="text-orange-500">Medium (3)</SelectItem>
-                            <SelectItem value="4" className="text-red-500">High (4)</SelectItem>
-                            <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </TableCell>
-                    {localShowWeights && (
-                      <TableCell>
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={factor.weighting}
-                          onChange={(e) => handleFactorChange(parentFactor.id, "weighting", e.target.value, factor.id)}
-                          className="w-full"
-                        />
-                      </TableCell>
-                    )}
-                    <TableCell>
-                      <div className="flex space-x-1">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              Comments
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Comments for {factor.name}</DialogTitle>
-                            </DialogHeader>
-                            <div className="mt-4">
-                              <Textarea
-                                value={factor.comments}
-                                onChange={(e) => handleFactorChange(parentFactor.id, "comments", e.target.value, factor.id)}
-                                className="min-h-[100px]"
-                                placeholder="Add your comments here..."
-                              />
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveFactor(parentFactor.id, factor.id)}
-                          className="text-red-500 h-8 w-8"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <EditableGrid
+        columns={columns}
+        data={gridData}
+        onDataChange={handleDataChange}
+        keyField="id"
+        onAddRow={() => handleAddFactor(factors[0]?.id || '')}
+        onRemoveRow={(index) => {
+          const item = gridData[index];
+          if (item.parentId) {
+            handleRemoveFactor(item.parentId, item.id);
+          }
+        }}
+        allowBulkEdit
+      />
       
       <div className="flex justify-end">
         <Button onClick={onNext}>Continue to Control Effectiveness</Button>
