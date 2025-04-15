@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useForm } from "@/contexts/FormContext";
-import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,11 +57,49 @@ const FormHeader = () => {
             <span className="mx-2">•</span>
             <span className="text-gray-500">Date:</span> {formState.assessmentDate}
           </div>
-          <div className="mt-1 flex items-center">
-            <span className="text-xs text-gray-500 mr-2">Risk Hierarchy:</span>
-            <Badge variant="secondary" className="font-normal text-xs">
-              {formState.riskHierarchy}
-            </Badge>
+          <div className="mt-1 flex items-center gap-3">
+            <div className="flex items-center">
+              <span className="text-xs text-gray-500 mr-2">Risk Hierarchy:</span>
+              <Badge variant="secondary" className="font-normal text-xs">
+                {formState.riskHierarchy}
+              </Badge>
+            </div>
+            <span className="text-gray-300">|</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">Risk Appetite:</span>
+              <Badge 
+                className="font-normal text-xs"
+                style={{ backgroundColor: formState.riskAppetite.color, color: 'white' }}
+              >
+                {formState.riskAppetite.level}
+              </Badge>
+              <Badge variant="outline" className={`font-mono text-xs ${
+                !isWithinAppetite ? 'border-red-500 text-red-500' : 'border-green-500 text-green-500'
+              }`}>
+                {isWithinAppetite ? (
+                  <span className="flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Within Appetite
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Outside Appetite
+                  </span>
+                )}
+              </Badge>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <AlertCircle className="h-3.5 w-3.5 text-gray-400" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p>{formState.riskAppetite.description}</p>
+                    <p className="mt-1">Threshold: {formState.riskAppetite.threshold}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
         </div>
       </div>

@@ -3,7 +3,6 @@ import React from "react";
 import { FormProvider } from "@/contexts/FormContext";
 import RiskAssessmentForm from "@/components/RiskAssessmentForm";
 import RiskOutlierMetrics from "@/components/RiskOutlierMetrics";
-import RiskAppetiteIndicator from "@/components/RiskAppetiteIndicator";
 
 const Index = () => {
   return (
@@ -15,7 +14,6 @@ const Index = () => {
               <RiskAssessmentForm />
             </div>
             <div className="space-y-6">
-              <RiskAppetiteIndicator />
               <RiskOutlierMetrics />
             </div>
           </div>
