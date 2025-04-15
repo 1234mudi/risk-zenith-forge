@@ -3,18 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { PlusCircle, Trash2, LineChart, Eye, EyeOff, Clock, Copy } from "lucide-react";
+import { PlusCircle, Trash2, LineChart, Eye, EyeOff } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import {
   Table,
   TableBody,
@@ -24,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FactorProps } from "@/types/control-types";
+import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   {
@@ -72,6 +66,219 @@ const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   }
 ];
 
+const SAMPLE_HISTORICAL_ASSESSMENTS = [
+  {
+    date: "2024-03-15",
+    score: "3.7",
+    factors: [
+      {
+        id: "1",
+        name: "Financial Impact",
+        description: "Impact on financial performance",
+        type: "child",
+        value: "3",
+        weighting: "30",
+        comments: "Significant financial impact due to penalties and remediation costs"
+      },
+      {
+        id: "2",
+        name: "Reputational Impact",
+        description: "Impact on brand and reputation",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "Major reputational damage if regulatory issues become public"
+      },
+      {
+        id: "3",
+        name: "Operational Impact",
+        description: "Impact on day-to-day operations",
+        type: "child",
+        value: "3",
+        weighting: "20",
+        comments: "Operational disruptions due to compliance remediation activities"
+      },
+      {
+        id: "4",
+        name: "Regulatory Impact",
+        description: "Impact related to regulatory oversight",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "High regulatory scrutiny and potential for enforcement actions"
+      }
+    ]
+  },
+  {
+    date: "2023-12-10",
+    score: "3.9",
+    factors: [
+      {
+        id: "1",
+        name: "Financial Impact",
+        description: "Impact on financial performance",
+        type: "child",
+        value: "4",
+        weighting: "30",
+        comments: "Very high financial impact due to penalties"
+      },
+      {
+        id: "2",
+        name: "Reputational Impact",
+        description: "Impact on brand and reputation",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "Major reputational damage if issues become public"
+      },
+      {
+        id: "3",
+        name: "Operational Impact",
+        description: "Impact on day-to-day operations",
+        type: "child",
+        value: "3",
+        weighting: "20",
+        comments: "Moderate operational disruptions"
+      },
+      {
+        id: "4",
+        name: "Regulatory Impact",
+        description: "Impact related to regulatory oversight",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "High regulatory scrutiny"
+      }
+    ]
+  },
+  {
+    date: "2023-09-05",
+    score: "3.5",
+    factors: [
+      {
+        id: "1",
+        name: "Financial Impact",
+        description: "Impact on financial performance",
+        type: "child",
+        value: "3",
+        weighting: "30",
+        comments: "Moderate financial impact"
+      },
+      {
+        id: "2",
+        name: "Reputational Impact",
+        description: "Impact on brand and reputation",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "Significant reputational concerns"
+      },
+      {
+        id: "3",
+        name: "Operational Impact",
+        description: "Impact on day-to-day operations",
+        type: "child",
+        value: "3",
+        weighting: "20",
+        comments: "Some operational challenges"
+      },
+      {
+        id: "4",
+        name: "Regulatory Impact",
+        description: "Impact related to regulatory oversight",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "Increasing regulatory attention"
+      }
+    ]
+  },
+  {
+    date: "2023-06-20",
+    score: "4.0",
+    factors: [
+      {
+        id: "1",
+        name: "Financial Impact",
+        description: "Impact on financial performance",
+        type: "child",
+        value: "4",
+        weighting: "30",
+        comments: "High financial impact from fines"
+      },
+      {
+        id: "2",
+        name: "Reputational Impact",
+        description: "Impact on brand and reputation",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "Severe reputational risks identified"
+      },
+      {
+        id: "3",
+        name: "Operational Impact",
+        description: "Impact on day-to-day operations",
+        type: "child",
+        value: "4",
+        weighting: "20",
+        comments: "Significant operational disruptions"
+      },
+      {
+        id: "4",
+        name: "Regulatory Impact",
+        description: "Impact related to regulatory oversight",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "Critical regulatory issues"
+      }
+    ]
+  },
+  {
+    date: "2023-03-12",
+    score: "3.8",
+    factors: [
+      {
+        id: "1",
+        name: "Financial Impact",
+        description: "Impact on financial performance",
+        type: "child",
+        value: "4",
+        weighting: "30",
+        comments: "High financial exposure"
+      },
+      {
+        id: "2",
+        name: "Reputational Impact",
+        description: "Impact on brand and reputation",
+        type: "child",
+        value: "3",
+        weighting: "25",
+        comments: "Medium reputational concerns"
+      },
+      {
+        id: "3",
+        name: "Operational Impact",
+        description: "Impact on day-to-day operations",
+        type: "child",
+        value: "4",
+        weighting: "20",
+        comments: "Serious operational challenges"
+      },
+      {
+        id: "4",
+        name: "Regulatory Impact",
+        description: "Impact related to regulatory oversight",
+        type: "child",
+        value: "4",
+        weighting: "25",
+        comments: "Ongoing regulatory issues"
+      }
+    ]
+  }
+];
+
 type InherentRatingSectionProps = {
   onNext: () => void;
   showWeights: boolean;
@@ -86,7 +293,11 @@ const InherentRatingSection = ({
   const [overallScore, setOverallScore] = useState<string>(formState.inherentRatingScore || "0.0");
   const [localShowWeights, setLocalShowWeights] = useState(showWeights);
   const [showTrendChart, setShowTrendChart] = useState(false);
-  const [showPreviousAssessment, setShowPreviousAssessment] = useState(false);
+  
+  const assessmentHistory = SAMPLE_HISTORICAL_ASSESSMENTS.map(assessment => ({
+    date: assessment.date,
+    score: assessment.score
+  }));
 
   const handleAddFactor = (parentId: string) => {
     if (!parentId) {
@@ -227,95 +438,36 @@ const InherentRatingSection = ({
   };
 
   const copyFromPrevious = () => {
-    if (formState.previousInherentFactors && formState.previousInherentFactors.length > 0) {
+    if (SAMPLE_HISTORICAL_ASSESSMENTS.length > 0) {
+      const latestAssessment = SAMPLE_HISTORICAL_ASSESSMENTS[0];
       const previousFactorStructure = [{
         id: "impact",
         name: "Impact",
         description: "Overall impact assessment",
-        type: "parent",
-        children: formState.previousInherentFactors
+        type: "parent" as const,
+        children: latestAssessment.factors
       }];
+      
       setFactors(previousFactorStructure);
-      updateForm({ inherentFactors: formState.previousInherentFactors });
-      calculateScore(previousFactorStructure);
+      updateForm({ inherentFactors: latestAssessment.factors });
+      setOverallScore(latestAssessment.score);
+      updateForm({ inherentRatingScore: latestAssessment.score });
     }
   };
 
   return (
     <div className="space-y-6">
-      {formState.previousInherentFactors && formState.previousInherentFactors.length > 0 && (
-        <Collapsible 
-          defaultOpen={false}
-          open={showPreviousAssessment} 
-          onOpenChange={setShowPreviousAssessment}
-          className="border rounded-md overflow-hidden"
-        >
-          <div className="bg-slate-50 p-3 flex justify-between items-center border-b">
-            <div className="flex items-center gap-2">
-              <Clock size={16} className="text-slate-500" />
-              <h3 className="font-medium text-slate-700">Previous Assessment</h3>
-              <Badge variant="outline" className="text-xs">
-                {formState.previousAssessmentDate}
-              </Badge>
-              <Badge className={getScoreColor(formState.previousInherentRatingScore)}>
-                Score: {formState.previousInherentRatingScore} ({getScoreLabel(formState.previousInherentRatingScore)})
-              </Badge>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={copyFromPrevious}
-                className="flex items-center gap-1"
-              >
-                <Copy size={14} />
-                <span>Copy results to current assessment</span>
-              </Button>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  {showPreviousAssessment ? "Hide" : "Show"}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-          </div>
-          
-          <CollapsibleContent>
-            <div className="p-4 space-y-4 bg-white">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Factor</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Rating</TableHead>
-                    {localShowWeights && <TableHead>Weight (%)</TableHead>}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {formState.previousInherentFactors.map((factor) => (
-                    <TableRow key={factor.id}>
-                      <TableCell className="font-medium">{factor.name}</TableCell>
-                      <TableCell>{factor.description}</TableCell>
-                      <TableCell>
-                        <span className={getRatingColor(factor.value || "0")}>
-                          {factor.value === "1" ? "Very Low (1)" : 
-                           factor.value === "2" ? "Low (2)" : 
-                           factor.value === "3" ? "Medium (3)" : 
-                           factor.value === "4" ? "High (4)" : 
-                           factor.value === "5" ? "Very High (5)" : "Not Rated"}
-                        </span>
-                      </TableCell>
-                      {localShowWeights && (
-                        <TableCell>{factor.weighting}%</TableCell>
-                      )}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      )}
+      <PreviousAssessmentsSection
+        title="Previous Inherent Risk Assessments"
+        assessmentHistory={assessmentHistory}
+        factors={SAMPLE_HISTORICAL_ASSESSMENTS[0]?.factors}
+        showWeights={localShowWeights}
+        onCopyLatest={copyFromPrevious}
+        getScoreColor={getScoreColor}
+        getScoreLabel={getScoreLabel}
+        getRatingColor={getRatingColor}
+        type="inherent"
+      />
       
       <div className="flex justify-between items-center p-4 bg-slate-50 rounded-md border">
         <div>
@@ -372,7 +524,7 @@ const InherentRatingSection = ({
             {factors.map((parentFactor) => (
               <React.Fragment key={parentFactor.id}>
                 <TableRow className="bg-blue-50">
-                  <TableCell colSpan={5} className="font-medium py-2">
+                  <TableCell colSpan={localShowWeights ? 5 : 4} className="font-medium py-2">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <Input 
@@ -400,6 +552,7 @@ const InherentRatingSection = ({
                         value={factor.name}
                         onChange={(e) => handleFactorChange(parentFactor.id, "name", e.target.value, factor.id)}
                         placeholder="Factor name"
+                        className="w-full"
                       />
                     </TableCell>
                     <TableCell>
@@ -407,6 +560,7 @@ const InherentRatingSection = ({
                         value={factor.description}
                         onChange={(e) => handleFactorChange(parentFactor.id, "description", e.target.value, factor.id)}
                         placeholder="Description"
+                        className="w-full"
                       />
                     </TableCell>
                     <TableCell>
@@ -426,15 +580,6 @@ const InherentRatingSection = ({
                             <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
                           </SelectContent>
                         </Select>
-                        
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="flex items-center gap-1"
-                          onClick={toggleWeights}
-                        >
-                          {localShowWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
                       </div>
                     </TableCell>
                     {localShowWeights && (
@@ -445,6 +590,7 @@ const InherentRatingSection = ({
                           max="100"
                           value={factor.weighting}
                           onChange={(e) => handleFactorChange(parentFactor.id, "weighting", e.target.value, factor.id)}
+                          className="w-full"
                         />
                       </TableCell>
                     )}

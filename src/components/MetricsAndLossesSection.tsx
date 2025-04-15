@@ -1,8 +1,6 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import RiskOutlierMetrics from './RiskOutlierMetrics';
-import RiskLossMetrics from './RiskLossMetrics';
 
 const MetricsAndLossesSection = () => {
   return (
@@ -15,10 +13,9 @@ const MetricsAndLossesSection = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <RiskOutlierMetrics />
-          <RiskLossMetrics />
-        </div>
+        <p className="text-slate-600">
+          Risk metrics and loss data has been moved to the assessment dashboard to improve form simplicity.
+        </p>
       </div>
     </div>
   );
