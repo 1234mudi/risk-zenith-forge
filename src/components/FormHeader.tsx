@@ -14,10 +14,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useToast } from "@/hooks/use-toast";
 import RiskSummary from "./RiskSummary";
 import RelatedRisks from "./RelatedRisks";
+import { useRiskAssessment } from "@/hooks/useRiskAssessment";
 
 const FormHeader = () => {
   const { formState } = useForm();
   const { toast } = useToast();
+  const { showHeatMap, setShowHeatMap } = useRiskAssessment();
   const isWithinAppetite = formState.isWithinAppetite;
   
   const handleSave = () => {
@@ -42,7 +44,7 @@ const FormHeader = () => {
   };
   
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-4">
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div className="flex-1">
           <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -130,9 +132,10 @@ const FormHeader = () => {
             variant="outline" 
             size="sm" 
             className="flex items-center gap-1 w-40 justify-center"
+            onClick={() => setShowHeatMap(!showHeatMap)}
           >
             <Shield className="h-4 w-4" />
-            Show Heat Map
+            {showHeatMap ? "Hide Heat Map" : "Show Heat Map"}
           </Button>
           
           <RelatedRisks />

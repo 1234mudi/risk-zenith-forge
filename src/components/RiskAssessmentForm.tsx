@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import MainFormSection from "@/components/MainFormSection";
 import InherentRatingSection from "@/components/InherentRatingSection";
 import ControlEffectivenessSection from "@/components/ControlEffectivenessSection";
@@ -17,6 +17,9 @@ import RiskAssessmentFooter from "@/components/RiskAssessmentFooter";
 import MetricsAndLossesSection from "./MetricsAndLossesSection";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
 import { useForm } from "@/contexts/FormContext";
+import RiskHeatMapVisualizer from "./visualization/RiskHeatMapVisualizer";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "./ui/button";
 
 const RiskAssessmentForm = () => {
   const {
@@ -32,7 +35,7 @@ const RiskAssessmentForm = () => {
   const { formState } = useForm();
 
   const handleNext = () => {
-    const tabOrder = ["general", "inherent", "control", "residual", "treatment", "metrics", "issues", "comments"];
+    const tabOrder = ["general", "inherent", "control", "residual", "treatment", "metrics", "issues", "comments", "heatmap"];
     const currentIndex = tabOrder.indexOf(activeTab);
     if (currentIndex < tabOrder.length - 1) {
       setActiveTab(tabOrder[currentIndex + 1]);
@@ -42,7 +45,7 @@ const RiskAssessmentForm = () => {
   };
 
   const handlePrevious = () => {
-    const tabOrder = ["general", "inherent", "control", "residual", "treatment", "metrics", "issues", "comments"];
+    const tabOrder = ["general", "inherent", "control", "residual", "treatment", "metrics", "issues", "comments", "heatmap"];
     const currentIndex = tabOrder.indexOf(activeTab);
     if (currentIndex > 0) {
       setActiveTab(tabOrder[currentIndex - 1]);
@@ -64,16 +67,25 @@ const RiskAssessmentForm = () => {
             onOpenChange={setShowHeatMap}
             className="border rounded-md overflow-hidden bg-white mb-3"
           >
+            <CollapsibleTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex w-full items-center justify-between p-2 gap-2 mb-2"
+              >
+                <span className="font-medium">Risk Heat Map</span>
+                {showHeatMap ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="p-3">
-                <RiskHeatMapSection 
+                <RiskHeatMapVisualizer 
                   inherentScore={formState.inherentRatingScore} 
                   residualScore={formState.residualRatingScore}
                   previousInherentScore={formState.previousInherentRatingScore}
                   previousResidualScore={formState.previousResidualRatingScore}
                   riskName={formState.risk}
                   compact={true}
-                  onNext={() => {}}
                 />
               </div>
             </CollapsibleContent>
@@ -115,6 +127,18 @@ const RiskAssessmentForm = () => {
               
               <TabsContent value="comments">
                 <CommentsAttachmentsSection />
+              </TabsContent>
+              
+              <TabsContent value="heatmap">
+                <RiskHeatMapSection 
+                  inherentScore={formState.inherentRatingScore} 
+                  residualScore={formState.residualRatingScore}
+                  previousInherentScore={formState.previousInherentRatingScore}
+                  previousResidualScore={formState.previousResidualRatingScore}
+                  riskName={formState.risk}
+                  compact={false}
+                  onNext={handleNext}
+                />
               </TabsContent>
             </div>
           </Tabs>

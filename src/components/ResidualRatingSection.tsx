@@ -10,6 +10,7 @@ import { useResidualRating, SAMPLE_HISTORICAL_ASSESSMENTS } from "@/hooks/useRes
 import { getScoreColor, getScoreLabel, getCellColor } from "@/utils/rating-utils";
 import { getRatingColor } from "@/utils/control-utils";
 import { FactorType } from "@/types/control-types";
+import RiskHeatMapVisualizer from "./visualization/RiskHeatMapVisualizer";
 
 type ResidualRatingSectionProps = {
   onNext: () => void;
