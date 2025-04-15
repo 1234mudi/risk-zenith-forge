@@ -1,13 +1,9 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Eye, EyeOff, Copy, Clock } from "lucide-react";
+import { Eye, EyeOff, Copy, Clock, Plus } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
-import { Card } from "@/components/ui/card";
 import { 
   Collapsible,
   CollapsibleContent,
@@ -15,6 +11,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import HistoricalAssessmentsDialog from "./HistoricalAssessmentsDialog";
+import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid";
 
 type InherentFactor = {
   id: string;
@@ -52,26 +49,29 @@ const InherentRatingSection = ({
   const [localShowWeights, setLocalShowWeights] = useState(showWeights);
   const [showPreviousAssessment, setShowPreviousAssessment] = useState(true);
 
-  const handleAddFactor = () => {
-    const newId = (factors.length + 1).toString();
-    setFactors([
-      ...factors,
-      { id: newId, name: "", value: "", weighting: "0", comments: "" }
-    ]);
-  };
-
-  const handleRemoveFactor = (id: string) => {
-    if (factors.length <= 1) return;
-    setFactors(factors.filter(factor => factor.id !== id));
-  };
-
-  const handleFactorChange = (id: string, field: keyof InherentFactor, value: string) => {
-    const updatedFactors = factors.map(factor => 
-      factor.id === id ? { ...factor, [field]: value } : factor
-    );
+  const handleFactorsChange = (updatedFactors: InherentFactor[]) => {
     setFactors(updatedFactors);
     updateForm({ inherentFactors: updatedFactors });
     calculateScore(updatedFactors);
+  };
+
+  const handleAddFactor = () => {
+    const newId = (factors.length + 1).toString();
+    const newFactors = [
+      ...factors,
+      { id: newId, name: "", value: "", weighting: "0", comments: "" }
+    ];
+    setFactors(newFactors);
+    updateForm({ inherentFactors: newFactors });
+  };
+
+  const handleRemoveFactor = (index: number) => {
+    if (factors.length <= 1) return;
+    
+    const newFactors = factors.filter((_, i) => i !== index);
+    setFactors(newFactors);
+    updateForm({ inherentFactors: newFactors });
+    calculateScore(newFactors);
   };
 
   const calculateScore = (factorsList: InherentFactor[]) => {
@@ -106,20 +106,12 @@ const InherentRatingSection = ({
     return "Very Low";
   };
 
-  const getRatingColor = (value: string) => {
-    const numValue = parseInt(value || "0");
-    if (numValue >= 4) return "text-red-600 bg-red-50 px-2 py-1 rounded";
-    if (numValue >= 3) return "text-orange-600 bg-orange-50 px-2 py-1 rounded";
-    if (numValue >= 2) return "text-yellow-600 bg-yellow-50 px-2 py-1 rounded";
-    return "text-green-600 bg-green-50 px-2 py-1 rounded";
-  };
-
   const getCellColor = (value: string) => {
     const numValue = parseInt(value || "0");
-    if (numValue >= 4) return "bg-red-50";
-    if (numValue >= 3) return "bg-orange-50";
-    if (numValue >= 2) return "bg-yellow-50";
-    return "bg-green-50";
+    if (numValue >= 4) return "bg-red-50 text-red-600";
+    if (numValue >= 3) return "bg-orange-50 text-orange-600";
+    if (numValue >= 2) return "bg-yellow-50 text-yellow-600";
+    return "bg-green-50 text-green-600";
   };
 
   const toggleWeights = () => {
@@ -141,6 +133,85 @@ const InherentRatingSection = ({
       updateForm({ inherentFactors: assessment.inherentFactors });
       calculateScore(assessment.inherentFactors);
     }
+  };
+
+  // Define columns for the editable grid
+  const getFactorColumns = (): EditableGridColumn[] => {
+    const columns: EditableGridColumn[] = [
+      {
+        field: "name",
+        header: "Factor Name",
+        width: "25%",
+        editable: true,
+        type: "text"
+      },
+      {
+        field: "value",
+        header: "Rating",
+        width: "15%",
+        editable: true,
+        type: "select",
+        options: [
+          { value: "1", label: "Very Low (1)", className: "text-green-500" },
+          { value: "2", label: "Low (2)", className: "text-yellow-500" },
+          { value: "3", label: "Medium (3)", className: "text-orange-500" },
+          { value: "4", label: "High (4)", className: "text-red-500" },
+          { value: "5", label: "Very High (5)", className: "text-red-600 font-semibold" }
+        ],
+        cellClassName: (value) => getCellColor(value)
+      }
+    ];
+    
+    if (localShowWeights) {
+      columns.push({
+        field: "weighting",
+        header: "Weight (%)",
+        width: "15%",
+        editable: true,
+        type: "number"
+      });
+    }
+    
+    columns.push({
+      field: "comments",
+      header: "Comments",
+      editable: true,
+      type: "textarea"
+    });
+    
+    return columns;
+  };
+
+  // Define columns for the previous assessment grid view
+  const getPreviousFactorColumns = (): EditableGridColumn[] => {
+    const columns: EditableGridColumn[] = [
+      {
+        field: "name",
+        header: "Factor Name",
+        width: "25%"
+      },
+      {
+        field: "value",
+        header: "Rating",
+        width: "15%",
+        type: "rating"
+      }
+    ];
+    
+    if (localShowWeights) {
+      columns.push({
+        field: "weighting",
+        header: "Weight (%)",
+        width: "15%"
+      });
+    }
+    
+    columns.push({
+      field: "comments",
+      header: "Comments"
+    });
+    
+    return columns;
   };
 
   return (
@@ -194,31 +265,13 @@ const InherentRatingSection = ({
           
           <CollapsibleContent>
             <div className="p-4 space-y-4 bg-white">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 text-sm font-medium text-slate-500 px-4">
-                <div className="md:col-span-3">Factor Name</div>
-                <div className="md:col-span-2">Rating</div>
-                {showWeights && <div className="md:col-span-2">Weight (%)</div>}
-                <div className={showWeights ? "md:col-span-5" : "md:col-span-7"}>Comments</div>
-              </div>
-              
-              {previousFactors.map((factor) => (
-                <div key={factor.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-3 rounded-md bg-slate-50">
-                  <div className="md:col-span-3 font-medium">{factor.name}</div>
-                  <div className="md:col-span-2">
-                    <div className={`text-sm font-medium ${getRatingColor(factor.value)}`}>
-                      {factor.value === "1" ? "Very Low (1)" : 
-                       factor.value === "2" ? "Low (2)" : 
-                       factor.value === "3" ? "Medium (3)" : 
-                       factor.value === "4" ? "High (4)" : 
-                       factor.value === "5" ? "Very High (5)" : ""}
-                    </div>
-                  </div>
-                  {showWeights && <div className="md:col-span-2">{factor.weighting}%</div>}
-                  <div className={showWeights ? "md:col-span-5" : "md:col-span-7"}>
-                    <div className="text-sm text-slate-600">{factor.comments}</div>
-                  </div>
-                </div>
-              ))}
+              <EditableGrid
+                columns={getPreviousFactorColumns()}
+                data={previousFactors}
+                onDataChange={() => {}}
+                keyField="id"
+                allowBulkEdit={false}
+              />
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -247,99 +300,28 @@ const InherentRatingSection = ({
       </div>
       
       <div className="space-y-4">
-        {factors.map((factor) => (
-          <div key={factor.id} className="grid grid-cols-1 md:grid-cols-8 gap-4 p-4 border rounded-md bg-white">
-            <div className="md:col-span-2">
-              <Label htmlFor={`factor-name-${factor.id}`}>Factor Name</Label>
-              <Input
-                id={`factor-name-${factor.id}`}
-                value={factor.name}
-                onChange={(e) => handleFactorChange(factor.id, "name", e.target.value)}
-                className="mt-1"
-                placeholder="Enter factor name"
-              />
-            </div>
-            
-            <div className="md:col-span-2">
-              <Label htmlFor={`factor-value-${factor.id}`}>Rating</Label>
-              <Select
-                value={factor.value}
-                onValueChange={(value) => handleFactorChange(factor.id, "value", value)}
-              >
-                <SelectTrigger id={`factor-value-${factor.id}`} className={`mt-1 ${getCellColor(factor.value)}`}>
-                  <SelectValue placeholder="Select rating" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1" className="text-green-500">Very Low (1)</SelectItem>
-                  <SelectItem value="2" className="text-yellow-500">Low (2)</SelectItem>
-                  <SelectItem value="3" className="text-orange-500">Medium (3)</SelectItem>
-                  <SelectItem value="4" className="text-red-500">High (4)</SelectItem>
-                  <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
-                </SelectContent>
-              </Select>
-              {factor.value && (
-                <div className={`text-xs font-medium mt-1 ${getRatingColor(factor.value)}`}>
-                  {factor.value === "1" ? "Very Low" : 
-                   factor.value === "2" ? "Low" : 
-                   factor.value === "3" ? "Medium" : 
-                   factor.value === "4" ? "High" : 
-                   factor.value === "5" ? "Very High" : ""}
-                </div>
-              )}
-            </div>
-            
-            {localShowWeights && (
-              <div className="md:col-span-1">
-                <Label htmlFor={`factor-weight-${factor.id}`}>Weight (%)</Label>
-                <Input
-                  id={`factor-weight-${factor.id}`}
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={factor.weighting}
-                  onChange={(e) => handleFactorChange(factor.id, "weighting", e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-            )}
-            
-            <div className={`${localShowWeights ? 'md:col-span-2' : 'md:col-span-3'}`}>
-              <Label htmlFor={`factor-comments-${factor.id}`}>Comments</Label>
-              <Textarea
-                id={`factor-comments-${factor.id}`}
-                value={factor.comments}
-                onChange={(e) => handleFactorChange(factor.id, "comments", e.target.value)}
-                className="mt-1 min-h-[60px]"
-                placeholder="Add comments"
-              />
-            </div>
-            
-            <div className="md:col-span-1 flex items-end justify-end">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleRemoveFactor(factor.id)}
-                disabled={factors.length <= 1}
-                className="text-red-500 h-9 w-9"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      <div className="flex justify-between">
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={handleAddFactor}
-          className="flex items-center gap-1"
-        >
-          <Plus className="h-4 w-4" /> Add Factor
-        </Button>
+        <EditableGrid
+          columns={getFactorColumns()}
+          data={factors}
+          onDataChange={handleFactorsChange}
+          keyField="id"
+          onAddRow={handleAddFactor}
+          onRemoveRow={handleRemoveFactor}
+          allowBulkEdit={true}
+        />
         
-        <Button onClick={onNext}>Continue to Control Effectiveness</Button>
+        <div className="flex justify-between mt-4">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={handleAddFactor}
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" /> Add Factor
+          </Button>
+          
+          <Button onClick={onNext}>Continue to Control Effectiveness</Button>
+        </div>
       </div>
     </div>
   );
