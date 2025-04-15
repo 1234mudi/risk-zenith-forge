@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useForm } from "@/contexts/FormContext";
 import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown } from "lucide-react";
@@ -66,7 +65,6 @@ const FormHeader = () => {
         </div>
       </div>
       
-      {/* Risk Summary */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <RiskSummary 
           inherentScore={formState.inherentRatingScore} 
@@ -93,7 +91,7 @@ const FormHeader = () => {
             variant="outline" 
             size="sm" 
             onClick={() => {}} 
-            className="flex items-center gap-1 bg-blue-50 text-blue-700 hover:bg-blue-100"
+            className="flex items-center gap-1 bg-blue-50 text-blue-700 hover:bg-blue-100 w-40 justify-center"
           >
             <Shield className="h-4 w-4" />
             Show Heat Map
@@ -103,7 +101,6 @@ const FormHeader = () => {
         </div>
       </div>
       
-      {/* Workflow buttons */}
       <div className="bg-blue-900 p-3 rounded-md flex items-center justify-end gap-2 mt-2">
         <TooltipProvider>
           <Tooltip>
