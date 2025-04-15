@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Eye, EyeOff } from "lucide-react";
@@ -482,8 +483,7 @@ const InherentRatingSection = ({
         { value: "3", label: "Medium (3)", className: "text-orange-500" },
         { value: "4", label: "High (4)", className: "text-red-500" },
         { value: "5", label: "Very High (5)", className: "text-red-600 font-semibold" }
-      ],
-      type: "rating"
+      ]
     }
   ];
 
@@ -519,7 +519,10 @@ const InherentRatingSection = ({
       <PreviousAssessmentsSection
         title="Previous Inherent Risk Assessments"
         assessmentHistory={assessmentHistory}
-        factors={SAMPLE_HISTORICAL_ASSESSMENTS[0]?.factors}
+        factors={SAMPLE_HISTORICAL_ASSESSMENTS[0]?.factors.map(factor => ({
+          ...factor,
+          type: factor.type as FactorType
+        }))}
         showWeights={localShowWeights}
         onCopyLatest={copyFromPrevious}
         getScoreColor={getScoreColor}

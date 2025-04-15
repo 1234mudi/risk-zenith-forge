@@ -9,6 +9,7 @@ import ResidualFactorsTable from "./residual/ResidualFactorsTable";
 import { useResidualRating, SAMPLE_HISTORICAL_ASSESSMENTS } from "@/hooks/useResidualRating";
 import { getScoreColor, getScoreLabel, getCellColor } from "@/utils/rating-utils";
 import { getRatingColor } from "@/utils/control-utils";
+import { FactorType } from "@/types/control-types";
 
 type ResidualRatingSectionProps = {
   onNext: () => void;
@@ -39,7 +40,10 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
       <PreviousAssessmentsSection
         title="Previous Residual Risk Assessments"
         assessmentHistory={assessmentHistory}
-        factors={SAMPLE_HISTORICAL_ASSESSMENTS[0]?.factors}
+        factors={SAMPLE_HISTORICAL_ASSESSMENTS[0]?.factors.map(factor => ({
+          ...factor,
+          type: factor.type as FactorType
+        }))}
         showWeights={localShowWeights}
         onCopyLatest={copyFromPrevious}
         getScoreColor={getScoreColor}
