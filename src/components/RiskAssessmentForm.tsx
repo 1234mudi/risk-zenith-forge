@@ -17,14 +17,59 @@ import RiskSummary from "@/components/RiskSummary";
 import ScopeSharingRisks from "@/components/RelatedRisks";
 import FormHeader from "@/components/FormHeader";
 import RiskAppetiteIndicator from "@/components/RiskAppetiteIndicator";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, BarChart, BarChart2, LayoutDashboard } from "lucide-react";
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 // Mock list of risk assessments for navigation
 const MOCK_RISK_ASSESSMENTS = [
-  { id: "RA-2025-0001", risk: "KYC Risk Assessment Inadequacy", eraId: "ERA-7752" },
-  { id: "RA-2025-0002", risk: "AML Transaction Monitoring Gaps", eraId: "ERA-7753" },
-  { id: "RA-2025-0003", risk: "Insufficient Sanctions Screening", eraId: "ERA-7754" },
-  { id: "RA-2025-0004", risk: "Data Privacy Violations", eraId: "ERA-7755" },
+  { 
+    id: "RA-2025-0001", 
+    risk: "KYC Risk Assessment Inadequacy", 
+    eraId: "ERA-7752",
+    organization: "Global Banking Corp",
+    assessableItem: "Customer Due Diligence",
+    riskHierarchy: "Compliance Risk > Regulatory Risk > KYC Risk",
+    inherentRatingScore: "3.5",
+    controlEffectivenessScore: "2.5",
+    residualRatingScore: "2.0"
+  },
+  { 
+    id: "RA-2025-0002", 
+    risk: "AML Transaction Monitoring Gaps", 
+    eraId: "ERA-7753",
+    organization: "Global Banking Corp",
+    assessableItem: "Transaction Monitoring Systems",
+    riskHierarchy: "Compliance Risk > AML Risk > Monitoring Risk",
+    inherentRatingScore: "4.1",
+    controlEffectivenessScore: "3.2",
+    residualRatingScore: "2.8"
+  },
+  { 
+    id: "RA-2025-0003", 
+    risk: "Insufficient Sanctions Screening", 
+    eraId: "ERA-7754",
+    organization: "Global Banking Corp",
+    assessableItem: "International Payments",
+    riskHierarchy: "Compliance Risk > Sanctions Risk > Screening Risk",
+    inherentRatingScore: "4.5",
+    controlEffectivenessScore: "3.8",
+    residualRatingScore: "3.2"
+  },
+  { 
+    id: "RA-2025-0004", 
+    risk: "Data Privacy Violations", 
+    eraId: "ERA-7755",
+    organization: "Global Banking Corp",
+    assessableItem: "Customer Data Management",
+    riskHierarchy: "Operational Risk > Data Risk > Privacy Risk",
+    inherentRatingScore: "3.9",
+    controlEffectivenessScore: "2.3",
+    residualRatingScore: "2.4"
+  },
 ];
 
 const RiskAssessmentForm = () => {
@@ -32,6 +77,7 @@ const RiskAssessmentForm = () => {
   const { toast } = useToast();
   const { formState, updateForm } = useForm();
   const [currentRiskIndex, setCurrentRiskIndex] = useState(0);
+  const [showHeatMap, setShowHeatMap] = useState(false);
 
   useEffect(() => {
     calculateRatings();
@@ -94,10 +140,10 @@ const RiskAssessmentForm = () => {
 
   const getScoreColor = (score) => {
     const numScore = parseFloat(score || 0);
-    if (numScore >= 4) return "text-red-600 bg-red-50";
-    if (numScore >= 3) return "text-orange-600 bg-orange-50";
-    if (numScore >= 2) return "text-yellow-600 bg-yellow-50";
-    return "text-green-600 bg-green-50";
+    if (numScore >= 4) return "bg-red-600 text-white border-red-700";
+    if (numScore >= 3) return "bg-orange-500 text-white border-orange-600";
+    if (numScore >= 2) return "bg-yellow-500 text-white border-yellow-600";
+    return "bg-green-500 text-white border-green-600";
   };
 
   const getScoreLabel = (score) => {
@@ -108,7 +154,7 @@ const RiskAssessmentForm = () => {
     return "Very Low";
   };
 
-  const tabOrder = ["general", "inherent", "control", "residual", "heatmap", "treatment", "issues", "comments"];
+  const tabOrder = ["general", "inherent", "control", "residual", "treatment", "issues", "comments"];
 
   const handleNext = () => {
     const currentIndex = tabOrder.indexOf(activeTab);
@@ -133,34 +179,29 @@ const RiskAssessmentForm = () => {
   const navigateToNextRiskAssessment = () => {
     const nextIndex = (currentRiskIndex + 1) % MOCK_RISK_ASSESSMENTS.length;
     setCurrentRiskIndex(nextIndex);
-    
-    // Update form with new risk data
-    const nextRisk = MOCK_RISK_ASSESSMENTS[nextIndex];
-    updateForm({
-      referenceId: nextRisk.id,
-      risk: nextRisk.risk,
-      eraId: nextRisk.eraId
-    });
-    
-    // Reset to first tab
-    setActiveTab("general");
-    
-    toast({
-      title: "Risk Assessment Changed",
-      description: `Now viewing ${nextRisk.risk}`,
-    });
+    loadRiskAssessment(nextIndex);
   };
 
   const navigateToPreviousRiskAssessment = () => {
     const prevIndex = (currentRiskIndex - 1 + MOCK_RISK_ASSESSMENTS.length) % MOCK_RISK_ASSESSMENTS.length;
     setCurrentRiskIndex(prevIndex);
+    loadRiskAssessment(prevIndex);
+  };
+
+  const loadRiskAssessment = (index) => {
+    const riskData = MOCK_RISK_ASSESSMENTS[index];
     
     // Update form with new risk data
-    const prevRisk = MOCK_RISK_ASSESSMENTS[prevIndex];
     updateForm({
-      referenceId: prevRisk.id,
-      risk: prevRisk.risk,
-      eraId: prevRisk.eraId
+      referenceId: riskData.id,
+      risk: riskData.risk,
+      eraId: riskData.eraId,
+      organization: riskData.organization,
+      assessableItem: riskData.assessableItem,
+      riskHierarchy: riskData.riskHierarchy,
+      inherentRatingScore: riskData.inherentRatingScore,
+      controlEffectivenessScore: riskData.controlEffectivenessScore,
+      residualRatingScore: riskData.residualRatingScore
     });
     
     // Reset to first tab
@@ -168,19 +209,19 @@ const RiskAssessmentForm = () => {
     
     toast({
       title: "Risk Assessment Changed",
-      description: `Now viewing ${prevRisk.risk}`,
+      description: `Now viewing ${riskData.risk}`,
     });
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
+    <div className="container mx-auto py-6 px-4 max-w-6xl">
       <Card className="shadow-md">
-        <CardHeader className="bg-slate-50 border-b">
+        <CardHeader className="bg-slate-50 border-b pb-3">
           <FormHeader />
         </CardHeader>
         
         <div className="bg-white p-4 border-b sticky top-0 z-10 shadow-sm">
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-3">
             <RiskSummary 
               inherentScore={formState.inherentRatingScore} 
               controlScore={formState.controlEffectivenessScore}
@@ -189,8 +230,40 @@ const RiskAssessmentForm = () => {
               getScoreLabel={getScoreLabel}
             />
             
-            <ScopeSharingRisks />
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowHeatMap(!showHeatMap)}
+                className="flex items-center gap-1"
+              >
+                <BarChart2 className="h-4 w-4" />
+                {showHeatMap ? "Hide Heat Map" : "Show Heat Map"}
+              </Button>
+              
+              <ScopeSharingRisks />
+            </div>
           </div>
+          
+          {/* Heat Map Collapsible */}
+          <Collapsible 
+            open={showHeatMap} 
+            onOpenChange={setShowHeatMap}
+            className="border rounded-md overflow-hidden bg-white mb-3"
+          >
+            <CollapsibleContent>
+              <div className="p-3">
+                <RiskHeatMapSection 
+                  inherentScore={formState.inherentRatingScore} 
+                  residualScore={formState.residualRatingScore}
+                  previousInherentScore={formState.previousInherentRatingScore}
+                  previousResidualScore={formState.previousResidualRatingScore}
+                  riskName={formState.risk}
+                  compact={true}
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
         
         <CardContent className="p-0">
@@ -207,9 +280,6 @@ const RiskAssessmentForm = () => {
               </TabsTrigger>
               <TabsTrigger value="residual" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Residual Rating
-              </TabsTrigger>
-              <TabsTrigger value="heatmap" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-                Risk Heat Map
               </TabsTrigger>
               <TabsTrigger value="treatment" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Treatment
@@ -257,17 +327,6 @@ const RiskAssessmentForm = () => {
                 />
               </TabsContent>
               
-              <TabsContent value="heatmap">
-                <RiskHeatMapSection 
-                  onNext={handleNext}
-                  inherentScore={formState.inherentRatingScore} 
-                  residualScore={formState.residualRatingScore}
-                  previousInherentScore={formState.previousInherentRatingScore}
-                  previousResidualScore={formState.previousResidualRatingScore}
-                  riskName={formState.risk}
-                />
-              </TabsContent>
-              
               <TabsContent value="treatment">
                 <TreatmentSection onNext={handleNext} />
               </TabsContent>
@@ -282,7 +341,7 @@ const RiskAssessmentForm = () => {
             </div>
           </Tabs>
           
-          <div className="flex justify-between p-6 pt-2 gap-4 border-t mt-4">
+          <div className="flex justify-between p-5 gap-4 border-t mt-4">
             <Button 
               variant="outline" 
               onClick={handlePrevious} 

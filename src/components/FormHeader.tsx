@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
+import RiskAppetiteIndicator from "./RiskAppetiteIndicator";
 
 const FormHeader = () => {
   const { formState } = useForm();
@@ -51,8 +52,6 @@ const FormHeader = () => {
             </Badge>
           </h2>
           <div className="text-sm text-gray-600 mt-1 flex items-center gap-1">
-            <span className="text-gray-500">Reference:</span> {formState.referenceId}
-            <span className="mx-2">•</span>
             <span className="text-gray-500">Assessment ID:</span> {formState.assessmentId}
             <span className="mx-2">•</span>
             <span className="text-gray-500">Date:</span> {formState.assessmentDate}
@@ -65,24 +64,8 @@ const FormHeader = () => {
           </div>
         </div>
         
-        <div className="shrink-0 flex items-center gap-2 flex-wrap justify-end">
-          {!isWithinAppetite ? (
-            <div className="flex items-center gap-2 bg-red-50 text-red-700 px-3 py-2 rounded-md border border-red-200">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-              <div>
-                <div className="text-sm font-medium">Outside Risk Appetite</div>
-                <div className="text-xs">Remediation required</div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-2 rounded-md border border-green-200">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-              <div>
-                <div className="text-sm font-medium">Within Risk Appetite</div>
-                <div className="text-xs">No action required</div>
-              </div>
-            </div>
-          )}
+        <div className="shrink-0 flex items-center">
+          <RiskAppetiteIndicator className="max-w-64" />
         </div>
       </div>
       

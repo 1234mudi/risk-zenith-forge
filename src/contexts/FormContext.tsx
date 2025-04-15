@@ -51,6 +51,12 @@ type FormState = {
   inherentRatingScore: string;
   controlEffectivenessScore: string;
   residualRatingScore: string;
+  
+  // Overrides
+  inherentRatingOverridden: boolean;
+  residualRatingOverridden: boolean;
+  inherentRatingOverrideComment: string;
+  residualRatingOverrideComment: string;
 
   // Previous assessment data
   previousInherentFactors: any[];
@@ -259,6 +265,122 @@ const historicalAssessmentsData: HistoricalAssessment[] = [
     ],
     assessor: "Sarah Williams",
     notes: "Initial baseline assessment"
+  },
+  {
+    assessmentDate: "2023-01-20",
+    inherentRatingScore: "4.2",
+    controlEffectivenessScore: "4.3",
+    residualRatingScore: "3.7",
+    inherentFactors: [
+      { id: "1", name: "Financial Impact", value: "5", weighting: "25", comments: "Critical financial risk" },
+      { id: "2", name: "Reputational Impact", value: "4", weighting: "25", comments: "Major media coverage" },
+      { id: "3", name: "Operational Impact", value: "4", weighting: "25", comments: "Critical process issues" },
+      { id: "4", name: "Regulatory Impact", value: "4", weighting: "25", comments: "Imminent regulatory action" }
+    ],
+    controls: [
+      {
+        id: "1",
+        controlId: "CTL-001",
+        name: "Access Control Management",
+        designEffect: "ineffective",
+        operativeEffect: "ineffective",
+        effectiveness: "5",
+        weighting: "40",
+        isKeyControl: true,
+        category: "preventive",
+        comments: "Critical control flaws",
+        testResults: {
+          lastTested: "2022-12-05",
+          result: "fail",
+          tester: "John Smith",
+          findings: "Systemic failures in control design"
+        }
+      },
+      {
+        id: "2",
+        controlId: "CTL-002",
+        name: "Change Management Process",
+        designEffect: "ineffective",
+        operativeEffect: "ineffective",
+        effectiveness: "4",
+        weighting: "60",
+        isKeyControl: false,
+        category: "detective",
+        comments: "No effective process",
+        testResults: {
+          lastTested: "2022-12-10",
+          result: "fail",
+          tester: "Emily Johnson",
+          findings: "Complete absence of controls"
+        }
+      }
+    ],
+    residualFactors: [
+      { id: "1", name: "Financial Impact", value: "4", weighting: "25", comments: "Minimal controls" },
+      { id: "2", name: "Reputational Impact", value: "4", weighting: "25", comments: "No effective PR strategy" },
+      { id: "3", name: "Operational Impact", value: "3", weighting: "25", comments: "Basic workarounds only" },
+      { id: "4", name: "Regulatory Impact", value: "4", weighting: "25", comments: "Direct regulatory violations" }
+    ],
+    assessor: "Michael Brown",
+    notes: "Initial discovery assessment"
+  },
+  {
+    assessmentDate: "2022-07-05",
+    inherentRatingScore: "4.5",
+    controlEffectivenessScore: "4.7",
+    residualRatingScore: "4.0",
+    inherentFactors: [
+      { id: "1", name: "Financial Impact", value: "5", weighting: "25", comments: "Severe financial penalties" },
+      { id: "2", name: "Reputational Impact", value: "5", weighting: "25", comments: "Catastrophic reputational damage" },
+      { id: "3", name: "Operational Impact", value: "4", weighting: "25", comments: "Major operational disruption" },
+      { id: "4", name: "Regulatory Impact", value: "4", weighting: "25", comments: "Severe regulatory consequences" }
+    ],
+    controls: [
+      {
+        id: "1",
+        controlId: "CTL-001",
+        name: "Access Control Management",
+        designEffect: "ineffective",
+        operativeEffect: "ineffective",
+        effectiveness: "5",
+        weighting: "40",
+        isKeyControl: true,
+        category: "preventive",
+        comments: "No controls in place",
+        testResults: {
+          lastTested: "2022-05-15",
+          result: "fail",
+          tester: "John Smith",
+          findings: "No control framework"
+        }
+      },
+      {
+        id: "2",
+        controlId: "CTL-002",
+        name: "Change Management Process",
+        designEffect: "ineffective",
+        operativeEffect: "ineffective",
+        effectiveness: "5",
+        weighting: "60",
+        isKeyControl: false,
+        category: "detective",
+        comments: "Completely ineffective",
+        testResults: {
+          lastTested: "2022-05-20",
+          result: "fail",
+          tester: "Emily Johnson",
+          findings: "No controls implemented"
+        }
+      }
+    ],
+    residualFactors: [
+      { id: "1", name: "Financial Impact", value: "4", weighting: "25", comments: "No effective controls" },
+      { id: "2", name: "Reputational Impact", value: "4", weighting: "25", comments: "No mitigation strategies" },
+      { id: "3", name: "Operational Impact", value: "4", weighting: "25", comments: "Critical operational gaps" },
+      { id: "4", name: "Regulatory Impact", value: "4", weighting: "25", comments: "No compliance measures" }
+    ],
+    assessor: "Jennifer Davis",
+    notes: "Baseline risk assessment before program implementation"
   }
 ];
 
@@ -339,6 +461,11 @@ const initialFormState: FormState = {
   inherentRatingScore: "3.5",
   controlEffectivenessScore: "2.5",
   residualRatingScore: "2.0",
+  
+  inherentRatingOverridden: false,
+  residualRatingOverridden: false,
+  inherentRatingOverrideComment: "",
+  residualRatingOverrideComment: "",
 
   // Previous assessment data
   previousInherentFactors: [

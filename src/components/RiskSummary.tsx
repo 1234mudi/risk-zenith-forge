@@ -1,49 +1,74 @@
 
 import React from "react";
-import { Card } from "@/components/ui/card";
+import { ArrowDown, ArrowUp } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-interface RiskSummaryProps {
+type RiskSummaryProps = {
   inherentScore: string;
   controlScore: string;
   residualScore: string;
   getScoreColor: (score: string) => string;
   getScoreLabel: (score: string) => string;
-}
+};
 
-const RiskSummary: React.FC<RiskSummaryProps> = ({
+const RiskSummary = ({
   inherentScore,
   controlScore,
   residualScore,
   getScoreColor,
-  getScoreLabel
-}) => {
+  getScoreLabel,
+}: RiskSummaryProps) => {
+  // Determine if residual risk is lower than inherent risk (improvement)
+  const hasImprovement = parseFloat(residualScore) < parseFloat(inherentScore);
+  const improvementAmount = (parseFloat(inherentScore) - parseFloat(residualScore)).toFixed(1);
+  
   return (
     <div className="flex flex-wrap gap-3">
-      <div className="flex items-center space-x-2">
-        <div className="text-sm text-slate-600 font-medium">Summary:</div>
+      <div className="flex flex-col items-center">
+        <div className="text-xs font-semibold text-gray-500 mb-1">Inherent Risk</div>
+        <div className={`rounded-md px-4 py-2 min-w-24 text-center ${getScoreColor(inherentScore)}`}>
+          <div className="font-bold text-lg">{inherentScore}</div>
+          <div className="text-xs font-medium">{getScoreLabel(inherentScore)}</div>
+        </div>
       </div>
       
-      <div className="flex flex-wrap gap-2">
-        <Card className="p-2 flex items-center space-x-2 border">
-          <div className="text-xs text-slate-500">Inherent:</div>
-          <div className={`text-sm font-semibold px-2 py-1 rounded ${getScoreColor(inherentScore)}`}>
-            {inherentScore || '0.0'} - {getScoreLabel(inherentScore)}
-          </div>
-        </Card>
-        
-        <Card className="p-2 flex items-center space-x-2 border">
-          <div className="text-xs text-slate-500">Control:</div>
-          <div className={`text-sm font-semibold px-2 py-1 rounded ${getScoreColor(controlScore)}`}>
-            {controlScore || '0.0'} - {getScoreLabel(controlScore)}
-          </div>
-        </Card>
-        
-        <Card className="p-2 flex items-center space-x-2 border">
-          <div className="text-xs text-slate-500">Residual:</div>
-          <div className={`text-sm font-semibold px-2 py-1 rounded ${getScoreColor(residualScore)}`}>
-            {residualScore || '0.0'} - {getScoreLabel(residualScore)}
-          </div>
-        </Card>
+      <div className="flex flex-col items-center">
+        <div className="text-xs font-semibold text-gray-500 mb-1">Control Effectiveness</div>
+        <div className={`rounded-md px-4 py-2 min-w-24 text-center ${getScoreColor(controlScore)}`}>
+          <div className="font-bold text-lg">{controlScore}</div>
+          <div className="text-xs font-medium">{getScoreLabel(controlScore)}</div>
+        </div>
+      </div>
+      
+      <div className="flex flex-col items-center">
+        <div className="text-xs font-semibold text-gray-500 mb-1">Residual Risk</div>
+        <div className={`rounded-md px-4 py-2 min-w-24 text-center ${getScoreColor(residualScore)}`}>
+          <div className="font-bold text-lg">{residualScore}</div>
+          <div className="text-xs font-medium">{getScoreLabel(residualScore)}</div>
+        </div>
+      </div>
+      
+      <div className="flex flex-col items-center justify-center">
+        <div className="text-xs font-semibold text-gray-500 mb-1">Risk Reduction</div>
+        <Badge 
+          className={`flex items-center gap-1 ${
+            hasImprovement 
+              ? "bg-green-100 text-green-800 hover:bg-green-100"
+              : "bg-red-100 text-red-800 hover:bg-red-100"
+          }`}
+        >
+          {hasImprovement ? (
+            <>
+              <ArrowDown className="h-3 w-3" />
+              <span>{improvementAmount} points</span>
+            </>
+          ) : (
+            <>
+              <ArrowUp className="h-3 w-3" />
+              <span>No reduction</span>
+            </>
+          )}
+        </Badge>
       </div>
     </div>
   );
