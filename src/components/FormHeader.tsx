@@ -73,14 +73,14 @@ const FormHeader = () => {
           controlScore={formState.controlEffectivenessScore}
           residualScore={formState.residualRatingScore}
           getScoreColor={(score) => {
-            const numScore = parseFloat(score || 0);
+            const numScore = parseFloat(score || "0");
             if (numScore >= 4) return "bg-red-600 text-white border-red-700";
             if (numScore >= 3) return "bg-orange-500 text-white border-orange-600";
             if (numScore >= 2) return "bg-yellow-500 text-white border-yellow-600";
             return "bg-green-500 text-white border-green-600";
           }}
           getScoreLabel={(score) => {
-            const numScore = parseFloat(score || 0);
+            const numScore = parseFloat(score || "0");
             if (numScore >= 4) return "High";
             if (numScore >= 3) return "Medium";
             if (numScore >= 2) return "Low";
@@ -93,7 +93,7 @@ const FormHeader = () => {
             variant="outline" 
             size="sm" 
             onClick={() => {}} 
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 bg-blue-50 text-blue-700 hover:bg-blue-100"
           >
             <Shield className="h-4 w-4" />
             Show Heat Map
@@ -104,7 +104,7 @@ const FormHeader = () => {
       </div>
       
       {/* Workflow buttons */}
-      <div className="bg-blue-800 p-3 rounded-md flex items-center justify-end gap-2 mt-2">
+      <div className="bg-blue-900 p-3 rounded-md flex items-center justify-end gap-2 mt-2">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -122,7 +122,7 @@ const FormHeader = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="destructive">
+                  <Button variant="default" className="bg-green-700 hover:bg-green-800">
                     <Send className="h-4 w-4 mr-1" />
                     Submit
                     <ChevronDown className="h-4 w-4 ml-1" />
@@ -148,7 +148,7 @@ const FormHeader = () => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="outline" className="bg-white text-blue-800 hover:bg-blue-50" onClick={handleClose}>
+              <Button variant="secondary" onClick={handleClose}>
                 <X className="h-4 w-4 mr-1" />
                 Close
               </Button>

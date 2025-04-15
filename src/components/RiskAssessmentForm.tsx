@@ -19,6 +19,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import MetricsAndLossesSection from "./MetricsAndLossesSection";
 
 const MOCK_RISK_ASSESSMENTS = [
   { 
@@ -149,7 +150,7 @@ const RiskAssessmentForm = () => {
     return "Very Low";
   };
 
-  const tabOrder = ["general", "inherent", "control", "residual", "treatment", "issues", "comments"];
+  const tabOrder = ["general", "inherent", "control", "residual", "treatment", "metrics", "issues", "comments"];
 
   const handleNext = () => {
     const currentIndex = tabOrder.indexOf(activeTab);
@@ -251,6 +252,9 @@ const RiskAssessmentForm = () => {
               <TabsTrigger value="treatment" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Treatment
               </TabsTrigger>
+              <TabsTrigger value="metrics" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+                Metrics and Losses
+              </TabsTrigger>
               <TabsTrigger value="issues" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
                 Issues
               </TabsTrigger>
@@ -296,6 +300,10 @@ const RiskAssessmentForm = () => {
               
               <TabsContent value="treatment">
                 <TreatmentSection onNext={handleNext} />
+              </TabsContent>
+              
+              <TabsContent value="metrics">
+                <MetricsAndLossesSection />
               </TabsContent>
               
               <TabsContent value="issues">

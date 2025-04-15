@@ -24,3 +24,17 @@ export type ControlLibraryItem = {
   category: string;
   description: string;
 };
+
+export type FactorType = "parent" | "child";
+
+export type FactorProps = {
+  id: string;
+  name: string;
+  description?: string;
+  value?: string;
+  weighting?: string;
+  comments?: string;
+  type: FactorType;
+  children?: FactorProps[];
+};
+
