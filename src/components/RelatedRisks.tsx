@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Collapsible,
@@ -105,7 +104,7 @@ const RelatedRisks = () => {
         <Table className="border">
           <TableHeader className="bg-slate-50">
             <TableRow>
-              <TableHead className="w-1/2">Risk</TableHead>
+              <TableHead>Risk</TableHead>
               <TableHead className="text-center">Inherent</TableHead>
               <TableHead className="text-center">Control</TableHead>
               <TableHead className="text-center">Residual</TableHead>

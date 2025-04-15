@@ -259,13 +259,9 @@ const ControlEffectivenessSection = ({
 
   return (
     <div className="space-y-6">
-      <div className="bg-purple-50 p-4 rounded-md">
-        <h2 className="text-xl font-medium text-purple-800 mb-2">Control Effectiveness</h2>
-        <p className="text-purple-700 text-sm">Evaluate the quality of controls applied to mitigate the risk.</p>
-      </div>
-      
       {previousControls && previousControls.length > 0 && (
         <Collapsible 
+          defaultOpen={false}
           open={showPreviousAssessment} 
           onOpenChange={setShowPreviousAssessment}
           className="border rounded-md overflow-hidden"

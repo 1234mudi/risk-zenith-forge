@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -46,7 +45,6 @@ const RiskHeatMapSection = ({
   const previousInherentPosition = getPositionFromScore(previousInherentScore);
   const previousResidualPosition = getPositionFromScore(previousResidualScore);
   
-  // Risk appetite visualization
   const appetiteThreshold = "2.5"; // This should come from formState.riskAppetite.threshold
   const appetitePosition = getPositionFromScore(appetiteThreshold);
 
@@ -126,7 +124,6 @@ const RiskHeatMapSection = ({
               Impact
             </div>
             
-            {/* Risk Appetite Threshold Line */}
             <div className="absolute inset-0 border-2 border-dashed border-blue-500 pointer-events-none opacity-60 z-10"
                 style={{
                   clipPath: `polygon(0 ${appetitePosition.top}%, 100% ${appetitePosition.top}%, 100% 100%, 0 100%)`
@@ -252,7 +249,6 @@ const RiskHeatMapSection = ({
               </div>
             </div>
             
-            {/* Risk Appetite Section */}
             <div>
               <h4 className="text-sm font-medium mb-2">Risk Appetite</h4>
               <div className="p-2 bg-blue-50 rounded">
