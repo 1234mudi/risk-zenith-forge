@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,18 +12,14 @@ import RiskHeatMapSection from "@/components/RiskHeatMapSection";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
-import RiskSummary from "@/components/RiskSummary";
-import RelatedRisks from "@/components/RelatedRisks";
 import FormHeader from "@/components/FormHeader";
-import RiskAppetiteIndicator from "@/components/RiskAppetiteIndicator";
-import { ChevronRight, ChevronLeft, BarChart, BarChart2, LayoutDashboard } from "lucide-react";
+import { ChevronRight, ChevronLeft, BarChart2 } from "lucide-react";
 import { 
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-// Mock list of risk assessments for navigation
 const MOCK_RISK_ASSESSMENTS = [
   { 
     id: "RA-2025-0001", 
@@ -161,7 +156,6 @@ const RiskAssessmentForm = () => {
     if (currentIndex < tabOrder.length - 1) {
       setActiveTab(tabOrder[currentIndex + 1]);
     } else {
-      // Navigate to next risk assessment
       navigateToNextRiskAssessment();
     }
   };
@@ -171,7 +165,6 @@ const RiskAssessmentForm = () => {
     if (currentIndex > 0) {
       setActiveTab(tabOrder[currentIndex - 1]);
     } else {
-      // Navigate to previous risk assessment
       navigateToPreviousRiskAssessment();
     }
   };
@@ -191,7 +184,6 @@ const RiskAssessmentForm = () => {
   const loadRiskAssessment = (index) => {
     const riskData = MOCK_RISK_ASSESSMENTS[index];
     
-    // Update form with new risk data
     updateForm({
       referenceId: riskData.id,
       risk: riskData.risk,
@@ -204,7 +196,6 @@ const RiskAssessmentForm = () => {
       residualRatingScore: riskData.residualRatingScore
     });
     
-    // Reset to first tab
     setActiveTab("general");
     
     toast({
@@ -214,38 +205,13 @@ const RiskAssessmentForm = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-6xl">
+    <div className="container mx-auto pb-6">
       <Card className="shadow-md">
         <CardHeader className="bg-slate-50 border-b pb-3">
           <FormHeader />
         </CardHeader>
         
         <div className="bg-white p-4 border-b sticky top-0 z-10 shadow-sm">
-          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-3">
-            <RiskSummary 
-              inherentScore={formState.inherentRatingScore} 
-              controlScore={formState.controlEffectivenessScore}
-              residualScore={formState.residualRatingScore}
-              getScoreColor={getScoreColor}
-              getScoreLabel={getScoreLabel}
-            />
-            
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setShowHeatMap(!showHeatMap)}
-                className="flex items-center gap-1"
-              >
-                <BarChart2 className="h-4 w-4" />
-                {showHeatMap ? "Hide Heat Map" : "Show Heat Map"}
-              </Button>
-              
-              <RelatedRisks />
-            </div>
-          </div>
-          
-          {/* Heat Map Collapsible */}
           <Collapsible 
             open={showHeatMap} 
             onOpenChange={setShowHeatMap}

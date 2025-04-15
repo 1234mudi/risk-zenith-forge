@@ -509,144 +509,200 @@ const ControlEffectivenessSection = ({
           </TableHeader>
           <TableBody>
             {controls.map((control) => (
-              <TableRow key={control.id}>
-                <TableCell>
-                  <Input 
-                    value={control.controlId}
-                    onChange={(e) => handleControlChange(control.id, "controlId", e.target.value)}
-                    className="font-mono text-xs"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input 
-                    value={control.name}
-                    onChange={(e) => handleControlChange(control.id, "name", e.target.value)}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={control.category}
-                    onValueChange={(value) => handleControlChange(control.id, "category", value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="preventive">Preventive</SelectItem>
-                      <SelectItem value="detective">Detective</SelectItem>
-                      <SelectItem value="corrective">Corrective</SelectItem>
-                      <SelectItem value="directive">Directive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={control.designEffect}
-                    onValueChange={(value) => handleControlChange(control.id, "designEffect", value)}
-                  >
-                    <SelectTrigger className={`w-full ${getEffectivenessColor(control.designEffect)}`}>
-                      <SelectValue placeholder="Rating" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ineffective" className="text-red-500">Ineffective</SelectItem>
-                      <SelectItem value="partially" className="text-orange-500">Partially Effective</SelectItem>
-                      <SelectItem value="effective" className="text-green-500">Effective</SelectItem>
-                      <SelectItem value="highly" className="text-green-600 font-semibold">Highly Effective</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={control.operativeEffect}
-                    onValueChange={(value) => handleControlChange(control.id, "operativeEffect", value)}
-                  >
-                    <SelectTrigger className={`w-full ${getEffectivenessColor(control.operativeEffect)}`}>
-                      <SelectValue placeholder="Rating" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ineffective" className="text-red-500">Ineffective</SelectItem>
-                      <SelectItem value="partially" className="text-orange-500">Partially Effective</SelectItem>
-                      <SelectItem value="effective" className="text-green-500">Effective</SelectItem>
-                      <SelectItem value="highly" className="text-green-600 font-semibold">Highly Effective</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Select
-                    value={control.effectiveness}
-                    onValueChange={(value) => handleControlChange(control.id, "effectiveness", value)}
-                  >
-                    <SelectTrigger className={`w-full ${getCellColor(control.effectiveness)}`}>
-                      <SelectValue placeholder="Rating" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1" className="text-green-500">Very Low (1)</SelectItem>
-                      <SelectItem value="2" className="text-yellow-500">Low (2)</SelectItem>
-                      <SelectItem value="3" className="text-orange-500">Medium (3)</SelectItem>
-                      <SelectItem value="4" className="text-red-500">High (4)</SelectItem>
-                      <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                {localShowWeights && (
+              <React.Fragment key={control.id}>
+                <TableRow>
                   <TableCell>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={control.weighting}
-                      onChange={(e) => handleControlChange(control.id, "weighting", e.target.value)}
+                    <Input 
+                      value={control.controlId}
+                      onChange={(e) => handleControlChange(control.id, "controlId", e.target.value)}
+                      className="font-mono text-xs"
                     />
                   </TableCell>
-                )}
-                <TableCell>
-                  <div className="flex space-x-1">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <ExternalLink className="h-4 w-4 text-blue-500" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Control Details: {control.name}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 mt-4">
-                          <div>
-                            <Label htmlFor={`comments-${control.id}`}>Comments</Label>
-                            <Textarea
-                              id={`comments-${control.id}`}
-                              value={control.comments}
-                              onChange={(e) => handleControlChange(control.id, "comments", e.target.value)}
-                              className="min-h-[80px] mt-1"
-                              placeholder="Add comments about this control"
-                            />
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id={`key-control-${control.id}`} 
-                              checked={control.isKeyControl}
-                              onCheckedChange={(checked) => 
-                                handleControlChange(control.id, "isKeyControl", checked === true)
-                              }
-                            />
-                            <Label htmlFor={`key-control-${control.id}`}>Key Control</Label>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemoveControl(control.id)}
-                      disabled={controls.length <= 1}
-                      className="text-red-500 h-8 w-8"
+                  <TableCell>
+                    <Input 
+                      value={control.name}
+                      onChange={(e) => handleControlChange(control.id, "name", e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={control.category}
+                      onValueChange={(value) => handleControlChange(control.id, "category", value)}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="preventive">Preventive</SelectItem>
+                        <SelectItem value="detective">Detective</SelectItem>
+                        <SelectItem value="corrective">Corrective</SelectItem>
+                        <SelectItem value="directive">Directive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={control.designEffect}
+                      onValueChange={(value) => handleControlChange(control.id, "designEffect", value)}
+                    >
+                      <SelectTrigger className={`w-full ${getEffectivenessColor(control.designEffect)}`}>
+                        <SelectValue placeholder="Rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ineffective" className="text-red-500">Ineffective</SelectItem>
+                        <SelectItem value="partially" className="text-orange-500">Partially Effective</SelectItem>
+                        <SelectItem value="effective" className="text-green-500">Effective</SelectItem>
+                        <SelectItem value="highly" className="text-green-600 font-semibold">Highly Effective</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={control.operativeEffect}
+                      onValueChange={(value) => handleControlChange(control.id, "operativeEffect", value)}
+                    >
+                      <SelectTrigger className={`w-full ${getEffectivenessColor(control.operativeEffect)}`}>
+                        <SelectValue placeholder="Rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ineffective" className="text-red-500">Ineffective</SelectItem>
+                        <SelectItem value="partially" className="text-orange-500">Partially Effective</SelectItem>
+                        <SelectItem value="effective" className="text-green-500">Effective</SelectItem>
+                        <SelectItem value="highly" className="text-green-600 font-semibold">Highly Effective</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={control.effectiveness}
+                      onValueChange={(value) => handleControlChange(control.id, "effectiveness", value)}
+                    >
+                      <SelectTrigger className={`w-full ${getCellColor(control.effectiveness)}`}>
+                        <SelectValue placeholder="Rating" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1" className="text-green-500">Very Low (1)</SelectItem>
+                        <SelectItem value="2" className="text-yellow-500">Low (2)</SelectItem>
+                        <SelectItem value="3" className="text-orange-500">Medium (3)</SelectItem>
+                        <SelectItem value="4" className="text-red-500">High (4)</SelectItem>
+                        <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  {localShowWeights && (
+                    <TableCell>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={control.weighting}
+                        onChange={(e) => handleControlChange(control.id, "weighting", e.target.value)}
+                      />
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    <div className="flex space-x-1">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <ExternalLink className="h-4 w-4 text-blue-500" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Control Details: {control.name}</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4 mt-4">
+                            <div>
+                              <Label htmlFor={`comments-${control.id}`}>Comments</Label>
+                              <Textarea
+                                id={`comments-${control.id}`}
+                                value={control.comments}
+                                onChange={(e) => handleControlChange(control.id, "comments", e.target.value)}
+                                className="min-h-[80px] mt-1"
+                                placeholder="Add comments about this control"
+                              />
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`key-control-${control.id}`} 
+                                checked={control.isKeyControl}
+                                onCheckedChange={(checked) => 
+                                  handleControlChange(control.id, "isKeyControl", checked === true)
+                                }
+                              />
+                              <Label htmlFor={`key-control-${control.id}`}>Key Control</Label>
+                            </div>
+                            
+                            {control.testResults && (
+                              <div className="border-t pt-4 mt-4">
+                                <h3 className="font-medium mb-2">Latest Control Test Results</h3>
+                                <div className="bg-slate-50 p-3 rounded-md border space-y-3">
+                                  <div className="flex justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <Clock className="h-4 w-4 text-slate-500" />
+                                      <span className="text-sm">Test Date: {control.testResults.lastTested}</span>
+                                    </div>
+                                    <Badge className={getTestResultColor(control.testResults.result)}>
+                                      {control.testResults.result === "pass" ? "Passed" : 
+                                       control.testResults.result === "partial" ? "Partially Passed" : "Failed"}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <div className="text-sm">
+                                    <div className="font-medium">Tester:</div>
+                                    <div>{control.testResults.tester}</div>
+                                  </div>
+                                  
+                                  <div className="text-sm">
+                                    <div className="font-medium">Findings:</div>
+                                    <div className="p-2 bg-white border rounded mt-1">
+                                      {control.testResults.findings}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="pt-2 border-t mt-3">
+                                    <Button variant="outline" size="sm" className="w-full">
+                                      View Test Evidence
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemoveControl(control.id)}
+                        disabled={controls.length <= 1}
+                        className="text-red-500 h-8 w-8"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+                {control.testResults && (
+                  <TableRow>
+                    <TableCell colSpan={localShowWeights ? 8 : 7} className="bg-slate-50 py-2 px-4">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">Latest Test:</span> 
+                          <span>{control.testResults.lastTested}</span>
+                          <span className="font-medium ml-2">Tester:</span> 
+                          <span>{control.testResults.tester}</span>
+                        </div>
+                        <Badge className={getTestResultColor(control.testResults.result)}>
+                          {control.testResults.result === "pass" ? "Passed" : 
+                           control.testResults.result === "partial" ? "Partially Passed" : "Failed"}
+                        </Badge>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
             ))}
           </TableBody>
         </Table>

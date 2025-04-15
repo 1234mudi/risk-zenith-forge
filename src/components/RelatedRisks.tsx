@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Collapsible,
@@ -5,7 +6,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Layers, ChevronRight, Shield } from "lucide-react";
+import { Layers, ChevronRight, Shield, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const relatedRisks = [
@@ -47,6 +48,7 @@ const relatedRisks = [
 const RelatedRisks = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedRisks, setExpandedRisks] = useState<string[]>([]);
+  const [expandedControls, setExpandedControls] = useState<{[key: string]: boolean}>({});
   
   const getScoreColor = (score: string) => {
     const numScore = parseFloat(score);
@@ -77,6 +79,21 @@ const RelatedRisks = () => {
         ? prev.filter(id => id !== riskId) 
         : [...prev, riskId]
     );
+    
+    // Initialize controls display for this risk if it's being expanded
+    if (!expandedRisks.includes(riskId)) {
+      setExpandedControls(prev => ({
+        ...prev,
+        [riskId]: false
+      }));
+    }
+  };
+  
+  const toggleControlsDisplay = (riskId: string) => {
+    setExpandedControls(prev => ({
+      ...prev,
+      [riskId]: !prev[riskId]
+    }));
   };
 
   return (
@@ -149,27 +166,49 @@ const RelatedRisks = () => {
                 {expandedRisks.includes(risk.id) && (
                   <TableRow>
                     <TableCell colSpan={4} className="bg-slate-50 p-3">
-                      <div className="text-xs font-medium mb-2 flex items-center">
-                        <Shield className="h-3 w-3 mr-1 text-blue-600" />
-                        Associated Controls
+                      <div 
+                        className="text-xs font-medium mb-2 flex items-center justify-between cursor-pointer"
+                        onClick={() => toggleControlsDisplay(risk.id)}
+                      >
+                        <div className="flex items-center">
+                          <Shield className="h-3 w-3 mr-1 text-blue-600" />
+                          Associated Controls
+                          <Badge variant="outline" className="ml-2 text-xs bg-blue-50">
+                            {risk.controls.length}
+                          </Badge>
+                        </div>
+                        <ChevronRight 
+                          className={`h-3 w-3 transition-transform ${expandedControls[risk.id] ? 'rotate-90' : ''}`} 
+                        />
                       </div>
-                      <div className="space-y-2">
-                        {risk.controls.map(control => (
-                          <div key={control.id} className="flex justify-between items-center p-2 bg-white rounded border text-xs">
-                            <div>
-                              <span className="font-medium">{control.name}</span>
-                              <span className="text-gray-500 ml-2 font-mono">{control.id}</span>
+                      
+                      {expandedControls[risk.id] && (
+                        <div className="space-y-2 mt-3">
+                          {risk.controls.map(control => (
+                            <div key={control.id} className="flex justify-between items-center p-2 bg-white rounded border text-xs">
+                              <div>
+                                <span className="font-medium">{control.name}</span>
+                                <span className="text-gray-500 ml-2 font-mono">{control.id}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge className={getCategoryColor(control.category)} variant="outline">
+                                  {control.category}
+                                </Badge>
+                                <Badge className={getEffectivenessColor(control.effectiveness)}>
+                                  {control.effectiveness}
+                                </Badge>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className={getCategoryColor(control.category)} variant="outline">
-                                {control.category}
-                              </Badge>
-                              <Badge className={getEffectivenessColor(control.effectiveness)}>
-                                {control.effectiveness}
-                              </Badge>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="mt-3 flex justify-between items-center">
+                        <div className="flex items-center gap-1 text-xs text-slate-500">
+                          <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                          This risk shares controls with the current risk assessment
+                        </div>
+                        <Badge variant="outline" className="text-xs">View Full Risk</Badge>
                       </div>
                     </TableCell>
                   </TableRow>
