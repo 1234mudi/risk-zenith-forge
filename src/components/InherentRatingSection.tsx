@@ -75,17 +75,11 @@ const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
 type InherentRatingSectionProps = {
   onNext: () => void;
   showWeights: boolean;
-  previousFactors?: FactorProps[];
-  previousScore?: string;
-  previousDate?: string;
 };
 
 const InherentRatingSection = ({ 
   onNext, 
-  showWeights,
-  previousFactors = [],
-  previousScore = "0.0",
-  previousDate = "",
+  showWeights
 }: InherentRatingSectionProps) => {
   const [factors, setFactors] = useState<FactorProps[]>(DEFAULT_IMPACT_FACTORS);
   const { updateForm, formState } = useForm();
@@ -233,16 +227,23 @@ const InherentRatingSection = ({
   };
 
   const copyFromPrevious = () => {
-    if (previousFactors && previousFactors.length > 0) {
-      setFactors(previousFactors);
-      updateForm({ inherentFactors: getAllChildFactors(previousFactors) });
-      calculateScore(previousFactors);
+    if (formState.previousInherentFactors && formState.previousInherentFactors.length > 0) {
+      const previousFactorStructure = [{
+        id: "impact",
+        name: "Impact",
+        description: "Overall impact assessment",
+        type: "parent",
+        children: formState.previousInherentFactors
+      }];
+      setFactors(previousFactorStructure);
+      updateForm({ inherentFactors: formState.previousInherentFactors });
+      calculateScore(previousFactorStructure);
     }
   };
 
   return (
     <div className="space-y-6">
-      {previousFactors && previousFactors.length > 0 && (
+      {formState.previousInherentFactors && formState.previousInherentFactors.length > 0 && (
         <Collapsible 
           defaultOpen={false}
           open={showPreviousAssessment} 
@@ -254,10 +255,10 @@ const InherentRatingSection = ({
               <Clock size={16} className="text-slate-500" />
               <h3 className="font-medium text-slate-700">Previous Assessment</h3>
               <Badge variant="outline" className="text-xs">
-                {previousDate}
+                {formState.previousAssessmentDate}
               </Badge>
-              <Badge className={getScoreColor(previousScore)}>
-                Score: {previousScore} ({getScoreLabel(previousScore)})
+              <Badge className={getScoreColor(formState.previousInherentRatingScore)}>
+                Score: {formState.previousInherentRatingScore} ({getScoreLabel(formState.previousInherentRatingScore)})
               </Badge>
             </div>
             
@@ -291,26 +292,24 @@ const InherentRatingSection = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {previousFactors.flatMap(parent => 
-                    parent.children?.map((factor) => (
-                      <TableRow key={factor.id}>
-                        <TableCell className="font-medium">{factor.name}</TableCell>
-                        <TableCell>{factor.description}</TableCell>
-                        <TableCell>
-                          <span className={getRatingColor(factor.value || "0")}>
-                            {factor.value === "1" ? "Very Low (1)" : 
-                             factor.value === "2" ? "Low (2)" : 
-                             factor.value === "3" ? "Medium (3)" : 
-                             factor.value === "4" ? "High (4)" : 
-                             factor.value === "5" ? "Very High (5)" : "Not Rated"}
-                          </span>
-                        </TableCell>
-                        {localShowWeights && (
-                          <TableCell>{factor.weighting}%</TableCell>
-                        )}
-                      </TableRow>
-                    )) || []
-                  )}
+                  {formState.previousInherentFactors.map((factor) => (
+                    <TableRow key={factor.id}>
+                      <TableCell className="font-medium">{factor.name}</TableCell>
+                      <TableCell>{factor.description}</TableCell>
+                      <TableCell>
+                        <span className={getRatingColor(factor.value || "0")}>
+                          {factor.value === "1" ? "Very Low (1)" : 
+                           factor.value === "2" ? "Low (2)" : 
+                           factor.value === "3" ? "Medium (3)" : 
+                           factor.value === "4" ? "High (4)" : 
+                           factor.value === "5" ? "Very High (5)" : "Not Rated"}
+                        </span>
+                      </TableCell>
+                      {localShowWeights && (
+                        <TableCell>{factor.weighting}%</TableCell>
+                      )}
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
