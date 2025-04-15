@@ -14,12 +14,24 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
     <div className="space-y-6">
       {/* Organization and Risk Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <OrganizationInfo />
-        <AssessableItemInfo />
+        <OrganizationInfo 
+          organization={formState.organization} 
+          onOrganizationChange={(value) => updateForm({ organization: value })}
+        />
+        <AssessableItemInfo 
+          assessableItem={formState.assessableItem}
+          onAssessableItemChange={(value) => updateForm({ assessableItem: value })}
+        />
       </div>
 
       {/* Risk Information */}
-      <RiskInfo />
+      <RiskInfo 
+        risk={formState.risk}
+        riskHierarchy={formState.riskHierarchy}
+        riskIdDisplay={formState.riskIdDisplay}
+        onRiskChange={(value) => updateForm({ risk: value })}
+        onRiskHierarchyChange={(value) => updateForm({ riskHierarchy: value })}
+      />
 
       {/* Assessment Guidance */}
       <Card>
@@ -28,10 +40,10 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
         </CardHeader>
         <CardContent>
           <AssessmentGuidance 
-            scope={formState.assessmentScope || ""} 
-            instructions={formState.assessmentInstructions || ""}
-            onScopeChange={(value) => updateForm({ assessmentScope: value })}
-            onInstructionsChange={(value) => updateForm({ assessmentInstructions: value })}
+            scope={formState.scope || ""} 
+            instructions={formState.instructions || ""}
+            onScopeChange={(value) => updateForm({ scope: value })}
+            onInstructionsChange={(value) => updateForm({ instructions: value })}
           />
         </CardContent>
       </Card>
@@ -46,4 +58,3 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
 };
 
 export default MainFormSection;
-

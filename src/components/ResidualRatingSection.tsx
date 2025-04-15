@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,8 +21,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { FactorProps } from "@/types/control-types";
 
-const DEFAULT_IMPACT_FACTORS = [
+const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   {
     id: "impact",
     name: "Impact",
@@ -70,17 +70,6 @@ const DEFAULT_IMPACT_FACTORS = [
   }
 ];
 
-type FactorProps = {
-  id: string;
-  name: string;
-  description?: string;
-  value?: string;
-  weighting?: string;
-  comments?: string;
-  type: "parent" | "child"; 
-  children?: FactorProps[];
-};
-
 type ResidualRatingSectionProps = {
   onNext: () => void;
   showWeights: boolean;
@@ -104,18 +93,16 @@ const ResidualRatingSection = ({
   const [showPreviousAssessment, setShowPreviousAssessment] = useState(false);
 
   const handleAddFactor = (parentId: string) => {
-    // If no parentId is provided, add a top-level factor
     if (!parentId) {
       const newId = `parent-${factors.length + 1}`;
       setFactors([...factors, {
         id: newId,
         name: "",
         description: "",
-        type: "parent",
+        type: "parent" as const,
         children: []
       }]);
     } else {
-      // Find the parent factor and add a child to it
       const updatedFactors = factors.map(factor => {
         if (factor.id === parentId) {
           const childId = `${parentId}-child-${(factor.children?.length || 0) + 1}`;
@@ -127,7 +114,7 @@ const ResidualRatingSection = ({
                 id: childId,
                 name: "",
                 description: "",
-                type: "child",
+                type: "child" as const,
                 value: "",
                 weighting: "0",
                 comments: ""
@@ -143,10 +130,8 @@ const ResidualRatingSection = ({
 
   const handleRemoveFactor = (parentId: string, childId?: string) => {
     if (!childId) {
-      // Remove a parent factor
       setFactors(factors.filter(f => f.id !== parentId));
     } else {
-      // Remove a child factor from a parent
       const updatedFactors = factors.map(factor => {
         if (factor.id === parentId && factor.children) {
           return {
@@ -159,7 +144,6 @@ const ResidualRatingSection = ({
       setFactors(updatedFactors);
     }
     
-    // Recalculate score after removing a factor
     calculateScore();
   };
 
@@ -167,7 +151,6 @@ const ResidualRatingSection = ({
     const updatedFactors = factors.map(factor => {
       if (factor.id === parentId) {
         if (childId && factor.children) {
-          // Update a child factor
           return {
             ...factor,
             children: factor.children.map(child => 
@@ -175,7 +158,6 @@ const ResidualRatingSection = ({
             )
           };
         } else {
-          // Update a parent factor
           return { ...factor, [field]: value };
         }
       }
@@ -187,7 +169,6 @@ const ResidualRatingSection = ({
     calculateScore(updatedFactors);
   };
 
-  // Get all child factors from all parent factors for calculations
   const getAllChildFactors = (factorsList = factors) => {
     return factorsList.flatMap(parent => parent.children || []);
   };
