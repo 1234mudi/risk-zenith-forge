@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
 import RiskSummary from "@/components/RiskSummary";
-import ScopeSharingRisks from "@/components/RelatedRisks";
+import RelatedRisks from "@/components/RelatedRisks";
 import FormHeader from "@/components/FormHeader";
 import RiskAppetiteIndicator from "@/components/RiskAppetiteIndicator";
 import { ChevronRight, ChevronLeft, BarChart, BarChart2, LayoutDashboard } from "lucide-react";
@@ -241,7 +241,7 @@ const RiskAssessmentForm = () => {
                 {showHeatMap ? "Hide Heat Map" : "Show Heat Map"}
               </Button>
               
-              <ScopeSharingRisks />
+              <RelatedRisks />
             </div>
           </div>
           
@@ -260,6 +260,7 @@ const RiskAssessmentForm = () => {
                   previousResidualScore={formState.previousResidualRatingScore}
                   riskName={formState.risk}
                   compact={true}
+                  onNext={() => {}}
                 />
               </div>
             </CollapsibleContent>

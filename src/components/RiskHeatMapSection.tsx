@@ -1,7 +1,8 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Circle, Flag } from "lucide-react";
+import { Circle, Flag, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type RiskHeatMapSectionProps = {
@@ -44,6 +45,10 @@ const RiskHeatMapSection = ({
   const residualPosition = getPositionFromScore(residualScore);
   const previousInherentPosition = getPositionFromScore(previousInherentScore);
   const previousResidualPosition = getPositionFromScore(previousResidualScore);
+  
+  // Risk appetite visualization
+  const appetiteThreshold = "2.5"; // This should come from formState.riskAppetite.threshold
+  const appetitePosition = getPositionFromScore(appetiteThreshold);
 
   return (
     <div className="space-y-6">
@@ -119,6 +124,24 @@ const RiskHeatMapSection = ({
             </div>
             <div className="absolute top-1/2 left-[-20px] transform -translate-y-1/2 rotate-[-90deg] text-sm font-medium text-slate-700">
               Impact
+            </div>
+            
+            {/* Risk Appetite Threshold Line */}
+            <div className="absolute inset-0 border-2 border-dashed border-blue-500 pointer-events-none opacity-60 z-10"
+                style={{
+                  clipPath: `polygon(0 ${appetitePosition.top}%, 100% ${appetitePosition.top}%, 100% 100%, 0 100%)`
+                }}>
+            </div>
+            <div className="absolute flex items-center" 
+                style={{ 
+                  top: `${appetitePosition.top - 2}%`,
+                  left: `98%`,
+                  transform: 'translateX(-100%)'
+                }}>
+              <Target size={16} className="text-blue-600 mr-1" />
+              <div className="text-[10px] bg-blue-50 text-blue-700 px-1 rounded">
+                Risk Appetite
+              </div>
             </div>
             
             <div 
@@ -225,6 +248,29 @@ const RiskHeatMapSection = ({
                   <Badge className="bg-blue-100 text-blue-800">
                     {(parseFloat(inherentScore) - parseFloat(residualScore)).toFixed(1)}
                   </Badge>
+                </div>
+              </div>
+            </div>
+            
+            {/* Risk Appetite Section */}
+            <div>
+              <h4 className="text-sm font-medium mb-2">Risk Appetite</h4>
+              <div className="p-2 bg-blue-50 rounded">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Target size={12} className="text-blue-600" />
+                    <span className="text-sm">Threshold:</span>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-800">
+                    {appetiteThreshold}
+                  </Badge>
+                </div>
+                <div className="mt-2 text-xs">
+                  {parseFloat(residualScore) > parseFloat(appetiteThreshold) ? (
+                    <span className="text-red-600 font-medium">Residual risk is above appetite threshold</span>
+                  ) : (
+                    <span className="text-green-600 font-medium">Residual risk is within appetite threshold</span>
+                  )}
                 </div>
               </div>
             </div>

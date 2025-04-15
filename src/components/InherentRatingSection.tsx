@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Copy, Clock, Plus, LineChart as LineChartIcon, PenLine } from "lucide-react";
+import { Eye, EyeOff, Copy, Clock, Plus, BarChartIcon as LucideLineChart, PenLine } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { 
   Collapsible,
@@ -49,13 +49,14 @@ type InherentFactor = {
   value: string;
   weighting: string;
   comments: string;
+  showWeight?: boolean;
 };
 
 const DEFAULT_FACTORS: InherentFactor[] = [
-  { id: "1", name: "Financial Impact", value: "4", weighting: "25", comments: "Significant financial penalties could be imposed" },
-  { id: "2", name: "Reputational Impact", value: "3", weighting: "25", comments: "Media coverage and customer trust issues" },
-  { id: "3", name: "Operational Impact", value: "2", weighting: "25", comments: "Some processes would need revision" },
-  { id: "4", name: "Regulatory Impact", value: "5", weighting: "25", comments: "Direct violation of key regulations" },
+  { id: "1", name: "Financial Impact", value: "4", weighting: "25", comments: "Significant financial penalties could be imposed", showWeight: true },
+  { id: "2", name: "Reputational Impact", value: "3", weighting: "25", comments: "Media coverage and customer trust issues", showWeight: true },
+  { id: "3", name: "Operational Impact", value: "2", weighting: "25", comments: "Some processes would need revision", showWeight: true },
+  { id: "4", name: "Regulatory Impact", value: "5", weighting: "25", comments: "Direct violation of key regulations", showWeight: true },
 ];
 
 type InherentRatingSectionProps = {
@@ -73,7 +74,10 @@ const InherentRatingSection = ({
   previousScore = "0.0",
   previousDate = "",
 }: InherentRatingSectionProps) => {
-  const [factors, setFactors] = useState<InherentFactor[]>(DEFAULT_FACTORS);
+  const [factors, setFactors] = useState<InherentFactor[]>(DEFAULT_FACTORS.map(factor => ({
+    ...factor,
+    showWeight: showWeights
+  })));
   const { updateForm, formState } = useForm();
   const [overallScore, setOverallScore] = useState<string>(formState.inherentRatingScore || "0.0");
   const [manualOverride, setManualOverride] = useState<boolean>(false);
@@ -204,81 +208,10 @@ const InherentRatingSection = ({
     }));
   };
 
-  const getFactorColumns = (): EditableGridColumn[] => {
-    const columns: EditableGridColumn[] = [
-      {
-        field: "name",
-        header: "Factor Name",
-        width: "25%",
-        editable: true,
-        type: "text"
-      },
-      {
-        field: "value",
-        header: "Rating",
-        width: "15%",
-        editable: true,
-        type: "select",
-        options: [
-          { value: "1", label: "Very Low (1)", className: "text-green-500" },
-          { value: "2", label: "Low (2)", className: "text-yellow-500" },
-          { value: "3", label: "Medium (3)", className: "text-orange-500" },
-          { value: "4", label: "High (4)", className: "text-red-500" },
-          { value: "5", label: "Very High (5)", className: "text-red-600 font-semibold" }
-        ],
-        cellClassName: (value) => getCellColor(value)
-      }
-    ];
-    
-    if (localShowWeights) {
-      columns.push({
-        field: "weighting",
-        header: "Weight (%)",
-        width: "15%",
-        editable: true,
-        type: "number"
-      });
-    }
-    
-    columns.push({
-      field: "comments",
-      header: "Comments",
-      editable: true,
-      type: "textarea"
-    });
-    
-    return columns;
-  };
-
-  const getPreviousFactorColumns = (): EditableGridColumn[] => {
-    const columns: EditableGridColumn[] = [
-      {
-        field: "name",
-        header: "Factor Name",
-        width: "25%"
-      },
-      {
-        field: "value",
-        header: "Rating",
-        width: "15%",
-        type: "rating"
-      }
-    ];
-    
-    if (localShowWeights) {
-      columns.push({
-        field: "weighting",
-        header: "Weight (%)",
-        width: "15%"
-      });
-    }
-    
-    columns.push({
-      field: "comments",
-      header: "Comments"
-    });
-    
-    return columns;
+  const toggleRowWeightVisibility = (index: number) => {
+    const updatedFactors = [...factors];
+    updatedFactors[index].showWeight = !updatedFactors[index].showWeight;
+    setFactors(updatedFactors);
   };
 
   return (
@@ -295,7 +228,7 @@ const InherentRatingSection = ({
           onClick={() => setShowTrendChart(!showTrendChart)}
           className="flex items-center gap-1 mb-2"
         >
-          <LineChartIcon className="h-4 w-4" />
+          <LucideLineChart className="h-4 w-4" />
           {showTrendChart ? "Hide Trend Chart" : "Show Trend Chart"}
         </Button>
       </div>
@@ -416,7 +349,7 @@ const InherentRatingSection = ({
             className="flex items-center gap-1"
           >
             {localShowWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            {localShowWeights ? "Hide Weights" : "Show Weights"}
+            {localShowWeights ? "Hide All Weights" : "Show All Weights"}
           </Button>
           
           <Dialog>
@@ -501,7 +434,7 @@ const InherentRatingSection = ({
               <TableRow className="bg-slate-50">
                 <TableHead>Factor Name</TableHead>
                 <TableHead>Rating</TableHead>
-                {localShowWeights && <TableHead>Weight (%)</TableHead>}
+                <TableHead>Weight & Visibility</TableHead>
                 <TableHead>Comments</TableHead>
               </TableRow>
             </TableHeader>
@@ -535,19 +468,35 @@ const InherentRatingSection = ({
                       <option value="5">Very High (5)</option>
                     </select>
                   </TableCell>
-                  {localShowWeights && (
-                    <TableCell>
-                      <Input 
-                        type="number"
-                        value={factor.weighting}
-                        onChange={(e) => {
-                          const updatedFactors = [...factors];
-                          updatedFactors[index].weighting = e.target.value;
-                          handleFactorsChange(updatedFactors);
-                        }}
-                      />
-                    </TableCell>
-                  )}
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {factor.showWeight && (
+                        <Input 
+                          type="number"
+                          value={factor.weighting}
+                          onChange={(e) => {
+                            const updatedFactors = [...factors];
+                            updatedFactors[index].weighting = e.target.value;
+                            handleFactorsChange(updatedFactors);
+                          }}
+                          className="w-20"
+                        />
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => toggleRowWeightVisibility(index)}
+                        className="h-8 w-8"
+                        title={factor.showWeight ? "Hide Weight" : "Show Weight"}
+                      >
+                        {factor.showWeight ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <Textarea 
                       value={factor.comments}
