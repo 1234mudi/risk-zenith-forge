@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Copy, Clock, Plus, LineChart, PenLine } from "lucide-react";
+import { Eye, EyeOff, Copy, Clock, Plus, LineChart as LineChartIcon, PenLine } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { 
   Collapsible,
@@ -189,16 +188,13 @@ const InherentRatingSection = ({
     updateForm({ inherentRatingOverrideComment: value });
   };
 
-  // Prepare trend chart data
   const getTrendChartData = () => {
     const historicalData = [...formState.historicalAssessments];
     
-    // Sort by date ascending
     historicalData.sort((a, b) => 
       new Date(a.assessmentDate).getTime() - new Date(b.assessmentDate).getTime()
     );
     
-    // Format for recharts
     return historicalData.map(assessment => ({
       date: new Date(assessment.assessmentDate).toLocaleDateString('en-US', { 
         year: '2-digit', 
@@ -208,7 +204,6 @@ const InherentRatingSection = ({
     }));
   };
 
-  // Define columns for the editable grid
   const getFactorColumns = (): EditableGridColumn[] => {
     const columns: EditableGridColumn[] = [
       {
@@ -255,7 +250,6 @@ const InherentRatingSection = ({
     return columns;
   };
 
-  // Define columns for the previous assessment grid view
   const getPreviousFactorColumns = (): EditableGridColumn[] => {
     const columns: EditableGridColumn[] = [
       {
@@ -294,7 +288,6 @@ const InherentRatingSection = ({
         <p className="text-blue-700 text-sm">Assess the initial impact of the risk before any controls are applied.</p>
       </div>
       
-      {/* Trend Chart Toggle Button */}
       <div className="flex justify-end">
         <Button
           variant="outline"
@@ -302,12 +295,11 @@ const InherentRatingSection = ({
           onClick={() => setShowTrendChart(!showTrendChart)}
           className="flex items-center gap-1 mb-2"
         >
-          <LineChart className="h-4 w-4" />
+          <LineChartIcon className="h-4 w-4" />
           {showTrendChart ? "Hide Trend Chart" : "Show Trend Chart"}
         </Button>
       </div>
       
-      {/* Trend Chart */}
       {showTrendChart && (
         <div className="border rounded-md p-4">
           <h3 className="text-sm font-medium mb-2">Inherent Risk Rating Trend</h3>

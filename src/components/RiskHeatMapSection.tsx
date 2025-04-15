@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,6 +11,7 @@ type RiskHeatMapSectionProps = {
   previousInherentScore: string;
   previousResidualScore: string;
   riskName: string;
+  compact?: boolean;
 };
 
 const RiskHeatMapSection = ({
@@ -20,23 +20,15 @@ const RiskHeatMapSection = ({
   residualScore,
   previousInherentScore,
   previousResidualScore,
-  riskName
+  riskName,
+  compact = false
 }: RiskHeatMapSectionProps) => {
   const getPositionFromScore = (score: string) => {
     const numScore = parseFloat(score);
-    // Calculate position on 5x5 grid (1-5 for both axes)
-    // Impact (y-axis): higher score = higher impact
-    // Likelihood (x-axis): higher score = higher likelihood
-    
-    // These calculations are simplified for this example
-    // Assuming the score represents an average of impact and likelihood
     let impact = Math.min(Math.ceil(numScore), 5);
     let likelihood = Math.min(Math.ceil(numScore), 5);
-    
-    // Position in percentage from top-left (0,0) to (100,100)
-    const top = 100 - (impact * 20); // Invert for CSS positioning (0 is top)
-    const left = likelihood * 20 - 10; // -10 to center the point
-    
+    const top = 100 - (impact * 20);
+    const left = likelihood * 20 - 10;
     return { top, left };
   };
 
@@ -55,49 +47,45 @@ const RiskHeatMapSection = ({
 
   return (
     <div className="space-y-6">
-      <div className="bg-purple-50 p-4 rounded-md">
-        <h2 className="text-xl font-medium text-purple-800 mb-2">Risk Heat Map</h2>
-        <p className="text-purple-700 text-sm">
-          Visualize the inherent and residual risk positions on the heat map, showing the effect of controls.
-        </p>
-      </div>
+      {!compact && (
+        <div className="bg-purple-50 p-4 rounded-md">
+          <h2 className="text-xl font-medium text-purple-800 mb-2">Risk Heat Map</h2>
+          <p className="text-purple-700 text-sm">
+            Visualize the inherent and residual risk positions on the heat map, showing the effect of controls.
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-6">
         <Card className="flex-1 p-4">
           <h3 className="font-medium text-lg mb-4">Risk Heat Map</h3>
           
           <div className="relative w-full h-[400px] border rounded-md bg-white overflow-hidden">
-            {/* Heat map background colors */}
             <div className="absolute inset-0 grid grid-cols-5 grid-rows-5">
-              {/* Row 1 - Very High Impact */}
               <div className="bg-red-100"></div>
               <div className="bg-red-200"></div>
               <div className="bg-red-300"></div>
               <div className="bg-red-400"></div>
               <div className="bg-red-500"></div>
               
-              {/* Row 2 - High Impact */}
               <div className="bg-orange-100"></div>
               <div className="bg-orange-200"></div>
               <div className="bg-orange-300"></div>
               <div className="bg-red-300"></div>
               <div className="bg-red-400"></div>
               
-              {/* Row 3 - Medium Impact */}
               <div className="bg-yellow-100"></div>
               <div className="bg-yellow-200"></div>
               <div className="bg-orange-200"></div>
               <div className="bg-orange-300"></div>
               <div className="bg-red-300"></div>
               
-              {/* Row 4 - Low Impact */}
               <div className="bg-green-100"></div>
               <div className="bg-yellow-100"></div>
               <div className="bg-yellow-200"></div>
               <div className="bg-orange-200"></div>
               <div className="bg-orange-300"></div>
               
-              {/* Row 5 - Very Low Impact */}
               <div className="bg-green-50"></div>
               <div className="bg-green-100"></div>
               <div className="bg-yellow-100"></div>
@@ -105,14 +93,12 @@ const RiskHeatMapSection = ({
               <div className="bg-orange-200"></div>
             </div>
             
-            {/* Grid lines */}
             <div className="absolute inset-0 grid grid-cols-5 grid-rows-5">
               {Array.from({ length: 25 }).map((_, i) => (
                 <div key={i} className="border border-white/30"></div>
               ))}
             </div>
             
-            {/* Axis labels */}
             <div className="absolute inset-x-0 bottom-0 flex justify-between px-4 pb-1 text-xs font-medium text-slate-600">
               <span>Very Low</span>
               <span>Low</span>
@@ -128,7 +114,6 @@ const RiskHeatMapSection = ({
               <span>Very Low</span>
             </div>
             
-            {/* X and Y axis labels */}
             <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-sm font-medium text-slate-700">
               Likelihood
             </div>
@@ -136,7 +121,6 @@ const RiskHeatMapSection = ({
               Impact
             </div>
             
-            {/* Previous assessment points */}
             <div 
               className="absolute flex flex-col items-center opacity-50"
               style={{ 
@@ -159,7 +143,6 @@ const RiskHeatMapSection = ({
               <div className="text-[10px] font-mono mt-1 bg-white/70 px-1 rounded">Previous Residual</div>
             </div>
             
-            {/* Current assessment points */}
             <div 
               className="absolute flex flex-col items-center"
               style={{ 
@@ -182,7 +165,6 @@ const RiskHeatMapSection = ({
               <div className="text-[10px] font-mono mt-1 bg-white/70 px-1 rounded">Residual</div>
             </div>
             
-            {/* Arrow connecting the two points */}
             <svg 
               className="absolute inset-0 w-full h-full pointer-events-none" 
               style={{ zIndex: 5 }}
@@ -291,9 +273,11 @@ const RiskHeatMapSection = ({
         </Card>
       </div>
       
-      <div className="flex justify-end">
-        <Button onClick={onNext}>Continue to Treatment</Button>
-      </div>
+      {!compact && (
+        <div className="flex justify-end">
+          <Button onClick={onNext}>Continue to Treatment</Button>
+        </div>
+      )}
     </div>
   );
 };
