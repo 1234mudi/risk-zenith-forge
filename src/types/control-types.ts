@@ -1,4 +1,3 @@
-
 export type Control = {
   id: string;
   controlId: string;
@@ -27,7 +26,7 @@ export type ControlLibraryItem = {
 
 export type FactorType = "parent" | "child";
 
-export type FactorProps = {
+export interface FactorProps {
   id: string;
   name: string;
   description?: string;
@@ -36,5 +35,4 @@ export type FactorProps = {
   comments?: string;
   type: FactorType;
   children?: FactorProps[];
-};
-
+}

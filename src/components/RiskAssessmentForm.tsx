@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import MainFormSection from "@/components/MainFormSection";
 import InherentRatingSection from "@/components/InherentRatingSection";
 import ControlEffectivenessSection from "@/components/ControlEffectivenessSection";
@@ -16,6 +16,7 @@ import RiskAssessmentNavigation from "@/components/RiskAssessmentNavigation";
 import RiskAssessmentFooter from "@/components/RiskAssessmentFooter";
 import MetricsAndLossesSection from "./MetricsAndLossesSection";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
+import { useForm } from "@/contexts/FormContext";
 
 const RiskAssessmentForm = () => {
   const {
@@ -27,6 +28,8 @@ const RiskAssessmentForm = () => {
     navigateToNextRiskAssessment,
     navigateToPreviousRiskAssessment
   } = useRiskAssessment();
+  
+  const { formState } = useForm();
 
   const handleNext = () => {
     const tabOrder = ["general", "inherent", "control", "residual", "treatment", "metrics", "issues", "comments"];
@@ -87,15 +90,15 @@ const RiskAssessmentForm = () => {
               </TabsContent>
               
               <TabsContent value="inherent">
-                <InherentRatingSection onNext={handleNext} />
+                <InherentRatingSection onNext={handleNext} showWeights={true} />
               </TabsContent>
               
               <TabsContent value="control">
-                <ControlEffectivenessSection onNext={handleNext} />
+                <ControlEffectivenessSection onNext={handleNext} showWeights={true} />
               </TabsContent>
               
               <TabsContent value="residual">
-                <ResidualRatingSection onNext={handleNext} />
+                <ResidualRatingSection onNext={handleNext} showWeights={true} />
               </TabsContent>
               
               <TabsContent value="treatment">
