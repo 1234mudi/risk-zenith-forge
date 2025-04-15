@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FactorProps } from "@/types/control-types";
+import { FactorProps, FactorType } from "@/types/control-types";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
@@ -306,7 +306,7 @@ const InherentRatingSection = ({
         id: newId,
         name: "",
         description: "",
-        type: "parent" as const,
+        type: "parent" as FactorType,
         children: []
       }]);
     } else {
@@ -321,7 +321,7 @@ const InherentRatingSection = ({
                 id: childId,
                 name: "",
                 description: "",
-                type: "child" as const,
+                type: "child" as FactorType,
                 value: "",
                 weighting: "0",
                 comments: ""
@@ -444,12 +444,20 @@ const InherentRatingSection = ({
         id: "impact",
         name: "Impact",
         description: "Overall impact assessment",
-        type: "parent" as const,
-        children: latestAssessment.factors
+        type: "parent" as FactorType,
+        children: latestAssessment.factors.map(factor => ({
+          ...factor,
+          type: "child" as FactorType
+        }))
       }];
       
       setFactors(previousFactorStructure);
-      updateForm({ inherentFactors: latestAssessment.factors });
+      updateForm({ 
+        inherentFactors: latestAssessment.factors.map(factor => ({
+          ...factor,
+          type: "child" as FactorType
+        }))
+      });
       setOverallScore(latestAssessment.score);
       updateForm({ inherentRatingScore: latestAssessment.score });
     }

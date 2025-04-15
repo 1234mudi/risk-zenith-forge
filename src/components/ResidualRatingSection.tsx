@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FactorProps } from "@/types/control-types";
+import { FactorProps, FactorType } from "@/types/control-types";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
@@ -444,12 +444,20 @@ const ResidualRatingSection = ({
         id: "impact",
         name: "Impact",
         description: "Overall impact assessment",
-        type: "parent" as const,
-        children: latestAssessment.factors
+        type: "parent" as FactorType,
+        children: latestAssessment.factors.map(factor => ({
+          ...factor,
+          type: "child" as FactorType
+        }))
       }];
       
       setFactors(previousFactorStructure);
-      updateForm({ residualFactors: latestAssessment.factors });
+      updateForm({ 
+        residualFactors: latestAssessment.factors.map(factor => ({
+          ...factor,
+          type: "child" as FactorType
+        }))
+      });
       setOverallScore(latestAssessment.score);
       updateForm({ residualRatingScore: latestAssessment.score });
     }
