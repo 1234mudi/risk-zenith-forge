@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useForm } from "@/contexts/FormContext";
 import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown } from "lucide-react";
@@ -90,8 +91,7 @@ const FormHeader = () => {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => {}} 
-            className="flex items-center gap-1 bg-blue-50 text-blue-700 hover:bg-blue-100 w-40 justify-center"
+            className="flex items-center gap-1 w-40 justify-center"
           >
             <Shield className="h-4 w-4" />
             Show Heat Map
