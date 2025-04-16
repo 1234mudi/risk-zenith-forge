@@ -10,6 +10,7 @@ import { useResidualRating, SAMPLE_HISTORICAL_ASSESSMENTS } from "@/hooks/useRes
 import { getScoreColor, getScoreLabel, getCellColor } from "@/utils/rating-utils";
 import { getRatingColor } from "@/utils/control-utils";
 import { FactorType } from "@/types/control-types";
+import RiskTrendChart from "./charts/RiskTrendChart";
 
 type ResidualRatingSectionProps = {
   onNext: () => void;
@@ -73,10 +74,11 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
       
       {showTrendChart && (
         <Card className="p-4 border">
-          <div className="h-64 flex items-center justify-center border rounded">
-            <LineChart className="h-6 w-6 text-slate-300" />
-            <span className="ml-2 text-slate-500">Residual Risk Trend Chart Placeholder</span>
-          </div>
+          <RiskTrendChart 
+            assessments={assessmentHistory} 
+            color="#22c55e" // Green color for residual risk
+            title="Residual Risk Score"
+          />
         </Card>
       )}
       

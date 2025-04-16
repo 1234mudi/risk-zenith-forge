@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { FactorProps, FactorType } from "@/types/control-types";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid";
+import RiskTrendChart from "./charts/RiskTrendChart";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   {
@@ -563,10 +564,11 @@ const InherentRatingSection = ({
       
       {showTrendChart && (
         <Card className="p-4 border">
-          <div className="h-64 flex items-center justify-center border rounded">
-            <LineChart className="h-6 w-6 text-slate-300" />
-            <span className="ml-2 text-slate-500">Inherent Risk Trend Chart Placeholder</span>
-          </div>
+          <RiskTrendChart 
+            assessments={assessmentHistory} 
+            color="#f97316" // Orange color for inherent risk
+            title="Inherent Risk Score"
+          />
         </Card>
       )}
       
