@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -338,9 +337,10 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
     ]);
   };
 
-  const handleRemoveControl = (id: string) => {
+  const handleRemoveControl = (rowIndex: number) => {
     if (controls.length <= 1) return;
-    setControls(controls.filter(control => control.id !== id));
+    const controlToRemove = controls[rowIndex];
+    setControls(controls.filter(control => control.id !== controlToRemove.id));
   };
 
   const handleControlChange = (id: string, field: keyof Control, value: any) => {
