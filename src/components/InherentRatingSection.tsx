@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Eye, EyeOff } from "lucide-react";
@@ -478,11 +477,11 @@ const InherentRatingSection = ({
       editable: true,
       type: "select",
       options: [
-        { value: "1", label: "Very Low (1)", className: "text-green-500" },
-        { value: "2", label: "Low (2)", className: "text-yellow-500" },
-        { value: "3", label: "Medium (3)", className: "text-orange-500" },
-        { value: "4", label: "High (4)", className: "text-red-500" },
-        { value: "5", label: "Very High (5)", className: "text-red-600 font-semibold" }
+        { value: "1", label: "Very Low (1)", className: "text-green-500 bg-green-50" },
+        { value: "2", label: "Low (2)", className: "text-yellow-500 bg-yellow-50" },
+        { value: "3", label: "Medium (3)", className: "text-orange-500 bg-orange-50" },
+        { value: "4", label: "High (4)", className: "text-red-500 bg-red-50" },
+        { value: "5", label: "Very High (5)", className: "text-red-600 bg-red-50 font-semibold" }
       ]
     }
   ];
@@ -490,7 +489,7 @@ const InherentRatingSection = ({
   if (localShowWeights) {
     columns.push({
       field: "weighting",
-      header: "Weight (%)",
+      header: "Factor Weightage (%)",
       editable: true,
       type: "number"
     });
@@ -584,6 +583,7 @@ const InherentRatingSection = ({
           }
         }}
         allowBulkEdit
+        className="border-collapse [&_th]:bg-yellow-50 [&_td]:border [&_th]:border [&_td]:border-slate-200 [&_th]:border-slate-200"
       />
       
       <div className="flex justify-end">

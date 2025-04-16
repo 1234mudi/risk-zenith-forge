@@ -134,10 +134,11 @@ const RiskHeatMapVisualizer: React.FC<RiskHeatMapVisualizerProps> = ({
                 >
                   <defs>
                     <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#22c55e" stopOpacity={0.8} />
+                      <stop offset="0%" stopColor="#4ade80" stopOpacity={0.8} />
+                      <stop offset="25%" stopColor="#22c55e" stopOpacity={0.8} />
                       <stop offset="50%" stopColor="#eab308" stopOpacity={0.8} />
                       <stop offset="75%" stopColor="#f97316" stopOpacity={0.8} />
-                      <stop offset="100%" stopColor="#ef4444" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="#dc2626" stopOpacity={0.8} />
                     </linearGradient>
                   </defs>
                   
@@ -163,10 +164,8 @@ const RiskHeatMapVisualizer: React.FC<RiskHeatMapVisualizerProps> = ({
                   
                   <ZAxis type="number" dataKey="z" range={[100, 500]} />
 
-                  {/* Background gradient for the chart */}
                   <rect x="0" y="0" width="100%" height="100%" fill="url(#colorGradient)" opacity={0.2} />
 
-                  {/* Appetite Threshold Lines */}
                   <ReferenceLine 
                     y={appetiteThreshold} 
                     stroke={riskAppetite.color} 
@@ -198,7 +197,6 @@ const RiskHeatMapVisualizer: React.FC<RiskHeatMapVisualizerProps> = ({
                     cursor={{ stroke: '#666', strokeWidth: 1, strokeDasharray: '5 5' }}
                   />
                   
-                  {/* Current Risk Point */}
                   <Scatter 
                     name="Current" 
                     data={currentRiskData} 
@@ -215,7 +213,6 @@ const RiskHeatMapVisualizer: React.FC<RiskHeatMapVisualizerProps> = ({
                     }}
                   />
                   
-                  {/* Previous Risk Point */}
                   {previousRiskData.length > 0 && (
                     <Scatter 
                       name="Previous" 
@@ -230,7 +227,6 @@ const RiskHeatMapVisualizer: React.FC<RiskHeatMapVisualizerProps> = ({
                     />
                   )}
                   
-                  {/* Line connecting current inherent to residual */}
                   {currentRiskData.length > 0 && (
                     <Scatter
                       name="Connection"
