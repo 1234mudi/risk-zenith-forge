@@ -10,6 +10,7 @@ import { calculateControlScore } from "@/utils/control-utils";
 import ControlLibraryDialog from "./controls/ControlLibraryDialog";
 import ControlGrid from "./controls/ControlGrid";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
+import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts";
 
 const DEFAULT_CONTROLS: Control[] = [
   {
@@ -279,16 +280,18 @@ type ControlEffectivenessSectionProps = {
   showWeights: boolean;
 };
 
-const ControlEffectivenessSection = ({ 
-  onNext, 
-  showWeights
-}: ControlEffectivenessSectionProps) => {
+const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivenessSectionProps) => {
   const [controls, setControls] = useState<Control[]>(DEFAULT_CONTROLS);
   const { updateForm, formState } = useForm();
   const [overallScore, setOverallScore] = useState<string>(formState.controlEffectivenessScore || "0.0");
   const [localShowWeights, setLocalShowWeights] = useState(showWeights);
   const [showTrendChart, setShowTrendChart] = useState(false);
-  
+  const [controlTrendData, setControlTrendData] = useState(SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS.map(assessment => ({
+    date: assessment.date,
+    score: parseFloat(assessment.score),
+    result: assessment.controls[0]?.testResults?.result || 'not tested'
+  })));
+
   const assessmentHistory = SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS.map(assessment => ({
     date: assessment.date,
     score: assessment.score
@@ -403,7 +406,7 @@ const ControlEffectivenessSection = ({
         type="control"
       />
       
-      <div className="flex justify-between items-center p-4 bg-slate-50 rounded-md border">
+      <div className="flex justify-between items-center p-4 bg-yellow-50 rounded-md border">
         <div>
           <h3 className="font-medium text-slate-700">Overall Control Effectiveness</h3>
           <p className="text-sm text-slate-500">Calculated based on weighted controls</p>
@@ -436,9 +439,17 @@ const ControlEffectivenessSection = ({
       
       {showTrendChart && (
         <Card className="p-4 border">
-          <div className="h-64 flex items-center justify-center border rounded">
-            <LineChart className="h-6 w-6 text-slate-300" />
-            <span className="ml-2 text-slate-500">Control Effectiveness Trend Chart Placeholder</span>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={controlTrendData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="score" fill="#8884d8" name="Control Score" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </Card>
       )}
@@ -482,11 +493,48 @@ const ControlEffectivenessSection = ({
         />
       </div>
       
-      <ControlGrid 
-        controls={controls}
-        onUpdateControl={handleControlChange}
+      <EditableGrid 
+        columns={[
+          { field: 'controlId', header: 'Control ID', width: '120px', editable: true },
+          { field: 'name', header: 'Control Name', editable: true },
+          { field: 'category', header: 'Category', type: 'select', editable: true, 
+            options: [
+              { value: 'preventive', label: 'Preventive' },
+              { value: 'detective', label: 'Detective' },
+              { value: 'corrective', label: 'Corrective' },
+              { value: 'directive', label: 'Directive' }
+            ]
+          },
+          { field: 'designEffect', header: 'Design', type: 'select', editable: true,
+            options: [
+              { value: 'ineffective', label: 'Ineffective', className: 'text-red-500' },
+              { value: 'partially', label: 'Partially Effective', className: 'text-orange-500' },
+              { value: 'effective', label: 'Effective', className: 'text-green-500' },
+              { value: 'highly', label: 'Highly Effective', className: 'text-green-600 font-semibold' }
+            ]
+          },
+          { field: 'operativeEffect', header: 'Operating', type: 'select', editable: true,
+            options: [
+              { value: 'ineffective', label: 'Ineffective', className: 'text-red-500' },
+              { value: 'partially', label: 'Partially Effective', className: 'text-orange-500' },
+              { value: 'effective', label: 'Effective', className: 'text-green-500' },
+              { value: 'highly', label: 'Highly Effective', className: 'text-green-600 font-semibold' }
+            ]
+          },
+          { field: 'effectiveness', header: 'Overall', type: 'rating', editable: true },
+          { field: 'weighting', header: 'Factor Weightage (%)', type: 'number', editable: true },
+          { field: 'evidence', header: 'Evidences', type: 'fileUpload' }
+        ]}
+        data={controls}
+        onDataChange={(newData) => {
+          setControls(newData);
+          updateForm({ controls: newData });
+        }}
+        keyField="id"
+        onAddRow={handleAddControl}
         onRemoveControl={handleRemoveControl}
-        showWeights={localShowWeights}
+        className="border-collapse [&_th]:bg-yellow-50 [&_td]:border [&_th]:border [&_th]:border-slate-200 [&_td]:border-slate-200"
+        allowBulkEdit={true}
       />
       
       <div className="flex justify-end">

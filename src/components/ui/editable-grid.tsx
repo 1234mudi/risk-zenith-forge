@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -8,13 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Check, X, Edit, Plus, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export type EditableGridColumn = {
   field: string;
   header: string;
   width?: string;
   editable?: boolean;
-  type?: 'text' | 'number' | 'select' | 'textarea' | 'rating';
+  type?: 'text' | 'number' | 'select' | 'textarea' | 'rating' | 'fileUpload';
   options?: { label: string; value: string; className?: string }[];
   className?: string;
   cellClassName?: (value: any) => string;
@@ -29,7 +29,7 @@ type EditableGridProps = {
   onRemoveRow?: (index: number) => void;
   allowBulkEdit?: boolean;
   maxHeight?: string;
-  className?: string; // Added className prop to accept custom styling
+  className?: string;
 };
 
 const EditableGrid = ({
@@ -41,7 +41,7 @@ const EditableGrid = ({
   onRemoveRow,
   allowBulkEdit = true,
   maxHeight = '500px',
-  className, // Add the className prop to the component props
+  className,
 }: EditableGridProps) => {
   const [editingCell, setEditingCell] = useState<{ rowIndex: number; field: string } | null>(null);
   const [editValue, setEditValue] = useState<any>('');
@@ -123,7 +123,6 @@ const EditableGrid = ({
     setBulkEditValue('');
   };
 
-  // Handle clicks outside the cell to save changes
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cellRef.current && !cellRef.current.contains(event.target as Node)) {
@@ -145,12 +144,10 @@ const EditableGrid = ({
     const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.field === column.field;
     const isBulkEditing = bulkEditMode && bulkEditField === column.field && selectedRows.includes(rowIndex);
 
-    // If this cell is being bulk edited
     if (isBulkEditing) {
       return <div className="italic text-gray-500">Will be updated...</div>;
     }
 
-    // If this cell is being edited individually
     if (isEditing) {
       return (
         <div ref={cellRef} className="flex items-center">
@@ -215,7 +212,6 @@ const EditableGrid = ({
       );
     }
 
-    // Display formatted value (not being edited)
     if (column.type === 'rating') {
       const numValue = parseInt(value || '0');
       let ratingClass = 'px-2 py-1 rounded text-sm font-medium ';
@@ -240,7 +236,32 @@ const EditableGrid = ({
       return <div>{option?.label || value}</div>;
     }
 
-    // Apply custom cell class if provided
+    if (column.type === 'fileUpload') {
+      return (
+        <div className="flex items-center gap-2">
+          {rowData[column.field]?.map((file: string, index: number) => (
+            <Badge key={index} variant="secondary">
+              File {index + 1}
+            </Badge>
+          ))}
+          <Input 
+            type="file" 
+            onChange={(e) => {
+              const files = e.target.files;
+              if (files && files.length > 0) {
+                const newData = [...data];
+                newData[rowIndex] = {
+                  ...newData[rowIndex],
+                  [column.field]: [...(newData[rowIndex][column.field] || []), files[0].name]
+                };
+                onDataChange(newData);
+              }
+            }}
+          />
+        </div>
+      );
+    }
+
     const cellClass = column.cellClassName ? column.cellClassName(value) : '';
     
     return <div className={cellClass}>{value}</div>;

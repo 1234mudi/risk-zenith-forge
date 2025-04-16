@@ -10,6 +10,7 @@ export type Control = {
   isKeyControl: boolean;
   category: string;
   comments: string;
+  evidence?: string[];
   testResults?: {
     lastTested: string;
     result: string;
