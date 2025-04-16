@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -16,8 +15,7 @@ import {
   CartesianGrid, 
   ZAxis, 
   ReferenceLine, 
-  ResponsiveContainer, 
-  Gradient 
+  ResponsiveContainer
 } from "recharts";
 import { useForm } from "@/contexts/FormContext";
 import { Badge } from "@/components/ui/badge";
