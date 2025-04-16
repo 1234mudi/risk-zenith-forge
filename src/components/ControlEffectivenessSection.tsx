@@ -10,7 +10,8 @@ import { calculateControlScore } from "@/utils/control-utils";
 import ControlLibraryDialog from "./controls/ControlLibraryDialog";
 import ControlGrid from "./controls/ControlGrid";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from "recharts";
+import EditableGrid from "@/components/ui/editable-grid";
 
 const DEFAULT_CONTROLS: Control[] = [
   {
