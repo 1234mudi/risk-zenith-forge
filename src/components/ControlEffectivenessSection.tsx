@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -533,7 +534,7 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         }}
         keyField="id"
         onAddRow={handleAddControl}
-        onRemoveControl={handleRemoveControl}
+        onRemoveRow={handleRemoveControl}
         className="border-collapse [&_th]:bg-yellow-50 [&_td]:border [&_th]:border [&_th]:border-slate-200 [&_td]:border-slate-200"
         allowBulkEdit={true}
       />
