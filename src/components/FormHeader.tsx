@@ -19,7 +19,6 @@ import { useRiskAssessment } from "@/hooks/useRiskAssessment";
 const FormHeader = () => {
   const { formState } = useForm();
   const { toast } = useToast();
-  const { showHeatMap, setShowHeatMap } = useRiskAssessment();
   const isWithinAppetite = formState.isWithinAppetite;
   
   const handleSave = () => {
@@ -128,16 +127,6 @@ const FormHeader = () => {
         />
         
         <div className="flex items-center gap-3 flex-wrap">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1 w-40 justify-center"
-            onClick={() => setShowHeatMap(!showHeatMap)}
-          >
-            <Shield className="h-4 w-4" />
-            {showHeatMap ? "Hide Heat Map" : "Show Heat Map"}
-          </Button>
-          
           <RelatedRisks />
         </div>
       </div>

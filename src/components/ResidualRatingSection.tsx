@@ -10,7 +10,6 @@ import { useResidualRating, SAMPLE_HISTORICAL_ASSESSMENTS } from "@/hooks/useRes
 import { getScoreColor, getScoreLabel, getCellColor } from "@/utils/rating-utils";
 import { getRatingColor } from "@/utils/control-utils";
 import { FactorType } from "@/types/control-types";
-import RiskHeatMapVisualizer from "./visualization/RiskHeatMapVisualizer";
 
 type ResidualRatingSectionProps = {
   onNext: () => void;
@@ -31,7 +30,16 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
     toggleWeights,
   } = useResidualRating({ showWeights });
 
-  const assessmentHistory = SAMPLE_HISTORICAL_ASSESSMENTS.map(assessment => ({
+  // Update historical assessments to show variation in scores
+  const modifiedHistoricalAssessments = [
+    { ...SAMPLE_HISTORICAL_ASSESSMENTS[0], date: "2024-03-15", score: "3.7" },
+    { ...SAMPLE_HISTORICAL_ASSESSMENTS[1], date: "2023-12-10", score: "3.2" },
+    { ...SAMPLE_HISTORICAL_ASSESSMENTS[2], date: "2023-09-05", score: "3.5" },
+    { ...SAMPLE_HISTORICAL_ASSESSMENTS[3], date: "2023-06-20", score: "3.9" },
+    { ...SAMPLE_HISTORICAL_ASSESSMENTS[4], date: "2023-03-12", score: "2.8" },
+  ];
+
+  const assessmentHistory = modifiedHistoricalAssessments.map(assessment => ({
     date: assessment.date,
     score: assessment.score
   }));
@@ -41,7 +49,7 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
       <PreviousAssessmentsSection
         title="Previous Residual Risk Assessments"
         assessmentHistory={assessmentHistory}
-        factors={SAMPLE_HISTORICAL_ASSESSMENTS[0]?.factors.map(factor => ({
+        factors={modifiedHistoricalAssessments[0]?.factors.map(factor => ({
           ...factor,
           type: factor.type as FactorType
         }))}
@@ -82,7 +90,7 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
       />
       
       <div className="flex justify-end">
-        <Button onClick={onNext}>Continue to Treatment</Button>
+        <Button onClick={onNext}>Continue to Heat Map</Button>
       </div>
     </div>
   );

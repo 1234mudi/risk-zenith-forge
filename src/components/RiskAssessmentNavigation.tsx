@@ -17,6 +17,9 @@ const RiskAssessmentNavigation = () => {
       <TabsTrigger value="residual" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
         Residual Rating
       </TabsTrigger>
+      <TabsTrigger value="heatmap" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
+        Heat Map
+      </TabsTrigger>
       <TabsTrigger value="treatment" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
         Treatment
       </TabsTrigger>
@@ -28,9 +31,6 @@ const RiskAssessmentNavigation = () => {
       </TabsTrigger>
       <TabsTrigger value="comments" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
         Additional Details
-      </TabsTrigger>
-      <TabsTrigger value="heatmap" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-        Heat Map
       </TabsTrigger>
     </TabsList>
   );
