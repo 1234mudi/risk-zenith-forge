@@ -29,6 +29,7 @@ type EditableGridProps = {
   onRemoveRow?: (index: number) => void;
   allowBulkEdit?: boolean;
   maxHeight?: string;
+  className?: string; // Added className prop to accept custom styling
 };
 
 const EditableGrid = ({
@@ -40,6 +41,7 @@ const EditableGrid = ({
   onRemoveRow,
   allowBulkEdit = true,
   maxHeight = '500px',
+  className, // Add the className prop to the component props
 }: EditableGridProps) => {
   const [editingCell, setEditingCell] = useState<{ rowIndex: number; field: string } | null>(null);
   const [editValue, setEditValue] = useState<any>('');
@@ -330,7 +332,7 @@ const EditableGrid = ({
 
       {renderBulkEditControls()}
 
-      <div className="rounded-md border">
+      <div className={`rounded-md border ${className || ""}`}>
         <ScrollArea className={`max-h-[${maxHeight}]`}>
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
