@@ -313,7 +313,13 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         weighting: "0",
         isKeyControl: false,
         category: "",
-        comments: ""
+        comments: "",
+        testResults: {
+          lastTested: "",
+          result: "",
+          tester: "",
+          findings: ""
+        }
       }
     ]);
   };
@@ -332,7 +338,13 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         weighting: "25",
         isKeyControl: false,
         category: libraryControl.category,
-        comments: libraryControl.description
+        comments: libraryControl.description,
+        testResults: {
+          lastTested: "",
+          result: "",
+          tester: "",
+          findings: ""
+        }
       }
     ]);
   };
@@ -524,6 +536,15 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
             ]
           },
           { field: 'effectiveness', header: 'Overall', type: 'rating', editable: true },
+          { field: 'testResults.result', header: 'Control Test Results', type: 'select', editable: true,
+            options: [
+              { value: 'effective', label: 'Effective', className: 'text-green-500' },
+              { value: 'partially', label: 'Partially Effective', className: 'text-orange-500' },
+              { value: 'ineffective', label: 'Ineffective', className: 'text-red-500' }
+            ]
+          },
+          { field: 'testResults.tester', header: 'Control Tester', editable: true },
+          { field: 'testResults.lastTested', header: 'Last Tested On', type: 'date', editable: true },
           { field: 'weighting', header: 'Factor Weightage (%)', type: 'number', editable: true },
           { field: 'evidence', header: 'Evidences', type: 'fileUpload' }
         ]}

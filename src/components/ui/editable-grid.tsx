@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -6,15 +7,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, X, Edit, Plus, Trash2 } from "lucide-react";
+import { Check, X, Edit, Plus, Trash2, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 export type EditableGridColumn = {
   field: string;
   header: string;
   width?: string;
   editable?: boolean;
-  type?: 'text' | 'number' | 'select' | 'textarea' | 'rating' | 'fileUpload';
+  type?: 'text' | 'number' | 'select' | 'textarea' | 'rating' | 'fileUpload' | 'date';
   options?: { label: string; value: string; className?: string }[];
   className?: string;
   cellClassName?: (value: any) => string;
@@ -64,10 +68,22 @@ const EditableGrid = ({
     if (!editingCell) return;
 
     const newData = [...data];
-    newData[editingCell.rowIndex] = {
-      ...newData[editingCell.rowIndex],
-      [editingCell.field]: editValue,
-    };
+    // Handle nested fields like 'testResults.result'
+    if (editingCell.field.includes('.')) {
+      const [parentField, childField] = editingCell.field.split('.');
+      newData[editingCell.rowIndex] = {
+        ...newData[editingCell.rowIndex],
+        [parentField]: {
+          ...newData[editingCell.rowIndex][parentField] || {},
+          [childField]: editValue
+        }
+      };
+    } else {
+      newData[editingCell.rowIndex] = {
+        ...newData[editingCell.rowIndex],
+        [editingCell.field]: editValue,
+      };
+    }
     onDataChange(newData);
     setEditingCell(null);
   };
@@ -108,10 +124,22 @@ const EditableGrid = ({
 
     const newData = [...data];
     selectedRows.forEach((rowIndex) => {
-      newData[rowIndex] = {
-        ...newData[rowIndex],
-        [bulkEditField]: bulkEditValue,
-      };
+      // Handle nested fields like 'testResults.result'
+      if (bulkEditField.includes('.')) {
+        const [parentField, childField] = bulkEditField.split('.');
+        newData[rowIndex] = {
+          ...newData[rowIndex],
+          [parentField]: {
+            ...newData[rowIndex][parentField] || {},
+            [childField]: bulkEditValue
+          }
+        };
+      } else {
+        newData[rowIndex] = {
+          ...newData[rowIndex],
+          [bulkEditField]: bulkEditValue,
+        };
+      }
     });
     onDataChange(newData);
     cancelBulkEdit();
@@ -121,6 +149,21 @@ const EditableGrid = ({
     setBulkEditMode(false);
     setBulkEditField(null);
     setBulkEditValue('');
+  };
+
+  // Helper function to get value from nested fields
+  const getNestedValue = (obj: any, path: string): any => {
+    if (!path.includes('.')) return obj[path];
+    
+    const pathArray = path.split('.');
+    let value = obj;
+    
+    for (const key of pathArray) {
+      if (value === undefined || value === null) return undefined;
+      value = value[key];
+    }
+    
+    return value;
   };
 
   useEffect(() => {
@@ -140,7 +183,7 @@ const EditableGrid = ({
   }, [editingCell, editValue]);
 
   const renderCellContent = (column: EditableGridColumn, rowData: any, rowIndex: number) => {
-    const value = rowData[column.field];
+    const value = getNestedValue(rowData, column.field);
     const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.field === column.field;
     const isBulkEditing = bulkEditMode && bulkEditField === column.field && selectedRows.includes(rowIndex);
 
@@ -179,6 +222,33 @@ const EditableGrid = ({
               autoFocus
               className="min-h-[60px] text-sm"
             />
+          ) : column.type === 'date' ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className={`w-full justify-start text-left font-normal ${!editValue && "text-muted-foreground"}`}
+                >
+                  {editValue ? format(new Date(editValue), "PPP") : <span>Select date</span>}
+                  <Calendar className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  className="p-3 pointer-events-auto"
+                  selected={editValue ? new Date(editValue) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      const formattedDate = format(date, "yyyy-MM-dd");
+                      setEditValue(formattedDate);
+                      saveEdit();
+                    }
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           ) : (
             <Input
               type={column.type === 'number' ? 'number' : 'text'}
@@ -190,24 +260,26 @@ const EditableGrid = ({
             />
           )}
 
-          <div className="flex ml-2">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={saveEdit}
-              className="h-7 w-7 text-green-500"
-            >
-              <Check className="h-4 w-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={cancelEditing}
-              className="h-7 w-7 text-red-500"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          {column.type !== 'date' && (
+            <div className="flex ml-2">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={saveEdit}
+                className="h-7 w-7 text-green-500"
+              >
+                <Check className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={cancelEditing}
+                className="h-7 w-7 text-red-500"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
       );
     }
@@ -234,6 +306,14 @@ const EditableGrid = ({
     if (column.type === 'select' && column.options) {
       const option = column.options.find(opt => opt.value === value?.toString());
       return <div>{option?.label || value}</div>;
+    }
+
+    if (column.type === 'date' && value) {
+      try {
+        return <div>{format(new Date(value), "MMM d, yyyy")}</div>;
+      } catch (e) {
+        return <div>{value}</div>;
+      }
     }
 
     if (column.type === 'fileUpload') {
@@ -408,7 +488,8 @@ const EditableGrid = ({
                         onClick={() => {
                           const editableCol = columns.find(col => col.editable);
                           if (editableCol) {
-                            startEditing(rowIndex, editableCol.field, row[editableCol.field]);
+                            const value = getNestedValue(row, editableCol.field);
+                            startEditing(rowIndex, editableCol.field, value);
                           }
                         }}
                         className="h-8 w-8 text-blue-500"
