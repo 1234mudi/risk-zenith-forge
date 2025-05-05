@@ -47,6 +47,7 @@ const ControlGrid = ({
             <TableHead>Control Test Results</TableHead>
             <TableHead>Control Tester</TableHead>
             <TableHead>Last Tested On</TableHead>
+            <TableHead>Control Owner</TableHead>
             {showWeights && <TableHead>Weight (%)</TableHead>}
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -189,6 +190,13 @@ const ControlGrid = ({
                     </PopoverContent>
                   </Popover>
                 </TableCell>
+                <TableCell>
+                  <Input 
+                    value={control.owner || ""}
+                    onChange={(e) => onUpdateControl(control.id, "owner", e.target.value)}
+                    placeholder="Owner name"
+                  />
+                </TableCell>
                 {showWeights && (
                   <TableCell>
                     <Input
@@ -220,7 +228,7 @@ const ControlGrid = ({
               </TableRow>
               {control.testResults && (
                 <TableRow>
-                  <TableCell colSpan={showWeights ? 11 : 10} className="bg-slate-50 py-2 px-4">
+                  <TableCell colSpan={showWeights ? 12 : 11} className="bg-slate-50 py-2 px-4">
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">Test Findings:</span> 

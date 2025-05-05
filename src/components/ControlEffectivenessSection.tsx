@@ -25,6 +25,7 @@ const DEFAULT_CONTROLS: Control[] = [
     isKeyControl: true,
     category: "preventive",
     comments: "Works well in most cases",
+    owner: "Michael Brown",
     testResults: {
       lastTested: "2023-12-15",
       result: "pass",
@@ -43,6 +44,7 @@ const DEFAULT_CONTROLS: Control[] = [
     isKeyControl: false,
     category: "detective",
     comments: "Well designed but some implementation issues",
+    owner: "Sarah Johnson",
     testResults: {
       lastTested: "2024-01-20",
       result: "partial",
@@ -79,6 +81,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: true,
         category: "preventive",
         comments: "Works well in most cases",
+        owner: "Michael Brown",
         testResults: {
           lastTested: "2023-12-15",
           result: "pass",
@@ -97,6 +100,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: false,
         category: "detective",
         comments: "Well designed but some implementation issues",
+        owner: "Sarah Johnson",
         testResults: {
           lastTested: "2024-01-20",
           result: "partial",
@@ -121,6 +125,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: true,
         category: "preventive",
         comments: "Some issues with access provisioning",
+        owner: "Michael Brown",
         testResults: {
           lastTested: "2023-11-10",
           result: "partial",
@@ -139,6 +144,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: false,
         category: "detective",
         comments: "Process needs more rigorous implementation",
+        owner: "Sarah Johnson",
         testResults: {
           lastTested: "2023-11-15",
           result: "partial",
@@ -163,6 +169,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: true,
         category: "preventive",
         comments: "Multiple issues with access management",
+        owner: "Michael Brown",
         testResults: {
           lastTested: "2023-08-20",
           result: "fail",
@@ -181,6 +188,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: false,
         category: "detective",
         comments: "Process needs significant improvements",
+        owner: "Sarah Johnson",
         testResults: {
           lastTested: "2023-08-15",
           result: "partial",
@@ -205,6 +213,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: true,
         category: "preventive",
         comments: "Control not performing as expected",
+        owner: "Michael Brown",
         testResults: {
           lastTested: "2023-05-15",
           result: "fail",
@@ -223,6 +232,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: false,
         category: "detective",
         comments: "Process not being followed consistently",
+        owner: "Sarah Johnson",
         testResults: {
           lastTested: "2023-05-20",
           result: "partial",
@@ -247,6 +257,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: true,
         category: "preventive",
         comments: "Control design and implementation need overhaul",
+        owner: "Michael Brown",
         testResults: {
           lastTested: "2023-02-10",
           result: "fail",
@@ -265,6 +276,7 @@ const SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS = [
         isKeyControl: false,
         category: "detective",
         comments: "Process design has fundamental issues",
+        owner: "Sarah Johnson",
         testResults: {
           lastTested: "2023-02-15",
           result: "fail",
@@ -545,6 +557,7 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
           },
           { field: 'testResults.tester', header: 'Control Tester', editable: true },
           { field: 'testResults.lastTested', header: 'Last Tested On', type: 'date', editable: true },
+          { field: 'owner', header: 'Control Owner', editable: true },
           { field: 'weighting', header: 'Factor Weightage (%)', type: 'number', editable: true },
           { field: 'evidence', header: 'Evidences', type: 'fileUpload' }
         ]}
