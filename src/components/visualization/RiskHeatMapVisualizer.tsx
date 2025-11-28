@@ -75,7 +75,7 @@ const RiskHeatMapVisualizer: React.FC<RiskHeatMapVisualizerProps> = ({
   const getScoreColor = (score: number) => {
     if (score >= 4) return "#ef4444";
     if (score >= 3) return "#f97316";
-    if (score >= 2) return "#eab308";
+    if (score >= 2) return "#22c55e";
     return "#22c55e";
   };
 
@@ -249,7 +249,7 @@ const RiskHeatMapVisualizer: React.FC<RiskHeatMapVisualizerProps> = ({
               <div className="font-semibold">Very Low Risk Zone</div>
               <div className="text-muted-foreground">Score: 0-2</div>
             </div>
-            <div className="p-2 rounded-md border bg-yellow-50">
+            <div className="p-2 rounded-md border bg-green-50">
               <div className="font-semibold">Low Risk Zone</div>
               <div className="text-muted-foreground">Score: 2-3</div>
             </div>
