@@ -6,7 +6,7 @@ const RiskAssessmentNavigation = () => {
   return (
     <TabsList className="w-full justify-start px-6 pt-4 bg-white border-b h-auto flex-wrap">
       <TabsTrigger value="general" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
-        General
+        Details
       </TabsTrigger>
       <TabsTrigger value="inherent" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700">
         Inherent Rating
