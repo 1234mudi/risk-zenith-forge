@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, X, Edit, Plus, Trash2, Calendar } from "lucide-react";
+import { Check, X, Edit, Plus, Trash2, Calendar, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -56,8 +56,13 @@ const EditableGrid = ({
   const cellRef = useRef<HTMLDivElement>(null);
 
   const startEditing = (rowIndex: number, field: string, value: any) => {
-    setEditingCell({ rowIndex, field });
-    setEditValue(value);
+    // If bulk editing and rows are selected, start bulk edit instead
+    if (selectedRows.length > 0 && selectedRows.includes(rowIndex)) {
+      startBulkEdit(field);
+    } else {
+      setEditingCell({ rowIndex, field });
+      setEditValue(value);
+    }
   };
 
   const cancelEditing = () => {
@@ -316,6 +321,7 @@ const EditableGrid = ({
       }
     }
 
+    // Handle file upload type
     if (column.type === 'fileUpload') {
       return (
         <div className="flex items-center gap-2">
@@ -343,6 +349,19 @@ const EditableGrid = ({
     }
 
     const cellClass = column.cellClassName ? column.cellClassName(value) : '';
+    
+    // Show pencil icon for editable cells (excluding special types)
+    if (column.editable) {
+      return (
+        <div 
+          className={`flex items-center justify-between group cursor-pointer hover:bg-slate-50 px-2 py-1 rounded ${cellClass}`}
+          onClick={() => startEditing(rowIndex, column.field, value)}
+        >
+          <span className="flex-1">{value || <span className="text-gray-400">Click to edit</span>}</span>
+          <Pencil className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex-shrink-0" />
+        </div>
+      );
+    }
     
     return <div className={cellClass}>{value}</div>;
   };
@@ -474,7 +493,7 @@ const EditableGrid = ({
                   {columns.map((column) => (
                     <TableCell 
                       key={`${rowIndex}-${column.field}`} 
-                      className={column.className}
+                      className={`${column.className} ${column.editable ? 'cursor-pointer' : ''}`}
                     >
                       {renderCellContent(column, row, rowIndex)}
                     </TableCell>

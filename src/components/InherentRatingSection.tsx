@@ -484,11 +484,17 @@ const InherentRatingSection = ({
         { value: "4", label: "High (4)", className: "text-red-500 bg-red-50" },
         { value: "5", label: "Very High (5)", className: "text-red-600 bg-red-50 font-semibold" }
       ]
+    },
+    {
+      field: "comments",
+      header: "Comments",
+      editable: true,
+      type: "textarea"
     }
   ];
 
   if (localShowWeights) {
-    columns.push({
+    columns.splice(3, 0, {
       field: "weighting",
       header: "Factor Weightage (%)",
       editable: true,

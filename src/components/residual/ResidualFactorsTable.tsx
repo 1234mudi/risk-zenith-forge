@@ -54,11 +54,17 @@ const ResidualFactorsTable = ({
         { value: "4", label: "High (4)", className: "text-red-500" },
         { value: "5", label: "Very High (5)", className: "text-red-600 font-semibold" }
       ]
+    },
+    {
+      field: "comments",
+      header: "Comments",
+      editable: true,
+      type: "textarea"
     }
   ];
 
   if (localShowWeights) {
-    columns.push({
+    columns.splice(3, 0, {
       field: "weighting",
       header: "Weight (%)",
       editable: true,
