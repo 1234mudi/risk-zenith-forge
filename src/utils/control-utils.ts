@@ -12,7 +12,7 @@ export const getRatingColor = (value: string) => {
   const numValue = parseInt(value || "0");
   if (numValue >= 4) return "text-red-600 bg-red-50 px-2 py-1 rounded";
   if (numValue >= 3) return "text-orange-600 bg-orange-50 px-2 py-1 rounded";
-  if (numValue >= 2) return "text-yellow-600 bg-yellow-50 px-2 py-1 rounded";
+  if (numValue >= 2) return "text-green-600 bg-green-50 px-2 py-1 rounded";
   return "text-green-600 bg-green-50 px-2 py-1 rounded";
 };
 
