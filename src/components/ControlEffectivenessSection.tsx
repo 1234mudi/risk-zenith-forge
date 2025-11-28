@@ -559,7 +559,8 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
           { field: 'testResults.lastTested', header: 'Last Tested On', type: 'date', editable: true },
           { field: 'owner', header: 'Control Owner', editable: true },
           { field: 'weighting', header: 'Factor Weightage (%)', type: 'number', editable: true },
-          { field: 'evidence', header: 'Evidences', type: 'fileUpload' }
+          { field: 'evidence', header: 'Evidences', type: 'fileUpload', editable: false },
+          { field: 'comments', header: 'Comments', type: 'textarea', editable: true }
         ]}
         data={controls}
         onDataChange={(newData) => {
