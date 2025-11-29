@@ -19,7 +19,16 @@ import { useRiskAssessment } from "@/hooks/useRiskAssessment";
 const FormHeader = () => {
   const { formState } = useForm();
   const { toast } = useToast();
+  const { setActiveTab } = useRiskAssessment();
   const isWithinAppetite = formState.isWithinAppetite;
+  
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: `${label} copied to clipboard`
+    });
+  };
   
   const handleSave = () => {
     toast({
@@ -105,19 +114,33 @@ const FormHeader = () => {
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Shield className="h-5 w-5 text-blue-600" />
             <span>Assess Risk: {formState.risk}</span>
-            <Badge variant="outline" className="ml-2 text-xs font-normal">
+            <Badge 
+              variant="outline" 
+              className="ml-2 text-xs font-normal cursor-pointer hover:bg-accent transition-colors"
+              onClick={() => copyToClipboard(formState.eraId, "ERA ID")}
+            >
               {formState.eraId}
             </Badge>
           </h2>
           <div className="text-sm text-gray-600 mt-1 flex items-center gap-1">
-            <span className="text-gray-500">Assessment ID:</span> {formState.assessmentId}
+            <span className="text-gray-500">Assessment ID:</span> 
+            <span 
+              className="cursor-pointer hover:text-blue-600 transition-colors underline decoration-dotted"
+              onClick={() => copyToClipboard(formState.assessmentId, "Assessment ID")}
+            >
+              {formState.assessmentId}
+            </span>
             <span className="mx-2">•</span>
             <span className="text-gray-500">Date:</span> {formState.assessmentDate}
           </div>
           <div className="mt-1 flex items-center gap-3">
             <div className="flex items-center">
               <span className="text-xs text-gray-500 mr-2">Risk Hierarchy:</span>
-              <Badge variant="secondary" className="font-normal text-xs">
+              <Badge 
+                variant="secondary" 
+                className="font-normal text-xs cursor-pointer hover:bg-secondary/80 transition-colors"
+                onClick={() => copyToClipboard(formState.riskHierarchy, "Risk Hierarchy")}
+              >
                 {formState.riskHierarchy}
               </Badge>
             </div>
@@ -162,10 +185,31 @@ const FormHeader = () => {
       </div>
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <RiskSummary
+        <RiskSummary 
           inherentScore={formState.inherentRatingScore} 
           controlScore={formState.controlEffectivenessScore}
           residualScore={formState.residualRatingScore}
+          onInherentClick={() => {
+            setActiveTab("inherent");
+            toast({
+              title: "Navigated to Inherent Risk",
+              description: "View and edit inherent risk factors"
+            });
+          }}
+          onControlClick={() => {
+            setActiveTab("control");
+            toast({
+              title: "Navigated to Control Effectiveness",
+              description: "View and edit control effectiveness"
+            });
+          }}
+          onResidualClick={() => {
+            setActiveTab("residual");
+            toast({
+              title: "Navigated to Residual Risk",
+              description: "View and edit residual risk factors"
+            });
+          }}
           getScoreColor={(score) => {
             const numScore = parseFloat(score || "0");
             if (numScore >= 4) return "bg-red-600 text-white border-red-700";
