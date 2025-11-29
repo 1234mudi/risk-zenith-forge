@@ -56,8 +56,8 @@ const EditableGrid = ({
   const cellRef = useRef<HTMLDivElement>(null);
 
   const startEditing = (rowIndex: number, field: string, value: any) => {
-    // If bulk editing and rows are selected, start bulk edit instead
-    if (selectedRows.length > 0 && selectedRows.includes(rowIndex)) {
+    // If any rows are selected, trigger bulk edit instead of single cell edit
+    if (selectedRows.length > 0) {
       startBulkEdit(field);
     } else {
       setEditingCell({ rowIndex, field });
