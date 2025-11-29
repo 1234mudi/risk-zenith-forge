@@ -190,11 +190,6 @@ const EditableGrid = ({
   const renderCellContent = (column: EditableGridColumn, rowData: any, rowIndex: number) => {
     const value = getNestedValue(rowData, column.field);
     const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.field === column.field;
-    const isBulkEditing = bulkEditMode && bulkEditField === column.field && selectedRows.includes(rowIndex);
-
-    if (isBulkEditing) {
-      return <div className="italic text-gray-500">Will be updated...</div>;
-    }
 
     if (isEditing) {
       return (
