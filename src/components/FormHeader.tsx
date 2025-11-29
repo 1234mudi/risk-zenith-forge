@@ -44,6 +44,62 @@ const FormHeader = () => {
   
   return (
     <div className="space-y-4">
+      {/* Action Buttons Bar - Moved to Top */}
+      <div className="bg-blue-900 p-3 rounded-md flex items-center justify-end gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="secondary" onClick={handleSave}>
+                <Save className="h-4 w-4 mr-1" />
+                Save
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Save the current assessment</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <DropdownMenu>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="default" className="bg-green-700 hover:bg-green-800">
+                    <Send className="h-4 w-4 mr-1" />
+                    Submit
+                    <ChevronDown className="h-4 w-4 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>Submit the assessment</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleWorkflowAction("Sent for Review")}>
+              Send for Review
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleWorkflowAction("Sent for Approval")}>
+              Send for Approval
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleWorkflowAction("Reassigned")}>
+              Reassign
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="secondary" onClick={handleClose}>
+                <X className="h-4 w-4 mr-1" />
+                Close
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Close this assessment</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      {/* Risk Information */}
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div className="flex-1">
           <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -106,7 +162,7 @@ const FormHeader = () => {
       </div>
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <RiskSummary 
+        <RiskSummary
           inherentScore={formState.inherentRatingScore} 
           controlScore={formState.controlEffectivenessScore}
           residualScore={formState.residualRatingScore}
@@ -129,60 +185,6 @@ const FormHeader = () => {
         <div className="flex items-center gap-3 flex-wrap">
           <RelatedRisks />
         </div>
-      </div>
-      
-      <div className="bg-blue-900 p-3 rounded-md flex items-center justify-end gap-2 mt-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="secondary" onClick={handleSave}>
-                <Save className="h-4 w-4 mr-1" />
-                Save
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Save the current assessment</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <DropdownMenu>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="default" className="bg-green-700 hover:bg-green-800">
-                    <Send className="h-4 w-4 mr-1" />
-                    Submit
-                    <ChevronDown className="h-4 w-4 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
-              <TooltipContent>Submit the assessment</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleWorkflowAction("Sent for Review")}>
-              Send for Review
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleWorkflowAction("Sent for Approval")}>
-              Send for Approval
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleWorkflowAction("Reassigned")}>
-              Reassign
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="secondary" onClick={handleClose}>
-                <X className="h-4 w-4 mr-1" />
-                Close
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Close this assessment</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
       </div>
     </div>
   );
