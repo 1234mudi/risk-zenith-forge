@@ -1,13 +1,14 @@
 
 import React, { useState } from "react";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Layers, ChevronRight, Shield, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const relatedRisks = [
   {
@@ -46,7 +47,6 @@ const relatedRisks = [
 ];
 
 const RelatedRisks = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [expandedRisks, setExpandedRisks] = useState<string[]>([]);
   const [expandedControls, setExpandedControls] = useState<{[key: string]: boolean}>({});
   
@@ -97,128 +97,135 @@ const RelatedRisks = () => {
   };
 
   return (
-    <Collapsible
-      open={isOpen}
-      onOpenChange={setIsOpen}
-      className="border rounded-md w-full md:max-w-md"
-    >
-      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-slate-50 rounded-t-md">
-        <div className="flex items-center gap-2">
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+        >
           <Layers className="h-4 w-4 text-blue-600" />
-          <span className="font-medium text-sm">Associated Risks</span>
-          <Badge variant="outline" className="text-xs bg-blue-50">
+          <span className="text-sm">Associated Risks</span>
+          <Badge variant="secondary" className="ml-1 text-xs">
             {relatedRisks.length}
           </Badge>
-        </div>
-        <ChevronRight className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
-      </CollapsibleTrigger>
+        </Button>
+      </PopoverTrigger>
       
-      <CollapsibleContent className="p-3 border-t">
-        <div className="text-xs text-gray-500 mb-2">
-          Other risks in the same domain that may be affected by similar controls
+      <PopoverContent className="w-[700px] p-0" align="start">
+        <div className="p-3 border-b bg-slate-50">
+          <div className="flex items-center gap-2 mb-1">
+            <Layers className="h-4 w-4 text-blue-600" />
+            <span className="font-medium text-sm">Associated Risks</span>
+          </div>
+          <div className="text-xs text-slate-500">
+            Other risks in the same domain that may be affected by similar controls
+          </div>
         </div>
         
-        <Table className="border">
-          <TableHeader className="bg-slate-50">
-            <TableRow>
-              <TableHead>Risk</TableHead>
-              <TableHead className="text-center">Inherent</TableHead>
-              <TableHead className="text-center">Control</TableHead>
-              <TableHead className="text-center">Residual</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {relatedRisks.map((risk) => (
-              <React.Fragment key={risk.id}>
-                <TableRow 
-                  className={expandedRisks.includes(risk.id) ? "border-b-0" : ""}
-                  onClick={() => toggleRiskExpansion(risk.id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <TableCell className="py-2">
-                    <div className="flex items-center">
-                      <ChevronRight 
-                        className={`h-4 w-4 mr-1 transition-transform ${expandedRisks.includes(risk.id) ? 'rotate-90' : ''}`} 
-                      />
-                      <div>
-                        <div className="text-sm font-medium">{risk.name}</div>
-                        <div className="text-xs text-gray-500">{risk.id}</div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center py-2">
-                    <Badge className={`${getScoreColor(risk.inherentScore)}`}>
-                      {risk.inherentScore}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-center py-2">
-                    <Badge className={`${getScoreColor(risk.controlScore)}`}>
-                      {risk.controlScore}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-center py-2">
-                    <Badge className={`${getScoreColor(risk.residualScore)}`}>
-                      {risk.residualScore}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-                
-                {expandedRisks.includes(risk.id) && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="bg-slate-50 p-3">
-                      <div 
-                        className="text-xs font-medium mb-2 flex items-center justify-between cursor-pointer"
-                        onClick={() => toggleControlsDisplay(risk.id)}
-                      >
-                        <div className="flex items-center">
-                          <Shield className="h-3 w-3 mr-1 text-blue-600" />
-                          Associated Controls
-                          <Badge variant="outline" className="ml-2 text-xs bg-blue-50">
-                            {risk.controls.length}
-                          </Badge>
-                        </div>
+        <div className="max-h-[500px] overflow-y-auto">
+          <Table className="border">
+            <TableHeader className="bg-slate-50 sticky top-0">
+              <TableRow>
+                <TableHead>Risk</TableHead>
+                <TableHead className="text-center">Inherent</TableHead>
+                <TableHead className="text-center">Control</TableHead>
+                <TableHead className="text-center">Residual</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {relatedRisks.map((risk) => (
+                <React.Fragment key={risk.id}>
+                  <TableRow 
+                    className={expandedRisks.includes(risk.id) ? "border-b-0" : ""}
+                    onClick={() => toggleRiskExpansion(risk.id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <TableCell className="py-2">
+                      <div className="flex items-center">
                         <ChevronRight 
-                          className={`h-3 w-3 transition-transform ${expandedControls[risk.id] ? 'rotate-90' : ''}`} 
+                          className={`h-4 w-4 mr-1 transition-transform ${expandedRisks.includes(risk.id) ? 'rotate-90' : ''}`} 
                         />
-                      </div>
-                      
-                      {expandedControls[risk.id] && (
-                        <div className="space-y-2 mt-3">
-                          {risk.controls.map(control => (
-                            <div key={control.id} className="flex justify-between items-center p-2 bg-white rounded border text-xs">
-                              <div>
-                                <span className="font-medium">{control.name}</span>
-                                <span className="text-gray-500 ml-2 font-mono">{control.id}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Badge className={getCategoryColor(control.category)} variant="outline">
-                                  {control.category}
-                                </Badge>
-                                <Badge className={getEffectivenessColor(control.effectiveness)}>
-                                  {control.effectiveness}
-                                </Badge>
-                              </div>
-                            </div>
-                          ))}
+                        <div>
+                          <div className="text-sm font-medium">{risk.name}</div>
+                          <div className="text-xs text-gray-500">{risk.id}</div>
                         </div>
-                      )}
-                      
-                      <div className="mt-3 flex justify-between items-center">
-                        <div className="flex items-center gap-1 text-xs text-slate-500">
-                          <AlertTriangle className="h-3 w-3 text-yellow-500" />
-                          This risk shares controls with the current risk assessment
-                        </div>
-                        <Badge variant="outline" className="text-xs">View Full Risk</Badge>
                       </div>
                     </TableCell>
+                    <TableCell className="text-center py-2">
+                      <Badge className={`${getScoreColor(risk.inherentScore)}`}>
+                        {risk.inherentScore}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center py-2">
+                      <Badge className={`${getScoreColor(risk.controlScore)}`}>
+                        {risk.controlScore}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center py-2">
+                      <Badge className={`${getScoreColor(risk.residualScore)}`}>
+                        {risk.residualScore}
+                      </Badge>
+                    </TableCell>
                   </TableRow>
-                )}
-              </React.Fragment>
-            ))}
-          </TableBody>
-        </Table>
-      </CollapsibleContent>
-    </Collapsible>
+                  
+                  {expandedRisks.includes(risk.id) && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="bg-slate-50 p-3">
+                        <div 
+                          className="text-xs font-medium mb-2 flex items-center justify-between cursor-pointer"
+                          onClick={() => toggleControlsDisplay(risk.id)}
+                        >
+                          <div className="flex items-center">
+                            <Shield className="h-3 w-3 mr-1 text-blue-600" />
+                            Associated Controls
+                            <Badge variant="outline" className="ml-2 text-xs bg-blue-50">
+                              {risk.controls.length}
+                            </Badge>
+                          </div>
+                          <ChevronRight 
+                            className={`h-3 w-3 transition-transform ${expandedControls[risk.id] ? 'rotate-90' : ''}`} 
+                          />
+                        </div>
+                        
+                        {expandedControls[risk.id] && (
+                          <div className="space-y-2 mt-3">
+                            {risk.controls.map(control => (
+                              <div key={control.id} className="flex justify-between items-center p-2 bg-white rounded border text-xs">
+                                <div>
+                                  <span className="font-medium">{control.name}</span>
+                                  <span className="text-gray-500 ml-2 font-mono">{control.id}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge className={getCategoryColor(control.category)} variant="outline">
+                                    {control.category}
+                                  </Badge>
+                                  <Badge className={getEffectivenessColor(control.effectiveness)}>
+                                    {control.effectiveness}
+                                  </Badge>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="mt-3 flex justify-between items-center">
+                          <div className="flex items-center gap-1 text-xs text-slate-500">
+                            <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                            This risk shares controls with the current risk assessment
+                          </div>
+                          <Badge variant="outline" className="text-xs">View Full Risk</Badge>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </React.Fragment>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };
 
