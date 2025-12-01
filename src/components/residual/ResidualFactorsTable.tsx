@@ -44,16 +44,9 @@ const ResidualFactorsTable = ({
     },
     {
       field: "value",
-      header: "Rating",
+      header: "Overall",
       editable: true,
-      type: "select",
-      options: [
-        { value: "1", label: "Very Low (1)", className: "text-green-500" },
-        { value: "2", label: "Low (2)", className: "text-yellow-500" },
-        { value: "3", label: "Medium (3)", className: "text-orange-500" },
-        { value: "4", label: "High (4)", className: "text-red-500" },
-        { value: "5", label: "Very High (5)", className: "text-red-600 font-semibold" }
-      ]
+      type: "rating"
     },
     {
       field: "comments",
@@ -66,7 +59,7 @@ const ResidualFactorsTable = ({
   if (localShowWeights) {
     columns.splice(3, 0, {
       field: "weighting",
-      header: "Weight (%)",
+      header: "Rating Weight (%)",
       editable: true,
       type: "number"
     });
