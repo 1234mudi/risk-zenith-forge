@@ -1,0 +1,247 @@
+import React, { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { Users, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+interface Collaborator {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  avatar?: string;
+}
+
+interface CollaborationModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+const MOCK_COLLABORATORS: Collaborator[] = [
+  { id: "1", name: "Sarah Johnson", email: "sarah.j@company.com", role: "Risk Analyst" },
+  { id: "2", name: "Michael Chen", email: "m.chen@company.com", role: "Compliance Officer" },
+  { id: "3", name: "Emma Rodriguez", email: "e.rodriguez@company.com", role: "Senior Auditor" },
+  { id: "4", name: "David Park", email: "d.park@company.com", role: "Team Lead" },
+  { id: "5", name: "Lisa Anderson", email: "l.anderson@company.com", role: "Risk Manager" },
+];
+
+const FORM_SECTIONS = [
+  { id: "inherent", label: "Inherent Rating" },
+  { id: "control", label: "Control Effectiveness" },
+  { id: "residual", label: "Residual Rating" },
+  { id: "issues", label: "Issues" },
+  { id: "additional", label: "Additional Details" },
+];
+
+export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, onOpenChange }) => {
+  const [selectedCollaborators, setSelectedCollaborators] = useState<string[]>([]);
+  const [applyToAll, setApplyToAll] = useState(false);
+  const [selectedSections, setSelectedSections] = useState<string[]>([]);
+  const { toast } = useToast();
+
+  const handleCollaboratorToggle = (collaboratorId: string) => {
+    setSelectedCollaborators((prev) =>
+      prev.includes(collaboratorId)
+        ? prev.filter((id) => id !== collaboratorId)
+        : [...prev, collaboratorId]
+    );
+  };
+
+  const handleSectionToggle = (sectionId: string) => {
+    if (!applyToAll) {
+      setSelectedSections((prev) =>
+        prev.includes(sectionId)
+          ? prev.filter((id) => id !== sectionId)
+          : [...prev, sectionId]
+      );
+    }
+  };
+
+  const handleApplyToAllToggle = (checked: boolean) => {
+    setApplyToAll(checked);
+    if (checked) {
+      setSelectedSections(FORM_SECTIONS.map((s) => s.id));
+    }
+  };
+
+  const handleSubmit = () => {
+    if (selectedCollaborators.length === 0) {
+      toast({
+        title: "No collaborators selected",
+        description: "Please select at least one collaborator.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!applyToAll && selectedSections.length === 0) {
+      toast({
+        title: "No sections selected",
+        description: "Please select at least one section or enable 'Apply to all sections'.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Collaboration settings updated",
+      description: `${selectedCollaborators.length} collaborator(s) assigned to ${
+        applyToAll ? "all sections" : `${selectedSections.length} section(s)`
+      }.`,
+    });
+    onOpenChange(false);
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-5xl max-h-[85vh] overflow-hidden flex flex-col animate-fade-in">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-2xl">
+            <Users className="h-6 w-6 text-primary" />
+            Manage Collaborators
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-y-auto px-1">
+          {/* Left Column - Collaborators */}
+          <Card className="border-2 h-fit">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                Select Collaborators
+                <Badge variant="secondary">{selectedCollaborators.length} selected</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+              {MOCK_COLLABORATORS.map((collaborator) => {
+                const isSelected = selectedCollaborators.includes(collaborator.id);
+                return (
+                  <div
+                    key={collaborator.id}
+                    onClick={() => handleCollaboratorToggle(collaborator.id)}
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all",
+                      "hover:bg-accent/50 hover:border-primary/30",
+                      isSelected && "bg-primary/5 border-primary"
+                    )}
+                  >
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => handleCollaboratorToggle(collaborator.id)}
+                      className="pointer-events-none"
+                    />
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={collaborator.avatar} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {getInitials(collaborator.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{collaborator.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{collaborator.email}</p>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {collaborator.role}
+                    </Badge>
+                    {isSelected && <Check className="h-5 w-5 text-primary flex-shrink-0" />}
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          {/* Right Column - Applicable Sections */}
+          <Card className="border-2 h-fit">
+            <CardHeader>
+              <CardTitle className="text-lg">Applicable Sections</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Apply to All Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30 border-2 border-dashed">
+                <div className="space-y-0.5">
+                  <Label htmlFor="apply-all" className="font-semibold cursor-pointer">
+                    Apply selected collaborators to ALL sections
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Enable to automatically select all form sections
+                  </p>
+                </div>
+                <Switch
+                  id="apply-all"
+                  checked={applyToAll}
+                  onCheckedChange={handleApplyToAllToggle}
+                  className="ml-4"
+                />
+              </div>
+
+              {/* Section Checkboxes */}
+              <div className="space-y-2">
+                {FORM_SECTIONS.map((section) => {
+                  const isSelected = selectedSections.includes(section.id);
+                  return (
+                    <div
+                      key={section.id}
+                      onClick={() => handleSectionToggle(section.id)}
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
+                        applyToAll
+                          ? "bg-primary/5 border-primary/40 cursor-not-allowed opacity-60"
+                          : "cursor-pointer hover:bg-accent/50 hover:border-primary/30",
+                        isSelected && !applyToAll && "bg-primary/5 border-primary"
+                      )}
+                    >
+                      <Checkbox
+                        id={section.id}
+                        checked={applyToAll || isSelected}
+                        disabled={applyToAll}
+                        onCheckedChange={() => handleSectionToggle(section.id)}
+                        className="pointer-events-none"
+                      />
+                      <Label
+                        htmlFor={section.id}
+                        className={cn(
+                          "flex-1 font-medium cursor-pointer",
+                          applyToAll && "cursor-not-allowed"
+                        )}
+                      >
+                        {section.label}
+                      </Label>
+                      {(applyToAll || isSelected) && (
+                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex items-center justify-end gap-3 pt-4 border-t">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="min-w-24">
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} className="min-w-32 gap-2">
+            <Check className="h-4 w-4" />
+            Apply Collaboration Settings
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
