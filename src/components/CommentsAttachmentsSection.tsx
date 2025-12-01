@@ -5,8 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { FileIcon, Paperclip, Trash2, Upload } from "lucide-react";
+import { FileIcon, Paperclip, Trash2, Upload, MessageSquare } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
+import { SectionHeader } from "@/components/collaboration/SectionHeader";
 
 type Attachment = {
   id: string;
@@ -56,6 +57,12 @@ const CommentsAttachmentsSection = () => {
 
   return (
     <div className="space-y-8">
+      <SectionHeader 
+        title="Additional Details" 
+        sectionId="additional"
+        icon={<MessageSquare className="h-5 w-5 text-slate-600" />}
+      />
+      
       <div>
         <h2 className="text-xl font-medium text-slate-800 mb-4">Comments</h2>
         <Textarea

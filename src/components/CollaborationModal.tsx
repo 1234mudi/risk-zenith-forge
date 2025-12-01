@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Users, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCollaboration } from "@/contexts/CollaborationContext";
 
 interface Collaborator {
   id: string;
@@ -45,6 +46,7 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
   const [applyToAll, setApplyToAll] = useState(false);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const { toast } = useToast();
+  const { updateSectionCollaboration, setActiveEditor } = useCollaboration();
 
   const handleCollaboratorToggle = (collaboratorId: string) => {
     setSelectedCollaborators((prev) =>
@@ -88,6 +90,25 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
         variant: "destructive",
       });
       return;
+    }
+
+    // Get selected collaborator objects
+    const selectedCollaboratorObjects = MOCK_COLLABORATORS.filter((c) =>
+      selectedCollaborators.includes(c.id)
+    );
+
+    // Update collaboration state
+    const sectionsToUpdate = applyToAll
+      ? FORM_SECTIONS.map((s) => s.id)
+      : selectedSections;
+
+    updateSectionCollaboration(sectionsToUpdate, selectedCollaboratorObjects);
+
+    // Simulate one user actively editing (for demo purposes)
+    if (selectedCollaboratorObjects.length > 0) {
+      sectionsToUpdate.forEach((sectionId) => {
+        setActiveEditor(sectionId, selectedCollaboratorObjects[0].id, true);
+      });
     }
 
     toast({
