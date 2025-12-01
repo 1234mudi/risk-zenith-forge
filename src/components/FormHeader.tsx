@@ -1,7 +1,8 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "@/contexts/FormContext";
-import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users } from "lucide-react";
+import { CollaborationModal } from "@/components/CollaborationModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ const FormHeader = () => {
   const { toast } = useToast();
   const { setActiveTab } = useRiskAssessment();
   const isWithinAppetite = formState.isWithinAppetite;
+  const [collaborationModalOpen, setCollaborationModalOpen] = useState(false);
   
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -64,6 +66,21 @@ const FormHeader = () => {
               </Button>
             </TooltipTrigger>
             <TooltipContent>Save the current assessment</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="secondary" 
+                onClick={() => setCollaborationModalOpen(true)}
+              >
+                <Users className="h-4 w-4 mr-1" />
+                Collaboration
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Manage collaborators and section access</TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
@@ -230,6 +247,11 @@ const FormHeader = () => {
           <RelatedRisks />
         </div>
       </div>
+      
+      <CollaborationModal 
+        open={collaborationModalOpen} 
+        onOpenChange={setCollaborationModalOpen} 
+      />
     </div>
   );
 };
