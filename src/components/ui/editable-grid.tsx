@@ -194,27 +194,43 @@ const EditableGrid = ({
     if (isEditing) {
       return (
         <div ref={cellRef} className="flex items-center">
-          {column.type === 'select' ? (
-            <Select
-              value={editValue ? editValue.toString() : ""}
-              onValueChange={(val) => setEditValue(val)}
-            >
-              <SelectTrigger className="w-full h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {column.options?.map((option) => (
-                  <SelectItem 
-                    key={option.value} 
-                    value={option.value}
-                    className={option.className}
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : column.type === 'textarea' ? (
+        {column.type === 'select' ? (
+          <Select
+            value={editValue ? editValue.toString() : ""}
+            onValueChange={(val) => setEditValue(val)}
+          >
+            <SelectTrigger className="w-full h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {column.options?.map((option) => (
+                <SelectItem 
+                  key={option.value} 
+                  value={option.value}
+                  className={option.className}
+                >
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : column.type === 'rating' ? (
+          <Select
+            value={editValue ? editValue.toString() : ""}
+            onValueChange={(val) => setEditValue(val)}
+          >
+            <SelectTrigger className="w-full h-8">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1" className="text-green-500">Very Low (1)</SelectItem>
+              <SelectItem value="2" className="text-yellow-500">Low (2)</SelectItem>
+              <SelectItem value="3" className="text-orange-500">Medium (3)</SelectItem>
+              <SelectItem value="4" className="text-red-500">High (4)</SelectItem>
+              <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : column.type === 'textarea' ? (
             <Textarea
               value={editValue || ''}
               onChange={(e) => setEditValue(e.target.value)}
@@ -389,6 +405,22 @@ const EditableGrid = ({
                   {option.label}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        ) : column.type === 'rating' ? (
+          <Select
+            value={bulkEditValue ? bulkEditValue.toString() : ""}
+            onValueChange={(val) => setBulkEditValue(val)}
+          >
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder={`Select ${column.header}`} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1" className="text-green-500">Very Low (1)</SelectItem>
+              <SelectItem value="2" className="text-yellow-500">Low (2)</SelectItem>
+              <SelectItem value="3" className="text-orange-500">Medium (3)</SelectItem>
+              <SelectItem value="4" className="text-red-500">High (4)</SelectItem>
+              <SelectItem value="5" className="text-red-600 font-semibold">Very High (5)</SelectItem>
             </SelectContent>
           </Select>
         ) : column.type === 'textarea' ? (
