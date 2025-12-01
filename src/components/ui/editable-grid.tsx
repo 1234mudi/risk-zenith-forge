@@ -22,6 +22,7 @@ export type EditableGridColumn = {
   options?: { label: string; value: string; className?: string }[];
   className?: string;
   cellClassName?: (value: any) => string;
+  render?: (row: any) => React.ReactNode;
 };
 
 type EditableGridProps = {
@@ -372,6 +373,11 @@ const EditableGrid = ({
           <Pencil className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex-shrink-0" />
         </div>
       );
+    }
+    
+    // Check if column has custom render function
+    if (column.render) {
+      return <div className={cellClass}>{column.render(rowData)}</div>;
     }
     
     return <div className={cellClass}>{value}</div>;
