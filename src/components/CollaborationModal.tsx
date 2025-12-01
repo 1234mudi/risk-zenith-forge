@@ -8,9 +8,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Check } from "lucide-react";
+import { Users, Check, X, UserMinus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCollaboration } from "@/contexts/CollaborationContext";
+import { Separator } from "@/components/ui/separator";
 
 interface Collaborator {
   id: string;
@@ -45,8 +46,15 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
   const [selectedCollaborators, setSelectedCollaborators] = useState<string[]>([]);
   const [applyToAll, setApplyToAll] = useState(false);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
+  const [removingCollaborator, setRemovingCollaborator] = useState<string | null>(null);
   const { toast } = useToast();
-  const { updateSectionCollaboration, setActiveEditor } = useCollaboration();
+  const { 
+    updateSectionCollaboration, 
+    setActiveEditor, 
+    collaborationState,
+    removeCollaboratorFromSection,
+    removeCollaboratorFromAllSections
+  } = useCollaboration();
 
   const handleCollaboratorToggle = (collaboratorId: string) => {
     setSelectedCollaborators((prev) =>
@@ -128,6 +136,37 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
       .toUpperCase();
   };
 
+  const handleRemoveCollaborator = (sectionId: string, userId: string) => {
+    setRemovingCollaborator(`${sectionId}-${userId}`);
+    setTimeout(() => {
+      removeCollaboratorFromSection(sectionId, userId);
+      setRemovingCollaborator(null);
+      toast({
+        title: "Collaborator removed",
+        description: "Access has been revoked for this section.",
+      });
+    }, 300);
+  };
+
+  const handleRemoveAllAccess = (userId: string) => {
+    const collaborator = MOCK_COLLABORATORS.find(c => c.id === userId);
+    setRemovingCollaborator(`all-${userId}`);
+    setTimeout(() => {
+      removeCollaboratorFromAllSections(userId);
+      setRemovingCollaborator(null);
+      toast({
+        title: "All access removed",
+        description: `${collaborator?.name} has been removed from all sections.`,
+      });
+    }, 300);
+  };
+
+  const getSectionsForCollaborator = (userId: string) => {
+    return Object.entries(collaborationState)
+      .filter(([_, section]) => section.collaborators.some(c => c.id === userId))
+      .map(([sectionId]) => sectionId);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[85vh] overflow-hidden flex flex-col animate-fade-in">
@@ -185,12 +224,13 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
             </CardContent>
           </Card>
 
-          {/* Right Column - Applicable Sections */}
-          <Card className="border-2 h-fit">
-            <CardHeader>
-              <CardTitle className="text-lg">Applicable Sections</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          {/* Right Column - Applicable Sections & Current Access */}
+          <div className="space-y-6">
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="text-lg">Applicable Sections</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
               {/* Apply to All Toggle */}
               <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30 border-2 border-dashed">
                 <div className="space-y-0.5">
@@ -250,6 +290,82 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
               </div>
             </CardContent>
           </Card>
+
+          {/* Current Access Card */}
+          {Object.entries(collaborationState).some(([_, section]) => section.collaborators.length > 0) && (
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <UserMinus className="h-5 w-5" />
+                  Current Access
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {FORM_SECTIONS.map((section) => {
+                  const sectionCollaborators = collaborationState[section.id as keyof typeof collaborationState]?.collaborators || [];
+                  if (sectionCollaborators.length === 0) return null;
+
+                  return (
+                    <div key={section.id} className="space-y-2">
+                      <Label className="text-sm font-semibold text-muted-foreground">
+                        {section.label}
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {sectionCollaborators.map((collaborator) => {
+                          const collaboratorSections = getSectionsForCollaborator(collaborator.id);
+                          const isRemoving = removingCollaborator === `${section.id}-${collaborator.id}` || 
+                                           removingCollaborator === `all-${collaborator.id}`;
+                          
+                          return (
+                            <div
+                              key={collaborator.id}
+                              className={cn(
+                                "group relative flex items-center gap-2 pl-2 pr-1 py-1 rounded-full border-2 bg-background transition-all duration-300",
+                                isRemoving && "opacity-0 scale-75"
+                              )}
+                            >
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage src={collaborator.avatar} />
+                                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                                  {getInitials(collaborator.name)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-sm font-medium pr-1">{collaborator.name}</span>
+                              
+                              {collaboratorSections.length > 1 && (
+                                <div className="flex items-center gap-1">
+                                  <Separator orientation="vertical" className="h-4" />
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                    onClick={() => handleRemoveAllAccess(collaborator.id)}
+                                    title="Remove all access"
+                                  >
+                                    <UserMinus className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              )}
+                              
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => handleRemoveCollaborator(section.id, collaborator.id)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          )}
+          </div>
         </div>
 
         {/* Footer Actions */}
