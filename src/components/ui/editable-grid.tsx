@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, X, Edit, Plus, Trash2, Calendar, Pencil } from "lucide-react";
+import { Check, X, Edit, Plus, Trash2, Calendar, Pencil, Sparkles, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -23,6 +23,8 @@ export type EditableGridColumn = {
   className?: string;
   cellClassName?: (value: any) => string;
   render?: (row: any) => React.ReactNode;
+  enableAI?: boolean;
+  aiType?: 'rating' | 'comment';
 };
 
 type EditableGridProps = {
@@ -35,6 +37,8 @@ type EditableGridProps = {
   allowBulkEdit?: boolean;
   maxHeight?: string;
   className?: string;
+  onAIAutofill?: (rowIndex: number, field: string, aiType: 'rating' | 'comment') => Promise<void>;
+  aiLoadingCells?: Set<string>;
 };
 
 const EditableGrid = ({
@@ -47,6 +51,8 @@ const EditableGrid = ({
   allowBulkEdit = true,
   maxHeight = '500px',
   className,
+  onAIAutofill,
+  aiLoadingCells = new Set(),
 }: EditableGridProps) => {
   const [editingCell, setEditingCell] = useState<{ rowIndex: number; field: string } | null>(null);
   const [editValue, setEditValue] = useState<any>('');
@@ -317,7 +323,32 @@ const EditableGrid = ({
       else if (value === '4') label = 'High (4)';
       else if (value === '5') label = 'Very High (5)';
       
-      return <div className={ratingClass}>{label}</div>;
+      const cellKey = `${rowData[keyField]}-${column.field}`;
+      const isAILoading = aiLoadingCells.has(cellKey);
+      
+      return (
+        <div className="flex items-center justify-between group">
+          <div className={ratingClass}>{label}</div>
+          {column.enableAI && onAIAutofill && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-all hover:bg-purple-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAIAutofill(rowIndex, column.field, column.aiType || 'rating');
+              }}
+              disabled={isAILoading}
+            >
+              {isAILoading ? (
+                <Loader2 className="h-3 w-3 animate-spin text-purple-500" />
+              ) : (
+                <Sparkles className="h-3 w-3 text-purple-500" />
+              )}
+            </Button>
+          )}
+        </div>
+      );
     }
     
     if (column.type === 'select' && column.options) {
@@ -361,6 +392,8 @@ const EditableGrid = ({
     }
 
     const cellClass = column.cellClassName ? column.cellClassName(value) : '';
+    const cellKey = `${rowData[keyField]}-${column.field}`;
+    const isAILoading = aiLoadingCells.has(cellKey);
     
     // Show pencil icon for editable cells (excluding special types)
     if (column.editable) {
@@ -370,7 +403,27 @@ const EditableGrid = ({
           onClick={() => startEditing(rowIndex, column.field, value)}
         >
           <span className="flex-1">{value || <span className="text-gray-400">Click to edit</span>}</span>
-          <Pencil className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex-shrink-0" />
+          <div className="flex items-center gap-1">
+            {column.enableAI && onAIAutofill && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-all hover:bg-purple-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAIAutofill(rowIndex, column.field, column.aiType || 'comment');
+                }}
+                disabled={isAILoading}
+              >
+                {isAILoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin text-purple-500" />
+                ) : (
+                  <Sparkles className="h-3 w-3 text-purple-500" />
+                )}
+              </Button>
+            )}
+            <Pencil className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+          </div>
         </div>
       );
     }

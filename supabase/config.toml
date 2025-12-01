@@ -1,0 +1,4 @@
+project_id = "frvwqajmyzkhcfvkzqrj"
+
+[functions.ai-autofill-rating]
+verify_jwt = false

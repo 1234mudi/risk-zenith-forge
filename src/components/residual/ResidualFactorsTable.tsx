@@ -1,9 +1,10 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Sparkles } from "lucide-react";
 import { FactorProps } from "@/types/control-types";
 import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid";
+import { useAIAutofill } from "@/hooks/useAIAutofill";
 
 interface ResidualFactorsTableProps {
   factors: FactorProps[];
@@ -22,6 +23,8 @@ const ResidualFactorsTable = ({
   handleFactorChange
 }: ResidualFactorsTableProps) => {
   
+  const { autofillRating, autofillComment, autofillAll, isLoading, loadingCells } = useAIAutofill();
+  
   const gridData = factors.flatMap(parent => 
     parent.children?.map(child => ({
       ...child,
@@ -29,31 +32,46 @@ const ResidualFactorsTable = ({
     })) || []
   );
 
-  const columns: EditableGridColumn[] = [
-    {
-      field: "name",
-      header: "Factor",
-      editable: true,
-      type: "text"
-    },
-    {
-      field: "description",
-      header: "Description",
-      editable: true,
-      type: "text"
-    },
-    {
-      field: "value",
-      header: "Overall",
-      editable: true,
-      type: "rating"
-    },
-    {
-      field: "comments",
-      header: "Comments",
-      editable: true,
-      type: "textarea"
+  const handleAIAutofill = async (rowIndex: number, field: string, aiType: 'rating' | 'comment') => {
+    const rowData = gridData[rowIndex];
+    const context = {
+      factorName: rowData.name,
+      description: rowData.description,
+      riskContext: 'Residual risk assessment after controls',
+      rating: rowData.value
+    };
+
+    if (aiType === 'rating') {
+      const rating = await autofillRating(context);
+      if (rating) handleFactorChange(rowData.parentId, 'value', rating, rowData.id);
+    } else if (aiType === 'comment') {
+      const comment = await autofillComment(context);
+      if (comment) handleFactorChange(rowData.parentId, 'comments', comment, rowData.id);
     }
+  };
+
+  const handleAIAutofillAll = async () => {
+    const results = await autofillAll({
+      riskContext: 'Residual risk assessment after controls',
+      factors: gridData.map(r => ({ id: r.id, name: r.name, description: r.description }))
+    });
+
+    if (results && Array.isArray(results)) {
+      results.forEach((result: any) => {
+        const row = gridData.find(r => r.id === result.id);
+        if (row) {
+          if (result.rating) handleFactorChange(row.parentId, 'value', result.rating.toString(), row.id);
+          if (result.comment) handleFactorChange(row.parentId, 'comments', result.comment, row.id);
+        }
+      });
+    }
+  };
+
+  const columns: EditableGridColumn[] = [
+    { field: "name", header: "Factor", editable: true, type: "text" },
+    { field: "description", header: "Description", editable: true, type: "text" },
+    { field: "value", header: "Overall", editable: true, type: "rating", enableAI: true, aiType: 'rating' },
+    { field: "comments", header: "Comments", editable: true, type: "textarea", enableAI: true, aiType: 'comment' }
   ];
 
   if (localShowWeights) {
@@ -86,27 +104,21 @@ const ResidualFactorsTable = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleAddFactor(factors[0]?.id || '')}
-          className="flex items-center gap-1"
-        >
+        <Button variant="outline" size="sm" onClick={() => handleAddFactor(factors[0]?.id || '')} className="flex items-center gap-1">
           <PlusCircle className="h-4 w-4" /> Add Factor
+        </Button>
+        <Button onClick={handleAIAutofillAll} disabled={isLoading} className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white">
+          {isLoading ? <><Sparkles className="h-4 w-4 mr-2 animate-pulse" />AI Autofilling...</> : <><Sparkles className="h-4 w-4 mr-2" />AI Autofill All</>}
         </Button>
       </div>
 
-      <EditableGrid
-        columns={columns}
-        data={gridData}
-        onDataChange={handleDataChange}
-        keyField="id"
+      <EditableGrid columns={columns} data={gridData} onDataChange={handleDataChange} keyField="id"
         onRemoveRow={(index) => {
           const item = gridData[index];
-          if (item.parentId) {
-            handleRemoveFactor(item.parentId, item.id);
-          }
+          if (item.parentId) handleRemoveFactor(item.parentId, item.id);
         }}
+        onAIAutofill={handleAIAutofill}
+        aiLoadingCells={loadingCells}
         allowBulkEdit
       />
     </div>
