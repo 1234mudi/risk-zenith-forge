@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Eye, EyeOff, LineChart } from "lucide-react";
+import { Plus, Eye, EyeOff, LineChart, Shield } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import ControlGrid from "./controls/ControlGrid";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from "recharts";
 import EditableGrid from "@/components/ui/editable-grid";
+import { SectionHeader } from "@/components/collaboration/SectionHeader";
 
 const DEFAULT_CONTROLS: Control[] = [
   {
@@ -420,6 +421,12 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
 
   return (
     <div className="space-y-6">
+      <SectionHeader 
+        title="Control Effectiveness" 
+        sectionId="control"
+        icon={<Shield className="h-5 w-5 text-green-600" />}
+      />
+      
       <PreviousAssessmentsSection
         title="Previous Control Effectiveness Assessments"
         assessmentHistory={assessmentHistory}

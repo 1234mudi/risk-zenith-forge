@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LineChart, Eye, EyeOff } from "lucide-react";
+import { LineChart, Eye, EyeOff, TrendingUp } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Card } from "@/components/ui/card";
 import { FactorProps, FactorType } from "@/types/control-types";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid";
 import RiskTrendChart from "./charts/RiskTrendChart";
+import { SectionHeader } from "@/components/collaboration/SectionHeader";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   {
@@ -522,6 +523,12 @@ const InherentRatingSection = ({
 
   return (
     <div className="space-y-6">
+      <SectionHeader 
+        title="Inherent Risk Rating" 
+        sectionId="inherent"
+        icon={<TrendingUp className="h-5 w-5 text-orange-600" />}
+      />
+      
       <PreviousAssessmentsSection
         title="Previous Inherent Risk Assessments"
         assessmentHistory={assessmentHistory}

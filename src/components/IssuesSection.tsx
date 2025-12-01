@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Plus, Trash2 } from "lucide-react";
+import { Calendar as CalendarIcon, Plus, Trash2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useForm } from "@/contexts/FormContext";
+import { SectionHeader } from "@/components/collaboration/SectionHeader";
 
 type Issue = {
   id: string;
@@ -66,6 +67,12 @@ const IssuesSection = ({ onNext }: { onNext: () => void }) => {
 
   return (
     <div className="space-y-6">
+      <SectionHeader 
+        title="Risk Issues" 
+        sectionId="issues"
+        icon={<AlertCircle className="h-5 w-5 text-red-600" />}
+      />
+      
       <div className="bg-amber-50 p-4 rounded-md">
         <h2 className="text-xl font-medium text-amber-800 mb-2">Issues</h2>
         <p className="text-amber-700 text-sm">Record any issues or observations related to the risk being assessed.</p>
