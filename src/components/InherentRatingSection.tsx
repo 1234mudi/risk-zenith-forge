@@ -464,12 +464,12 @@ const InherentRatingSection = ({
     {
       field: "name",
       header: "Factor & Description",
-      editable: true,
+      editable: false,
       type: "text",
       render: (row: any) => (
         <div className="space-y-1">
           <div className="font-medium">{row.name}</div>
-          <div className="text-sm text-muted-foreground">{row.description}</div>
+          <div className="text-sm text-muted-foreground">{row.description || 'No description'}</div>
         </div>
       )
     },
