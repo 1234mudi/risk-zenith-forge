@@ -177,7 +177,9 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 overflow-y-auto px-1">
+        <div className="flex-1 overflow-y-auto px-1 space-y-6">
+          {/* Two-column grid for selection */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Collaborators */}
           <Card className="border-2 h-fit">
             <CardHeader>
@@ -224,13 +226,12 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
             </CardContent>
           </Card>
 
-          {/* Right Column - Applicable Sections & Current Access */}
-          <div className="space-y-6">
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle className="text-lg">Applicable Sections</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+          {/* Right Column - Applicable Sections */}
+          <Card className="border-2 h-fit">
+            <CardHeader>
+              <CardTitle className="text-lg">Applicable Sections</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               {/* Apply to All Toggle */}
               <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30 border-2 border-dashed">
                 <div className="space-y-0.5">
@@ -290,8 +291,9 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
               </div>
             </CardContent>
           </Card>
+          </div>
 
-          {/* Current Access Card */}
+          {/* Current Access Card - Full Width */}
           {(() => {
             const allCollaboratorsWithAccess = MOCK_COLLABORATORS.filter(collaborator => 
               getSectionsForCollaborator(collaborator.id).length > 0
@@ -377,7 +379,6 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
             );
           })()}
           </div>
-        </div>
 
         {/* Footer Actions */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t">
