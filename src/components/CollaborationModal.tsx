@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Check } from "lucide-react";
+import { Users, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCollaboration } from "@/contexts/CollaborationContext";
 
@@ -45,6 +45,7 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
   const [selectedCollaborators, setSelectedCollaborators] = useState<string[]>([]);
   const [applyToAll, setApplyToAll] = useState(false);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const { toast } = useToast();
   const { updateSectionCollaboration, setActiveEditor } = useCollaboration();
 
@@ -54,6 +55,14 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
         ? prev.filter((id) => id !== collaboratorId)
         : [...prev, collaboratorId]
     );
+  };
+
+  const handleRemoveCollaborator = (collaboratorId: string) => {
+    setRemovingId(collaboratorId);
+    setTimeout(() => {
+      setSelectedCollaborators((prev) => prev.filter((id) => id !== collaboratorId));
+      setRemovingId(null);
+    }, 200);
   };
 
   const handleSectionToggle = (sectionId: string) => {
@@ -147,7 +156,53 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                 <Badge variant="secondary">{selectedCollaborators.length} selected</Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+            <CardContent className="space-y-4">
+              {/* Selected Collaborators Chips */}
+              {selectedCollaborators.length > 0 && (
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Selected:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCollaborators.map((id) => {
+                      const collaborator = MOCK_COLLABORATORS.find((c) => c.id === id);
+                      if (!collaborator) return null;
+                      const isRemoving = removingId === id;
+                      return (
+                        <Badge
+                          key={id}
+                          variant="secondary"
+                          className={cn(
+                            "pl-2 pr-1 py-1.5 gap-2 transition-all duration-200",
+                            isRemoving && "opacity-0 scale-75"
+                          )}
+                        >
+                          <Avatar className="h-5 w-5">
+                            <AvatarImage src={collaborator.avatar} />
+                            <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                              {getInitials(collaborator.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-xs font-medium">{collaborator.name}</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            {collaborator.role}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveCollaborator(id);
+                            }}
+                            className="ml-1 rounded-full p-0.5 hover:bg-destructive/20 transition-colors"
+                          >
+                            <X className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+                          </button>
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Collaborators List */}
+              <div className="space-y-2 max-h-80 overflow-y-auto">
               {MOCK_COLLABORATORS.map((collaborator) => {
                 const isSelected = selectedCollaborators.includes(collaborator.id);
                 return (
@@ -182,6 +237,7 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                   </div>
                 );
               })}
+              </div>
             </CardContent>
           </Card>
 
