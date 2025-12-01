@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Eye, EyeOff, LineChart, Shield } from "lucide-react";
+import { Plus, Eye, EyeOff, LineChart, Shield, Sparkles } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Bar } from "recharts";
 import EditableGrid from "@/components/ui/editable-grid";
 import { SectionHeader } from "@/components/collaboration/SectionHeader";
+import { useAIAutofill } from "@/hooks/useAIAutofill";
 
 const DEFAULT_CONTROLS: Control[] = [
   {
@@ -306,6 +307,8 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
     result: assessment.controls[0]?.testResults?.result || 'not tested'
   })));
 
+  const { autofillRating, autofillComment, autofillAll, isLoading, isCellLoading, loadingCells } = useAIAutofill();
+
   const assessmentHistory = SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS.map(assessment => ({
     date: assessment.date,
     score: assessment.score
@@ -419,6 +422,70 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
     return "text-green-600 bg-green-50 px-2 py-1 rounded";
   };
 
+  const handleAIAutofill = async (rowIndex: number, field: string, aiType: 'rating' | 'comment') => {
+    const rowData = controls[rowIndex];
+    
+    const context = {
+      factorName: rowData.name,
+      description: `Control ID: ${rowData.controlId}, Category: ${rowData.category}, Design: ${rowData.designEffect}, Operating: ${rowData.operativeEffect}`,
+      riskContext: 'Control effectiveness assessment for enterprise risk management',
+      rating: rowData.effectiveness
+    };
+
+    if (aiType === 'rating') {
+      const rating = await autofillRating(context);
+      if (rating) {
+        const newControls = [...controls];
+        newControls[rowIndex] = {
+          ...newControls[rowIndex],
+          effectiveness: rating
+        };
+        setControls(newControls);
+        updateForm({ controls: newControls });
+      }
+    } else if (aiType === 'comment') {
+      const comment = await autofillComment(context);
+      if (comment) {
+        const newControls = [...controls];
+        newControls[rowIndex] = {
+          ...newControls[rowIndex],
+          comments: comment
+        };
+        setControls(newControls);
+        updateForm({ controls: newControls });
+      }
+    }
+  };
+
+  const handleAIAutofillAll = async () => {
+    const allControls = controls.map(control => ({
+      id: control.id,
+      name: control.name,
+      description: `Control ID: ${control.controlId}, Category: ${control.category}, Design: ${control.designEffect}, Operating: ${control.operativeEffect}`
+    }));
+
+    const results = await autofillAll({
+      riskContext: 'Control effectiveness assessment for enterprise risk management',
+      factors: allControls
+    });
+
+    if (results && Array.isArray(results)) {
+      const newControls = controls.map(control => {
+        const result = results.find((r: any) => r.id === control.id);
+        if (result) {
+          return {
+            ...control,
+            effectiveness: result.rating ? result.rating.toString() : control.effectiveness,
+            comments: result.comment || control.comments
+          };
+        }
+        return control;
+      });
+      setControls(newControls);
+      updateForm({ controls: newControls });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <SectionHeader 
@@ -487,46 +554,66 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         </Card>
       )}
       
-      <div className="flex space-x-2">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-1"
-            >
-              <Plus className="h-4 w-4" /> Add Control
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add Control</DialogTitle>
-            </DialogHeader>
-            <div className="mt-4 space-y-4">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex space-x-2">
+          <Dialog>
+            <DialogTrigger asChild>
               <Button 
                 variant="outline" 
-                onClick={handleAddControl}
-                className="w-full justify-start"
+                className="flex items-center gap-1"
               >
-                <Plus className="h-4 w-4 mr-2" /> Add Blank Control
+                <Plus className="h-4 w-4" /> Add Control
               </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start"
-                onClick={() => handleAddFromLibrary(CONTROL_LIBRARY[0])}
-              >
-                <Plus className="h-4 w-4 mr-2" /> Add from Control Library
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Add Control</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4 space-y-4">
+                <Button 
+                  variant="outline" 
+                  onClick={handleAddControl}
+                  className="w-full justify-start"
+                >
+                  <Plus className="h-4 w-4 mr-2" /> Add Blank Control
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => handleAddFromLibrary(CONTROL_LIBRARY[0])}
+                >
+                  <Plus className="h-4 w-4 mr-2" /> Add from Control Library
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <ControlLibraryDialog
+            controls={CONTROL_LIBRARY}
+            onAddFromLibrary={handleAddFromLibrary}
+          />
+        </div>
         
-        <ControlLibraryDialog
-          controls={CONTROL_LIBRARY}
-          onAddFromLibrary={handleAddFromLibrary}
-        />
+        <Button 
+          onClick={handleAIAutofillAll}
+          disabled={isLoading}
+          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          {isLoading ? (
+            <>
+              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+              AI Autofilling...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4 mr-2" />
+              AI Autofill All
+            </>
+          )}
+        </Button>
       </div>
       
-      <EditableGrid 
+      <EditableGrid
         columns={[
           { field: 'controlId', header: 'Control ID', width: '120px', editable: true },
           { field: 'name', header: 'Control Name', editable: true },
@@ -554,7 +641,7 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
               { value: 'highly', label: 'Highly Effective', className: 'text-green-600 font-semibold' }
             ]
           },
-          { field: 'effectiveness', header: 'Overall', type: 'rating', editable: true },
+          { field: 'effectiveness', header: 'Overall', type: 'rating', editable: true, enableAI: true, aiType: 'rating' },
           { field: 'testResults.result', header: 'Control Test Results', type: 'select', editable: true,
             options: [
               { value: 'effective', label: 'Effective', className: 'text-green-500' },
@@ -567,7 +654,7 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
           { field: 'owner', header: 'Control Owner', editable: true },
           { field: 'weighting', header: 'Factor Weightage (%)', type: 'number', editable: true },
           { field: 'evidence', header: 'Evidences', type: 'fileUpload', editable: false },
-          { field: 'comments', header: 'Comments', type: 'textarea', editable: true }
+          { field: 'comments', header: 'Comments', type: 'textarea', editable: true, enableAI: true, aiType: 'comment' }
         ]}
         data={controls}
         onDataChange={(newData) => {
@@ -577,6 +664,8 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         keyField="id"
         onAddRow={handleAddControl}
         onRemoveRow={handleRemoveControl}
+        onAIAutofill={handleAIAutofill}
+        aiLoadingCells={loadingCells}
         className="border-collapse [&_th]:bg-yellow-50 [&_td]:border [&_th]:border [&_th]:border-slate-200 [&_td]:border-slate-200"
         allowBulkEdit={true}
       />

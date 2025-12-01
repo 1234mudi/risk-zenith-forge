@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LineChart, Eye, EyeOff, TrendingUp } from "lucide-react";
+import { LineChart, Eye, EyeOff, TrendingUp, Sparkles } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Card } from "@/components/ui/card";
 import { FactorProps, FactorType } from "@/types/control-types";
@@ -8,6 +8,7 @@ import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid";
 import RiskTrendChart from "./charts/RiskTrendChart";
 import { SectionHeader } from "@/components/collaboration/SectionHeader";
+import { useAIAutofill } from "@/hooks/useAIAutofill";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   {
@@ -284,6 +285,8 @@ const InherentRatingSection = ({
   const [localShowWeights, setLocalShowWeights] = useState(showWeights);
   const [showTrendChart, setShowTrendChart] = useState(false);
   
+  const { autofillRating, autofillComment, autofillAll, isLoading, isCellLoading, loadingCells } = useAIAutofill();
+  
   const assessmentHistory = SAMPLE_HISTORICAL_ASSESSMENTS.map(assessment => ({
     date: assessment.date,
     score: assessment.score
@@ -478,6 +481,8 @@ const InherentRatingSection = ({
       header: "Rating",
       editable: true,
       type: "select",
+      enableAI: true,
+      aiType: 'rating',
       options: [
         { value: "1", label: "Very Low (1)", className: "text-green-500 bg-green-50" },
         { value: "2", label: "Low (2)", className: "text-yellow-500 bg-yellow-50" },
@@ -490,7 +495,9 @@ const InherentRatingSection = ({
       field: "comments",
       header: "Comments",
       editable: true,
-      type: "textarea"
+      type: "textarea",
+      enableAI: true,
+      aiType: 'comment'
     }
   ];
 
@@ -519,6 +526,56 @@ const InherentRatingSection = ({
         }
       }
     });
+  };
+
+  const handleAIAutofill = async (rowIndex: number, field: string, aiType: 'rating' | 'comment') => {
+    const rowData = gridData[rowIndex];
+    
+    const context = {
+      factorName: rowData.name,
+      description: rowData.description,
+      riskContext: 'Inherent risk assessment for enterprise risk management',
+      rating: rowData.value
+    };
+
+    if (aiType === 'rating') {
+      const rating = await autofillRating(context);
+      if (rating) {
+        handleFactorChange(rowData.parentId, 'value', rating, rowData.id);
+      }
+    } else if (aiType === 'comment') {
+      const comment = await autofillComment(context);
+      if (comment) {
+        handleFactorChange(rowData.parentId, 'comments', comment, rowData.id);
+      }
+    }
+  };
+
+  const handleAIAutofillAll = async () => {
+    const allFactors = gridData.map(row => ({
+      id: row.id,
+      name: row.name,
+      description: row.description
+    }));
+
+    const results = await autofillAll({
+      riskContext: 'Inherent risk assessment for enterprise risk management',
+      factors: allFactors
+    });
+
+    if (results && Array.isArray(results)) {
+      results.forEach((result: any) => {
+        const row = gridData.find(r => r.id === result.id);
+        if (row) {
+          if (result.rating) {
+            handleFactorChange(row.parentId, 'value', result.rating.toString(), row.id);
+          }
+          if (result.comment) {
+            handleFactorChange(row.parentId, 'comments', result.comment, row.id);
+          }
+        }
+      });
+    }
   };
 
   return (
@@ -585,6 +642,29 @@ const InherentRatingSection = ({
         </Card>
       )}
       
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-slate-600">
+          Configure impact factors and ratings for inherent risk assessment
+        </div>
+        <Button 
+          onClick={handleAIAutofillAll}
+          disabled={isLoading}
+          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          {isLoading ? (
+            <>
+              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+              AI Autofilling...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4 mr-2" />
+              AI Autofill All
+            </>
+          )}
+        </Button>
+      </div>
+      
       <EditableGrid
         columns={columns}
         data={gridData}
@@ -597,6 +677,8 @@ const InherentRatingSection = ({
             handleRemoveFactor(item.parentId, item.id);
           }
         }}
+        onAIAutofill={handleAIAutofill}
+        aiLoadingCells={loadingCells}
         allowBulkEdit
         className="border-collapse [&_th]:bg-yellow-50 [&_td]:border [&_th]:border [&_td]:border-slate-200 [&_th]:border-slate-200"
       />
