@@ -170,22 +170,24 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[85vh] overflow-hidden flex flex-col animate-fade-in">
-        <DialogHeader>
+        <DialogHeader className="bg-gradient-to-r from-purple-50 to-blue-50 -m-6 mb-0 p-6 rounded-t-lg border-b">
           <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Users className="h-6 w-6 text-primary" />
+            <div className="p-2 bg-purple-600 rounded-lg">
+              <Users className="h-6 w-6 text-white" />
+            </div>
             Manage Collaborators
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-1 space-y-6">
+        <div className="flex-1 overflow-y-auto px-1 space-y-6 mt-6">
           {/* Two-column grid for selection */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Collaborators */}
-          <Card className="border-2 h-fit">
-            <CardHeader>
+          <Card className="border-2 h-fit bg-gradient-to-br from-white to-purple-50">
+            <CardHeader className="border-b bg-purple-50/50">
               <CardTitle className="text-lg flex items-center justify-between">
                 Select Collaborators
-                <Badge variant="secondary">{selectedCollaborators.length} selected</Badge>
+                <Badge className="bg-purple-600 text-white hover:bg-purple-700">{selectedCollaborators.length} selected</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 max-h-96 overflow-y-auto">
@@ -227,8 +229,8 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
           </Card>
 
           {/* Right Column - Applicable Sections */}
-          <Card className="border-2 h-fit">
-            <CardHeader>
+          <Card className="border-2 h-fit bg-gradient-to-br from-white to-blue-50">
+            <CardHeader className="border-b bg-blue-50/50">
               <CardTitle className="text-lg">Applicable Sections</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -302,14 +304,16 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
             if (allCollaboratorsWithAccess.length === 0) return null;
 
             return (
-              <Card className="border-2">
-                <CardHeader>
+              <Card className="border-2 bg-gradient-to-br from-white to-amber-50">
+                <CardHeader className="border-b bg-amber-50/50">
                   <CardTitle className="text-lg flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <UserMinus className="h-5 w-5" />
+                      <div className="p-1.5 bg-amber-500 rounded-md">
+                        <UserMinus className="h-4 w-4 text-white" />
+                      </div>
                       Current Access
                     </div>
-                    <Badge variant="secondary">{allCollaboratorsWithAccess.length} active</Badge>
+                    <Badge className="bg-amber-500 text-white hover:bg-amber-600">{allCollaboratorsWithAccess.length} active</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -381,11 +385,11 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
           </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t bg-gradient-to-r from-purple-50/30 to-blue-50/30 -mx-6 -mb-6 px-6 pb-6">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="min-w-24">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} className="min-w-32 gap-2">
+          <Button onClick={handleSubmit} className="min-w-32 gap-2 bg-purple-600 hover:bg-purple-700">
             <Check className="h-4 w-4" />
             Apply Collaboration Settings
           </Button>

@@ -73,11 +73,11 @@ const FormHeader = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
-                variant="secondary" 
+                className="bg-purple-600 hover:bg-purple-700 text-white"
                 onClick={() => setCollaborationModalOpen(true)}
               >
                 <Users className="h-4 w-4 mr-1" />
-                Collaboration
+                Collaborate
               </Button>
             </TooltipTrigger>
             <TooltipContent>Manage collaborators and section access</TooltipContent>
