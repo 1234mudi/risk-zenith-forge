@@ -292,79 +292,90 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
           </Card>
 
           {/* Current Access Card */}
-          {Object.entries(collaborationState).some(([_, section]) => section.collaborators.length > 0) && (
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <UserMinus className="h-5 w-5" />
-                  Current Access
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {FORM_SECTIONS.map((section) => {
-                  const sectionCollaborators = collaborationState[section.id as keyof typeof collaborationState]?.collaborators || [];
-                  if (sectionCollaborators.length === 0) return null;
+          {(() => {
+            const allCollaboratorsWithAccess = MOCK_COLLABORATORS.filter(collaborator => 
+              getSectionsForCollaborator(collaborator.id).length > 0
+            );
+            
+            if (allCollaboratorsWithAccess.length === 0) return null;
 
-                  return (
-                    <div key={section.id} className="space-y-2">
-                      <Label className="text-sm font-semibold text-muted-foreground">
-                        {section.label}
-                      </Label>
-                      <div className="flex flex-wrap gap-2">
-                        {sectionCollaborators.map((collaborator) => {
-                          const collaboratorSections = getSectionsForCollaborator(collaborator.id);
-                          const isRemoving = removingCollaborator === `${section.id}-${collaborator.id}` || 
-                                           removingCollaborator === `all-${collaborator.id}`;
-                          
-                          return (
-                            <div
-                              key={collaborator.id}
-                              className={cn(
-                                "group relative flex items-center gap-2 pl-2 pr-1 py-1 rounded-full border-2 bg-background transition-all duration-300",
-                                isRemoving && "opacity-0 scale-75"
-                              )}
-                            >
-                              <Avatar className="h-6 w-6">
-                                <AvatarImage src={collaborator.avatar} />
-                                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
-                                  {getInitials(collaborator.name)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="text-sm font-medium pr-1">{collaborator.name}</span>
-                              
-                              {collaboratorSections.length > 1 && (
-                                <div className="flex items-center gap-1">
-                                  <Separator orientation="vertical" className="h-4" />
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                    onClick={() => handleRemoveAllAccess(collaborator.id)}
-                                    title="Remove all access"
-                                  >
-                                    <UserMinus className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              )}
-                              
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() => handleRemoveCollaborator(section.id, collaborator.id)}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          );
-                        })}
-                      </div>
+            return (
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <UserMinus className="h-5 w-5" />
+                      Current Access
                     </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-          )}
+                    <Badge variant="secondary">{allCollaboratorsWithAccess.length} active</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {allCollaboratorsWithAccess.map((collaborator) => {
+                    const collaboratorSections = getSectionsForCollaborator(collaborator.id);
+                    const isRemoving = removingCollaborator === `all-${collaborator.id}`;
+
+                    return (
+                      <div
+                        key={collaborator.id}
+                        className={cn(
+                          "flex items-start gap-3 p-3 rounded-lg border-2 transition-all duration-300",
+                          isRemoving && "opacity-0 scale-95"
+                        )}
+                      >
+                        <Avatar className="h-9 w-9 flex-shrink-0">
+                          <AvatarImage src={collaborator.avatar} />
+                          <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                            {getInitials(collaborator.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm truncate">{collaborator.name}</p>
+                              <p className="text-xs text-muted-foreground">{collaborator.role}</p>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="flex-shrink-0 h-8 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => handleRemoveAllAccess(collaborator.id)}
+                            >
+                              <UserMinus className="h-3.5 w-3.5" />
+                              Remove All
+                            </Button>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-1.5">
+                            {collaboratorSections.map((sectionId) => {
+                              const section = FORM_SECTIONS.find(s => s.id === sectionId);
+                              const isSectionRemoving = removingCollaborator === `${sectionId}-${collaborator.id}`;
+                              
+                              return (
+                                <Badge
+                                  key={sectionId}
+                                  variant="secondary"
+                                  className={cn(
+                                    "group pl-2 pr-1 py-1 gap-1.5 hover:bg-destructive/10 cursor-pointer transition-all duration-300",
+                                    isSectionRemoving && "opacity-0 scale-75"
+                                  )}
+                                  onClick={() => handleRemoveCollaborator(sectionId, collaborator.id)}
+                                >
+                                  <span className="text-xs">{section?.label}</span>
+                                  <X className="h-3 w-3 opacity-50 group-hover:opacity-100 group-hover:text-destructive" />
+                                </Badge>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            );
+          })()}
           </div>
         </div>
 
