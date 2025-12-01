@@ -199,8 +199,8 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                     onClick={() => handleCollaboratorToggle(collaborator.id)}
                     className={cn(
                       "flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all",
-                      "hover:bg-accent/50 hover:border-primary/30",
-                      isSelected && "bg-primary/5 border-primary"
+                      "hover:bg-purple-50 hover:border-purple-300 hover:shadow-sm",
+                      isSelected && "bg-gradient-to-r from-purple-100 to-pink-100 border-purple-400 shadow-md"
                     )}
                   >
                     <Checkbox
@@ -210,7 +210,7 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                     />
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={collaborator.avatar} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                      <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-semibold">
                         {getInitials(collaborator.name)}
                       </AvatarFallback>
                     </Avatar>
@@ -218,10 +218,10 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                       <p className="font-medium text-sm truncate">{collaborator.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{collaborator.email}</p>
                     </div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge className="text-xs bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0">
                       {collaborator.role}
                     </Badge>
-                    {isSelected && <Check className="h-5 w-5 text-primary flex-shrink-0" />}
+                    {isSelected && <Check className="h-5 w-5 text-purple-600 flex-shrink-0" />}
                   </div>
                 );
               })}
@@ -235,12 +235,12 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Apply to All Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-lg bg-accent/30 border-2 border-dashed">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-blue-100 to-cyan-100 border-2 border-blue-300 border-dashed shadow-sm">
                 <div className="space-y-0.5">
-                  <Label htmlFor="apply-all" className="font-semibold cursor-pointer">
+                  <Label htmlFor="apply-all" className="font-semibold cursor-pointer text-blue-900">
                     Apply selected collaborators to ALL sections
                   </Label>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-blue-700">
                     Enable to automatically select all form sections
                   </p>
                 </div>
@@ -248,7 +248,7 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                   id="apply-all"
                   checked={applyToAll}
                   onCheckedChange={handleApplyToAllToggle}
-                  className="ml-4"
+                  className="ml-4 data-[state=checked]:bg-blue-600"
                 />
               </div>
 
@@ -263,9 +263,9 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                       className={cn(
                         "flex items-center gap-3 p-3 rounded-lg border-2 transition-all",
                         applyToAll
-                          ? "bg-primary/5 border-primary/40 cursor-not-allowed opacity-60"
-                          : "cursor-pointer hover:bg-accent/50 hover:border-primary/30",
-                        isSelected && !applyToAll && "bg-primary/5 border-primary"
+                          ? "bg-blue-50 border-blue-300 cursor-not-allowed opacity-60"
+                          : "cursor-pointer hover:bg-blue-50 hover:border-blue-300 hover:shadow-sm",
+                        isSelected && !applyToAll && "bg-gradient-to-r from-blue-100 to-cyan-100 border-blue-400 shadow-md"
                       )}
                     >
                       <Checkbox
@@ -285,7 +285,7 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                         {section.label}
                       </Label>
                       {(applyToAll || isSelected) && (
-                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                        <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
                       )}
                     </div>
                   );
@@ -331,7 +331,7 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                       >
                         <Avatar className="h-9 w-9 flex-shrink-0">
                           <AvatarImage src={collaborator.avatar} />
-                          <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
+                          <AvatarFallback className="bg-gradient-to-br from-amber-500 to-orange-500 text-white text-sm font-semibold">
                             {getInitials(collaborator.name)}
                           </AvatarFallback>
                         </Avatar>
@@ -361,15 +361,16 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({ open, on
                               return (
                                 <Badge
                                   key={sectionId}
-                                  variant="secondary"
                                   className={cn(
-                                    "group pl-2 pr-1 py-1 gap-1.5 hover:bg-destructive/10 cursor-pointer transition-all duration-300",
+                                    "group pl-2 pr-1 py-1 gap-1.5 cursor-pointer transition-all duration-300",
+                                    "bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 border border-emerald-300",
+                                    "hover:from-red-100 hover:to-pink-100 hover:text-red-800 hover:border-red-300",
                                     isSectionRemoving && "opacity-0 scale-75"
                                   )}
                                   onClick={() => handleRemoveCollaborator(sectionId, collaborator.id)}
                                 >
-                                  <span className="text-xs">{section?.label}</span>
-                                  <X className="h-3 w-3 opacity-50 group-hover:opacity-100 group-hover:text-destructive" />
+                                  <span className="text-xs font-medium">{section?.label}</span>
+                                  <X className="h-3 w-3 opacity-50 group-hover:opacity-100 group-hover:text-red-600" />
                                 </Badge>
                               );
                             })}
