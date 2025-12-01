@@ -28,6 +28,8 @@ interface CollaborationContextType {
     collaborators: Collaborator[]
   ) => void;
   setActiveEditor: (sectionId: string, userId: string, isActive: boolean) => void;
+  removeCollaboratorFromSection: (sectionId: string, userId: string) => void;
+  removeCollaboratorFromAllSections: (userId: string) => void;
 }
 
 const CollaborationContext = createContext<CollaborationContextType | undefined>(
@@ -88,9 +90,44 @@ export const CollaborationProvider: React.FC<{ children: ReactNode }> = ({
     });
   };
 
+  const removeCollaboratorFromSection = (sectionId: string, userId: string) => {
+    setCollaborationState((prev) => {
+      const section = prev[sectionId as keyof CollaborationState];
+      if (!section) return prev;
+
+      return {
+        ...prev,
+        [sectionId]: {
+          collaborators: section.collaborators.filter((c) => c.id !== userId),
+          activeEditors: section.activeEditors.filter((id) => id !== userId),
+        },
+      };
+    });
+  };
+
+  const removeCollaboratorFromAllSections = (userId: string) => {
+    setCollaborationState((prev) => {
+      const newState = { ...prev };
+      Object.keys(newState).forEach((sectionId) => {
+        const section = newState[sectionId as keyof CollaborationState];
+        newState[sectionId as keyof CollaborationState] = {
+          collaborators: section.collaborators.filter((c) => c.id !== userId),
+          activeEditors: section.activeEditors.filter((id) => id !== userId),
+        };
+      });
+      return newState;
+    });
+  };
+
   return (
     <CollaborationContext.Provider
-      value={{ collaborationState, updateSectionCollaboration, setActiveEditor }}
+      value={{ 
+        collaborationState, 
+        updateSectionCollaboration, 
+        setActiveEditor,
+        removeCollaboratorFromSection,
+        removeCollaboratorFromAllSections
+      }}
     >
       {children}
     </CollaborationContext.Provider>
