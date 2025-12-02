@@ -1,5 +1,4 @@
 import React from "react";
-import { CollaborationIndicator } from "./CollaborationIndicator";
 import { useCollaboration } from "@/contexts/CollaborationContext";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -155,13 +154,6 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
           </div>
         )}
       </div>
-      
-      {sectionCollab && (
-        <CollaborationIndicator
-          collaborators={sectionCollab.collaborators}
-          activeEditors={sectionCollab.activeEditors}
-        />
-      )}
     </div>
   );
 };
