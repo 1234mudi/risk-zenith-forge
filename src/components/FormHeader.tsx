@@ -58,25 +58,27 @@ const FormHeader = () => {
   };
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Action Buttons Bar - Moved to Top */}
-      <div className="bg-blue-900 p-3 rounded-md flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3">
+      <div className="bg-blue-900 p-2.5 rounded-md flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
           <Button 
             variant="outline"
-            className="h-9 px-4 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30"
+            size="sm"
+            className="h-8 px-3 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30 text-xs"
             onClick={() => setTeamActivityOpen(true)}
           >
-            <Activity className="h-5 w-5 mr-2" />
+            <Activity className="h-4 w-4 mr-1.5" />
             Team Activity
           </Button>
 
           <Button 
             variant="outline"
-            className="h-9 px-4 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30"
+            size="sm"
+            className="h-8 px-3 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30 text-xs"
             onClick={() => setChatOpen(true)}
           >
-            <MessageSquare className="h-5 w-5 mr-2" />
+            <MessageSquare className="h-4 w-4 mr-1.5" />
             Chat
           </Button>
         </div>
@@ -86,8 +88,8 @@ const FormHeader = () => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="secondary" onClick={handleSave}>
-                <Save className="h-4 w-4 mr-1" />
+              <Button variant="secondary" size="sm" onClick={handleSave} className="h-8 text-xs">
+                <Save className="h-3.5 w-3.5 mr-1" />
                 Save
               </Button>
             </TooltipTrigger>
@@ -99,10 +101,11 @@ const FormHeader = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
-                className="bg-[hsl(var(--collaborate))] hover:bg-[hsl(var(--collaborate))]/90 text-[hsl(var(--collaborate-foreground))]"
+                size="sm"
+                className="h-8 text-xs bg-[hsl(var(--collaborate))] hover:bg-[hsl(var(--collaborate))]/90 text-[hsl(var(--collaborate-foreground))]"
                 onClick={() => setCollaborationModalOpen(true)}
               >
-                <Users className="h-4 w-4 mr-1" />
+                <Users className="h-3.5 w-3.5 mr-1" />
                 Collaborate
               </Button>
             </TooltipTrigger>
@@ -115,10 +118,10 @@ const FormHeader = () => {
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="default" className="bg-green-700 hover:bg-green-800">
-                    <Send className="h-4 w-4 mr-1" />
+                  <Button variant="default" size="sm" className="h-8 text-xs bg-green-700 hover:bg-green-800">
+                    <Send className="h-3.5 w-3.5 mr-1" />
                     Submit
-                    <ChevronDown className="h-4 w-4 ml-1" />
+                    <ChevronDown className="h-3.5 w-3.5 ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
@@ -141,8 +144,8 @@ const FormHeader = () => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="secondary" onClick={handleClose}>
-                <X className="h-4 w-4 mr-1" />
+              <Button variant="secondary" size="sm" onClick={handleClose} className="h-8 text-xs">
+                <X className="h-3.5 w-3.5 mr-1" />
                 Close
               </Button>
             </TooltipTrigger>
@@ -154,9 +157,9 @@ const FormHeader = () => {
 
 
       {/* Risk Information */}
-      <div className="flex flex-col md:flex-row justify-between gap-4">
+      <div className="flex flex-col md:flex-row justify-between gap-3">
         <div className="flex-1">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
+          <h2 className="text-lg font-semibold flex items-center gap-2">
             <Shield className="h-5 w-5 text-blue-600" />
             <span>Assess Risk: {formState.risk}</span>
             <Badge 
@@ -167,7 +170,7 @@ const FormHeader = () => {
               {formState.eraId}
             </Badge>
           </h2>
-          <div className="text-sm text-gray-600 mt-1 flex items-center gap-1">
+          <div className="text-xs text-gray-600 mt-0.5 flex items-center gap-1">
             <span className="text-gray-500">Assessment ID:</span> 
             <span 
               className="cursor-pointer hover:text-blue-600 transition-colors underline decoration-dotted"
@@ -178,37 +181,37 @@ const FormHeader = () => {
             <span className="mx-2">•</span>
             <span className="text-gray-500">Date:</span> {formState.assessmentDate}
           </div>
-          <div className="mt-1 flex items-center gap-3">
+          <div className="mt-0.5 flex items-center gap-2">
             <div className="flex items-center">
-              <span className="text-xs text-gray-500 mr-2">Risk Hierarchy:</span>
+              <span className="text-[10px] text-gray-500 mr-1.5">Risk Hierarchy:</span>
               <Badge 
                 variant="secondary" 
-                className="font-normal text-xs cursor-pointer hover:bg-secondary/80 transition-colors"
+                className="font-normal text-[10px] cursor-pointer hover:bg-secondary/80 transition-colors"
                 onClick={() => copyToClipboard(formState.riskHierarchy, "Risk Hierarchy")}
               >
                 {formState.riskHierarchy}
               </Badge>
             </div>
             <span className="text-gray-300">|</span>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Risk Appetite:</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-gray-500">Risk Appetite:</span>
               <Badge 
-                className="font-normal text-xs"
+                className="font-normal text-[10px]"
                 style={{ backgroundColor: formState.riskAppetite.color, color: 'white' }}
               >
                 {formState.riskAppetite.level}
               </Badge>
-              <Badge variant="outline" className={`font-mono text-xs ${
+              <Badge variant="outline" className={`font-mono text-[10px] ${
                 !isWithinAppetite ? 'border-red-500 text-red-500' : 'border-green-500 text-green-500'
               }`}>
                 {isWithinAppetite ? (
-                  <span className="flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
+                  <span className="flex items-center gap-0.5">
+                    <CheckCircle2 className="h-2.5 w-2.5" />
                     Within Appetite
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1">
-                    <AlertTriangle className="h-3 w-3" />
+                  <span className="flex items-center gap-0.5">
+                    <AlertTriangle className="h-2.5 w-2.5" />
                     Outside Appetite
                   </span>
                 )}
@@ -216,7 +219,7 @@ const FormHeader = () => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
-                    <AlertCircle className="h-3.5 w-3.5 text-gray-400" />
+                    <AlertCircle className="h-3 w-3 text-gray-400" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
                     <p>{formState.riskAppetite.description}</p>
@@ -229,7 +232,7 @@ const FormHeader = () => {
         </div>
       </div>
       
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
         <RiskSummary 
           inherentScore={formState.inherentRatingScore} 
           controlScore={formState.controlEffectivenessScore}

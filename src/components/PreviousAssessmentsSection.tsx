@@ -67,7 +67,7 @@ const PreviousAssessmentsSection = ({
   };
 
   return (
-    <div className="mb-4">
+    <div className="mb-3">
       <Popover>
         <PopoverTrigger asChild>
           <Button 

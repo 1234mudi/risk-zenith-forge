@@ -48,7 +48,7 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <SectionHeader 
         title="Residual Risk Rating" 
         sectionId="residual"
@@ -81,7 +81,7 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
       />
       
       {showTrendChart && (
-        <Card className="p-4 border">
+        <Card className="p-3 border">
           <RiskTrendChart 
             assessments={assessmentHistory} 
             color="#22c55e" // Green color for residual risk

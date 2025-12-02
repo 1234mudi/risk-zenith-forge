@@ -579,7 +579,7 @@ const InherentRatingSection = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <SectionHeader 
         title="Inherent Risk Rating" 
         sectionId="inherent"
@@ -601,39 +601,39 @@ const InherentRatingSection = ({
         type="inherent"
       />
       
-      <div className="flex justify-between items-center p-4 bg-slate-50 rounded-md border">
+      <div className="flex justify-between items-center p-3 bg-slate-50 rounded-md border">
         <div>
-          <h3 className="font-medium text-slate-700">Overall Inherent Risk Rating</h3>
-          <p className="text-sm text-slate-500">Calculated based on weighted impact factors</p>
+          <h3 className="font-medium text-slate-700 text-sm">Overall Inherent Risk Rating</h3>
+          <p className="text-xs text-slate-500">Calculated based on weighted impact factors</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setShowTrendChart(!showTrendChart)}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 h-8 text-xs"
           >
-            <LineChart className="h-4 w-4" />
-            {showTrendChart ? "Hide Inherent Trend" : "Show Inherent Trend"}
+            <LineChart className="h-3.5 w-3.5" />
+            {showTrendChart ? "Hide Trend" : "Show Trend"}
           </Button>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={toggleWeights}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 h-8 text-xs"
           >
-            {localShowWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {localShowWeights ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
             {localShowWeights ? "Hide Weights" : "Show Weights"}
           </Button>
-          <div className={`px-4 py-2 rounded border ${getScoreColor(overallScore)}`}>
-            <div className="text-sm font-medium">Score: {overallScore}</div>
-            <div className="text-xs font-semibold">{getScoreLabel(overallScore)}</div>
+          <div className={`px-3 py-1.5 rounded border ${getScoreColor(overallScore)}`}>
+            <div className="text-xs font-medium">Score: {overallScore}</div>
+            <div className="text-[10px] font-semibold">{getScoreLabel(overallScore)}</div>
           </div>
         </div>
       </div>
       
       {showTrendChart && (
-        <Card className="p-4 border">
+        <Card className="p-3 border">
           <RiskTrendChart 
             assessments={assessmentHistory} 
             color="#f97316" // Orange color for inherent risk
@@ -642,23 +642,24 @@ const InherentRatingSection = ({
         </Card>
       )}
       
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-sm text-slate-600">
+      <div className="flex justify-between items-center">
+        <div className="text-xs text-slate-600">
           Configure impact factors and ratings for inherent risk assessment
         </div>
         <Button 
           onClick={handleAIAutofillAll}
           disabled={isLoading}
-          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+          size="sm"
+          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-8 text-xs"
         >
           {isLoading ? (
             <>
-              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+              <Sparkles className="h-3.5 w-3.5 mr-1.5 animate-pulse" />
               AI Autofilling...
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
               AI Autofill All
             </>
           )}
