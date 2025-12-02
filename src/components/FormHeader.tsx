@@ -61,38 +61,24 @@ const FormHeader = () => {
     <div className="space-y-4">
       {/* Action Buttons Bar - Moved to Top */}
       <div className="bg-blue-900 p-3 rounded-md flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/10"
-                  onClick={() => setTeamActivityOpen(true)}
-                >
-                  <Activity className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Team Activity</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline"
+            className="h-9 px-4 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30"
+            onClick={() => setTeamActivityOpen(true)}
+          >
+            <Activity className="h-5 w-5 mr-2" />
+            Team Activity
+          </Button>
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  className="h-8 w-8 text-white hover:bg-white/10"
-                  onClick={() => setChatOpen(true)}
-                >
-                  <MessageSquare className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Chat & Audit Trail</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button 
+            variant="outline"
+            className="h-9 px-4 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30"
+            onClick={() => setChatOpen(true)}
+          >
+            <MessageSquare className="h-5 w-5 mr-2" />
+            Chat
+          </Button>
         </div>
 
         <div className="flex items-center gap-2">
