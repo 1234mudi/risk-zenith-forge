@@ -19,7 +19,7 @@ const RiskAssessmentNavigation = () => {
   ];
 
   return (
-    <TabsList className="w-full justify-start px-6 pt-4 bg-white border-b h-auto flex-wrap">
+    <TabsList className="w-full justify-start px-6 pt-4 bg-white border-b h-auto overflow-x-auto flex-nowrap scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
       {tabs.map((tab) => (
         <TabsTrigger
           key={tab.value}
