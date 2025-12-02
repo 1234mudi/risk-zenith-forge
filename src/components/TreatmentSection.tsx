@@ -17,26 +17,26 @@ const TreatmentSection = ({ onNext }: { onNext: () => void }) => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <div className="flex items-center gap-2 mb-2">
-          <h2 className="text-xl font-medium text-slate-800">Risk Treatment Plan</h2>
-          <div className="bg-purple-50 text-purple-700 px-2 py-1 rounded text-xs">
+        <div className="flex items-center gap-2 mb-1.5">
+          <h2 className="text-lg font-medium text-slate-800">Risk Treatment Plan</h2>
+          <div className="bg-purple-50 text-purple-700 px-2 py-0.5 rounded text-xs">
             How the risk will be managed
           </div>
         </div>
-        <p className="text-slate-600 text-sm mb-4">
+        <p className="text-slate-600 text-xs mb-3">
           In this section, define how the identified risk will be treated, who owns the treatment actions, and the methodology to be used.
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="riskTreatment">Risk Treatment Approach</Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="riskTreatment" className="text-sm">Risk Treatment Approach</Label>
             <Select 
               onValueChange={(value) => updateForm({ riskTreatment: value })}
               defaultValue={formState.riskTreatment || ""}
             >
-              <SelectTrigger id="riskTreatment">
+              <SelectTrigger id="riskTreatment" className="h-9">
                 <SelectValue placeholder="Select treatment approach" />
               </SelectTrigger>
               <SelectContent>
@@ -47,16 +47,16 @@ const TreatmentSection = ({ onNext }: { onNext: () => void }) => {
                 <SelectItem value="share">Share</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-sm text-slate-500">The high-level strategy for handling this risk.</p>
+            <p className="text-xs text-slate-500">The high-level strategy for handling this risk.</p>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="treatmentOwner">Risk Treatment Owner</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="treatmentOwner" className="text-sm">Risk Treatment Owner</Label>
             <Select 
               onValueChange={(value) => updateForm({ treatmentOwner: value })}
               defaultValue={formState.treatmentOwner || ""}
             >
-              <SelectTrigger id="treatmentOwner">
+              <SelectTrigger id="treatmentOwner" className="h-9">
                 <SelectValue placeholder="Select owner" />
               </SelectTrigger>
               <SelectContent>
@@ -67,16 +67,16 @@ const TreatmentSection = ({ onNext }: { onNext: () => void }) => {
                 <SelectItem value="david_brown">David Brown (Risk Management)</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-sm text-slate-500">The person responsible for implementing the treatment plan.</p>
+            <p className="text-xs text-slate-500">The person responsible for implementing the treatment plan.</p>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="treatmentMethodology">Treatment Methodology/Strategy</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="treatmentMethodology" className="text-sm">Treatment Methodology/Strategy</Label>
             <Select 
               onValueChange={(value) => updateForm({ treatmentMethodology: value })}
               defaultValue={formState.treatmentMethodology || ""}
             >
-              <SelectTrigger id="treatmentMethodology">
+              <SelectTrigger id="treatmentMethodology" className="h-9">
                 <SelectValue placeholder="Select methodology" />
               </SelectTrigger>
               <SelectContent>
@@ -87,21 +87,21 @@ const TreatmentSection = ({ onNext }: { onNext: () => void }) => {
                 <SelectItem value="contingency">Contingency Planning</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-sm text-slate-500">The specific approach to implementing the treatment plan.</p>
+            <p className="text-xs text-slate-500">The specific approach to implementing the treatment plan.</p>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="assessmentDate">Assessment Date</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="assessmentDate" className="text-sm">Assessment Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
                   className={cn(
-                    "w-full justify-start text-left font-normal",
+                    "w-full justify-start text-left font-normal h-9",
                     !date && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className="mr-2 h-3.5 w-3.5" />
                   {date ? format(date, "PPP") : <span>Select date</span>}
                 </Button>
               </PopoverTrigger>
@@ -119,13 +119,13 @@ const TreatmentSection = ({ onNext }: { onNext: () => void }) => {
                 />
               </PopoverContent>
             </Popover>
-            <p className="text-sm text-slate-500">The date when this assessment was conducted.</p>
+            <p className="text-xs text-slate-500">The date when this assessment was conducted.</p>
           </div>
         </div>
       </div>
       
       <div className="flex justify-end">
-        <Button onClick={onNext}>Continue to Inherent Rating</Button>
+        <Button onClick={onNext} size="sm">Continue to Inherent Rating</Button>
       </div>
     </div>
   );

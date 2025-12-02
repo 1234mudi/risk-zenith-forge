@@ -38,7 +38,7 @@ const RiskAssessmentNavigation = () => {
   };
 
   return (
-    <TabsList className="w-full justify-start px-4 py-2 bg-white border-b h-auto overflow-x-auto flex-nowrap scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent gap-1">
+    <TabsList className="w-full justify-start px-3 py-1.5 bg-white border-b h-auto overflow-x-auto flex-nowrap scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent gap-0.5">
       {tabs.map((tab) => {
         const collabKey = sectionToCollabKey[tab.value];
         const sectionCollab = collaborationState[collabKey as keyof typeof collaborationState];
@@ -49,7 +49,7 @@ const RiskAssessmentNavigation = () => {
             key={tab.value}
             value={tab.value}
             className={cn(
-              "relative flex flex-col items-start gap-1 px-3 py-2 rounded-md transition-all duration-200 overflow-visible",
+              "relative flex flex-col items-start gap-0.5 px-2.5 py-1.5 rounded-md transition-all duration-200 overflow-visible",
               "data-[state=active]:bg-slate-100 data-[state=active]:shadow-sm",
               "data-[state=inactive]:bg-transparent hover:bg-slate-50",
               tab.isNextRequired && "data-[state=inactive]:bg-gradient-to-r data-[state=inactive]:from-amber-100 data-[state=inactive]:to-amber-50 border-2 border-amber-400"
@@ -69,7 +69,7 @@ const RiskAssessmentNavigation = () => {
 
             {/* Step indicator dot */}
             <div className={cn(
-              "absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center transition-all",
+              "absolute top-0.5 right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all",
               tab.progress.status === "completed" 
                 ? "bg-green-500" 
                 : tab.progress.status === "in-progress"
@@ -79,10 +79,10 @@ const RiskAssessmentNavigation = () => {
                     : "bg-slate-200"
             )}>
               {tab.progress.status === "completed" ? (
-                <Check className="w-2.5 h-2.5 text-white" />
+                <Check className="w-2 h-2 text-white" />
               ) : (
                 <span className={cn(
-                  "text-[8px] font-bold",
+                  "text-[7px] font-bold",
                   tab.isNextRequired || tab.progress.status === "in-progress" ? "text-white" : "text-slate-500"
                 )}>
                   {tab.index + 1}
@@ -91,17 +91,17 @@ const RiskAssessmentNavigation = () => {
             </div>
 
             {/* Label with collaborator icon */}
-            <div className="flex items-center gap-1 pr-5">
-              <span className="text-xs font-medium whitespace-nowrap">
+            <div className="flex items-center gap-0.5 pr-4">
+              <span className="text-[11px] font-medium whitespace-nowrap">
                 {tab.label}
               </span>
               {hasCollaborators && (
-                <Users className="h-3 w-3 text-blue-500 flex-shrink-0" />
+                <Users className="h-2.5 w-2.5 text-blue-500 flex-shrink-0" />
               )}
             </div>
 
             {/* Progress bar */}
-            <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+            <div className="w-full h-0.5 bg-slate-200 rounded-full overflow-hidden">
               <div 
                 className={cn(
                   "h-full rounded-full transition-all duration-300",

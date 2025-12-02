@@ -50,9 +50,9 @@ const RiskAssessmentForm = () => {
   };
 
   return (
-    <div className="container mx-auto pb-6">
+    <div className="container mx-auto pb-4">
       <Card className="shadow-md">
-        <CardHeader className="bg-slate-50 border-b pb-3">
+        <CardHeader className="bg-slate-50 border-b py-3 px-4">
           <FormHeader />
         </CardHeader>
         
@@ -60,11 +60,11 @@ const RiskAssessmentForm = () => {
           <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <RiskAssessmentNavigation />
             
-            <div className="px-6 pt-4">
+            <div className="px-4 pt-3">
               <NextSectionCallout activeTab={activeTab} onNavigate={setActiveTab} />
             </div>
             
-            <div className="p-6">
+            <div className="p-4">
               <TabsContent value="general">
                 <MainFormSection onNext={handleNext} />
               </TabsContent>

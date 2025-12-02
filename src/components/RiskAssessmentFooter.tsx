@@ -20,26 +20,27 @@ const RiskAssessmentFooter = ({
   const isFirstTab = activeTab === "general";
 
   return (
-    <div className="flex justify-between p-5 gap-4 border-t mt-4">
+    <div className="flex justify-between p-3 gap-3 border-t mt-3">
       <Button 
         variant="outline" 
+        size="sm"
         onClick={onPrevious} 
-        className="flex items-center"
+        className="flex items-center h-8 text-xs"
       >
-        <ChevronLeft className="h-4 w-4 mr-1" />
+        <ChevronLeft className="h-3.5 w-3.5 mr-0.5" />
         {isFirstTab ? "Previous Risk" : "Previous"}
       </Button>
       
-      <div>
+      <div className="flex gap-2">
         {isLastTab && (
-          <Button onClick={onSubmit} className="bg-green-600 hover:bg-green-700 mr-2">
+          <Button onClick={onSubmit} size="sm" className="bg-green-600 hover:bg-green-700 h-8 text-xs">
             Submit Assessment
           </Button>
         )}
         
-        <Button onClick={onNext} className="flex items-center">
+        <Button onClick={onNext} size="sm" className="flex items-center h-8 text-xs">
           {isLastTab ? "Next Risk" : "Next"}
-          <ChevronRight className="h-4 w-4 ml-1" />
+          <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
         </Button>
       </div>
     </div>

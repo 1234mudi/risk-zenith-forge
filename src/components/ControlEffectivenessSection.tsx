@@ -490,7 +490,7 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <SectionHeader 
         title="Control Effectiveness" 
         sectionId="control"
@@ -509,47 +509,47 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         type="control"
       />
       
-      <div className="flex justify-between items-center p-4 bg-yellow-50 rounded-md border">
+      <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-md border">
         <div>
-          <h3 className="font-medium text-slate-700">Overall Control Effectiveness</h3>
-          <p className="text-sm text-slate-500">Calculated based on weighted controls</p>
+          <h3 className="font-medium text-slate-700 text-sm">Overall Control Effectiveness</h3>
+          <p className="text-xs text-slate-500">Calculated based on weighted controls</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setShowTrendChart(!showTrendChart)}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 h-8 text-xs"
           >
-            <LineChart className="h-4 w-4" />
-            {showTrendChart ? "Hide Control Trend" : "Show Control Trend"}
+            <LineChart className="h-3.5 w-3.5" />
+            {showTrendChart ? "Hide Trend" : "Show Trend"}
           </Button>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={toggleWeights}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 h-8 text-xs"
           >
-            {localShowWeights ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {localShowWeights ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
             {localShowWeights ? "Hide Weights" : "Show Weights"}
           </Button>
-          <div className={`px-4 py-2 rounded border ${getScoreColor(overallScore)}`}>
-            <div className="text-sm font-medium">Score: {overallScore}</div>
-            <div className="text-xs font-semibold">{getScoreLabel(overallScore)}</div>
+          <div className={`px-3 py-1.5 rounded border ${getScoreColor(overallScore)}`}>
+            <div className="text-xs font-medium">Score: {overallScore}</div>
+            <div className="text-[10px] font-semibold">{getScoreLabel(overallScore)}</div>
           </div>
         </div>
       </div>
       
       {showTrendChart && (
-        <Card className="p-4 border">
-          <div className="h-64">
+        <Card className="p-3 border">
+          <div className="h-52">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={controlTrendData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Bar dataKey="score" fill="#8884d8" name="Control Score" />
               </BarChart>
             </ResponsiveContainer>
@@ -557,35 +557,38 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         </Card>
       )}
       
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center">
         <div className="flex space-x-2">
           <Dialog>
             <DialogTrigger asChild>
               <Button 
                 variant="outline" 
-                className="flex items-center gap-1"
+                size="sm"
+                className="flex items-center gap-1 h-8 text-xs"
               >
-                <Plus className="h-4 w-4" /> Add Control
+                <Plus className="h-3.5 w-3.5" /> Add Control
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Add Control</DialogTitle>
               </DialogHeader>
-              <div className="mt-4 space-y-4">
+              <div className="mt-3 space-y-3">
                 <Button 
                   variant="outline" 
+                  size="sm"
                   onClick={handleAddControl}
                   className="w-full justify-start"
                 >
-                  <Plus className="h-4 w-4 mr-2" /> Add Blank Control
+                  <Plus className="h-3.5 w-3.5 mr-2" /> Add Blank Control
                 </Button>
                 <Button 
                   variant="outline" 
+                  size="sm"
                   className="w-full justify-start"
                   onClick={() => handleAddFromLibrary(CONTROL_LIBRARY[0])}
                 >
-                  <Plus className="h-4 w-4 mr-2" /> Add from Control Library
+                  <Plus className="h-3.5 w-3.5 mr-2" /> Add from Control Library
                 </Button>
               </div>
             </DialogContent>
@@ -600,16 +603,17 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         <Button 
           onClick={handleAIAutofillAll}
           disabled={isLoading}
-          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+          size="sm"
+          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-8 text-xs"
         >
           {isLoading ? (
             <>
-              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
+              <Sparkles className="h-3.5 w-3.5 mr-1.5 animate-pulse" />
               AI Autofilling...
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
               AI Autofill All
             </>
           )}
@@ -617,7 +621,7 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
       </div>
       
       {/* Pre-filled info note */}
-      <div className="flex items-center gap-2 px-3 py-2 mb-3 bg-slate-50 border border-slate-200 rounded-md">
+      <div className="flex items-center gap-2 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-md">
         <Info className="h-4 w-4 text-slate-400 flex-shrink-0" />
         <span className="text-xs text-slate-500">Pre-filled from previous assessment. You may update if required.</span>
       </div>

@@ -11,9 +11,9 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
   const { updateForm, formState } = useForm();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Organization and Risk Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <OrganizationInfo 
           organization={formState.organization} 
           onOrganizationChange={(value) => updateForm({ organization: value })}
@@ -35,10 +35,10 @@ const MainFormSection = ({ onNext }: { onNext: () => void }) => {
 
       {/* Assessment Guidance */}
       <Card>
-        <CardHeader>
-          <CardTitle>Assessment Guidance</CardTitle>
+        <CardHeader className="py-3 px-4">
+          <CardTitle className="text-base">Assessment Guidance</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-4 pb-4 pt-0">
           <AssessmentGuidance 
             scope={formState.scope || ""} 
             instructions={formState.instructions || ""}
