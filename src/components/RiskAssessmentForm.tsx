@@ -14,6 +14,7 @@ import FormHeader from "@/components/FormHeader";
 import RiskAssessmentNavigation from "@/components/RiskAssessmentNavigation";
 import RiskAssessmentFooter from "@/components/RiskAssessmentFooter";
 import MetricsAndLossesSection from "./MetricsAndLossesSection";
+import NextSectionCallout from "@/components/NextSectionCallout";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
 import { useForm } from "@/contexts/FormContext";
 
@@ -58,6 +59,10 @@ const RiskAssessmentForm = () => {
         <CardContent className="p-0">
           <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <RiskAssessmentNavigation />
+            
+            <div className="px-6 pt-4">
+              <NextSectionCallout activeTab={activeTab} onNavigate={setActiveTab} />
+            </div>
             
             <div className="p-6">
               <TabsContent value="general">
