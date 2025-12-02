@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Eye, EyeOff, LineChart, Shield, Sparkles } from "lucide-react";
+import { Plus, Eye, EyeOff, LineChart, Shield, Sparkles, Info } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -14,7 +14,6 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Le
 import EditableGrid from "@/components/ui/editable-grid";
 import { SectionHeader } from "@/components/collaboration/SectionHeader";
 import { useAIAutofill } from "@/hooks/useAIAutofill";
-
 const DEFAULT_CONTROLS: Control[] = [
   {
     id: "1",
@@ -296,9 +295,13 @@ type ControlEffectivenessSectionProps = {
 };
 
 const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivenessSectionProps) => {
-  const [controls, setControls] = useState<Control[]>(DEFAULT_CONTROLS);
+  // Pre-fill from the most recent previous assessment
+  const previousAssessmentControls = SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS[0]?.controls || DEFAULT_CONTROLS;
+  const previousAssessmentScore = SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS[0]?.score || "0.0";
+  
+  const [controls, setControls] = useState<Control[]>(previousAssessmentControls);
   const { updateForm, formState } = useForm();
-  const [overallScore, setOverallScore] = useState<string>(formState.controlEffectivenessScore || "0.0");
+  const [overallScore, setOverallScore] = useState<string>(formState.controlEffectivenessScore || previousAssessmentScore);
   const [localShowWeights, setLocalShowWeights] = useState(showWeights);
   const [showTrendChart, setShowTrendChart] = useState(false);
   const [controlTrendData, setControlTrendData] = useState(SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS.map(assessment => ({
@@ -611,6 +614,12 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
             </>
           )}
         </Button>
+      </div>
+      
+      {/* Pre-filled info note */}
+      <div className="flex items-center gap-2 px-3 py-2 mb-3 bg-slate-50 border border-slate-200 rounded-md">
+        <Info className="h-4 w-4 text-slate-400 flex-shrink-0" />
+        <span className="text-xs text-slate-500">Pre-filled from previous assessment. You may update if required.</span>
       </div>
       
       <EditableGrid
