@@ -3,7 +3,7 @@ import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFormProgress, TAB_ORDER, TAB_LABELS, SectionStatus } from "@/hooks/useFormProgress";
 import { useCollaboration } from "@/contexts/CollaborationContext";
 import { cn } from "@/lib/utils";
-import { Check, Users, ChevronRight } from "lucide-react";
+import { Check, Users } from "lucide-react";
 
 const RiskAssessmentNavigation = () => {
   const progress = useFormProgress();
@@ -52,9 +52,14 @@ const RiskAssessmentNavigation = () => {
               "relative flex flex-col items-start gap-1 px-3 py-2 rounded-md transition-all duration-200",
               "data-[state=active]:bg-slate-100 data-[state=active]:shadow-sm",
               "data-[state=inactive]:bg-transparent hover:bg-slate-50",
-              tab.isNextRequired && "data-[state=inactive]:bg-amber-50 ring-1 ring-amber-400"
+              tab.isNextRequired && "data-[state=inactive]:bg-amber-50/70 shadow-[0_0_0_1px_rgba(251,191,36,0.5),0_0_12px_rgba(251,191,36,0.3)] animate-[pulse_2s_ease-in-out_infinite]"
             )}
           >
+            {/* Left accent bar for next required */}
+            {tab.isNextRequired && (
+              <div className="absolute left-0 top-1 bottom-1 w-1 bg-amber-500 rounded-full" />
+            )}
+
             {/* Step indicator dot */}
             <div className={cn(
               "absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center transition-all",
@@ -62,19 +67,24 @@ const RiskAssessmentNavigation = () => {
                 ? "bg-green-500" 
                 : tab.progress.status === "in-progress"
                   ? "bg-amber-500"
-                  : "bg-slate-200"
+                  : tab.isNextRequired
+                    ? "bg-amber-500 animate-[pulse_1.5s_ease-in-out_infinite]"
+                    : "bg-slate-200"
             )}>
               {tab.progress.status === "completed" ? (
                 <Check className="w-2.5 h-2.5 text-white" />
-              ) : tab.isNextRequired ? (
-                <ChevronRight className="w-2.5 h-2.5 text-amber-700" />
               ) : (
-                <span className="text-[8px] font-bold text-slate-500">{tab.index + 1}</span>
+                <span className={cn(
+                  "text-[8px] font-bold",
+                  tab.isNextRequired ? "text-white" : "text-slate-500"
+                )}>
+                  {tab.index + 1}
+                </span>
               )}
             </div>
 
             {/* Label with collaborator icon */}
-            <div className="flex items-center gap-1 pr-5">
+            <div className={cn("flex items-center gap-1 pr-5", tab.isNextRequired && "pl-2")}>
               <span className="text-xs font-medium whitespace-nowrap">
                 {tab.label}
               </span>
@@ -84,7 +94,7 @@ const RiskAssessmentNavigation = () => {
             </div>
 
             {/* Progress bar */}
-            <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+            <div className={cn("w-full h-1 bg-slate-200 rounded-full overflow-hidden", tab.isNextRequired && "ml-2")}>
               <div 
                 className={cn(
                   "h-full rounded-full transition-all duration-300",
