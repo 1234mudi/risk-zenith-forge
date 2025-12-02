@@ -14,10 +14,15 @@ interface SectionCollaboration {
 }
 
 interface CollaborationState {
+  main: SectionCollaboration;
   inherent: SectionCollaboration;
   control: SectionCollaboration;
   residual: SectionCollaboration;
+  heatmap: SectionCollaboration;
+  treatment: SectionCollaboration;
   issues: SectionCollaboration;
+  metrics: SectionCollaboration;
+  comments: SectionCollaboration;
   additional: SectionCollaboration;
 }
 
@@ -37,10 +42,36 @@ const CollaborationContext = createContext<CollaborationContextType | undefined>
 );
 
 const initialState: CollaborationState = {
-  inherent: { collaborators: [], activeEditors: [] },
-  control: { collaborators: [], activeEditors: [] },
-  residual: { collaborators: [], activeEditors: [] },
+  main: { 
+    collaborators: [
+      { id: "1", name: "Sarah Johnson", email: "sarah@example.com", role: "Senior Auditor" }
+    ], 
+    activeEditors: [] 
+  },
+  inherent: { 
+    collaborators: [
+      { id: "1", name: "Sarah Johnson", email: "sarah@example.com", role: "Senior Auditor" },
+      { id: "2", name: "Michael Chen", email: "michael@example.com", role: "Compliance Officer" }
+    ], 
+    activeEditors: ["1"] 
+  },
+  control: { 
+    collaborators: [
+      { id: "2", name: "Michael Chen", email: "michael@example.com", role: "Compliance Officer" }
+    ], 
+    activeEditors: [] 
+  },
+  residual: { 
+    collaborators: [
+      { id: "3", name: "Emma Rodriguez", email: "emma@example.com", role: "Risk Analyst" }
+    ], 
+    activeEditors: [] 
+  },
+  heatmap: { collaborators: [], activeEditors: [] },
+  treatment: { collaborators: [], activeEditors: [] },
   issues: { collaborators: [], activeEditors: [] },
+  metrics: { collaborators: [], activeEditors: [] },
+  comments: { collaborators: [], activeEditors: [] },
   additional: { collaborators: [], activeEditors: [] },
 };
 

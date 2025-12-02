@@ -1,8 +1,10 @@
 
 import React, { useState } from "react";
 import { useForm } from "@/contexts/FormContext";
-import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Activity } from "lucide-react";
 import { CollaborationModal } from "@/components/CollaborationModal";
+import TeamActivityPanel from "@/components/panels/TeamActivityPanel";
+import ChatPanel from "@/components/panels/ChatPanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +25,8 @@ const FormHeader = () => {
   const { setActiveTab } = useRiskAssessment();
   const isWithinAppetite = formState.isWithinAppetite;
   const [collaborationModalOpen, setCollaborationModalOpen] = useState(false);
+  const [teamActivityOpen, setTeamActivityOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -56,7 +60,43 @@ const FormHeader = () => {
   return (
     <div className="space-y-4">
       {/* Action Buttons Bar - Moved to Top */}
-      <div className="bg-blue-900 p-3 rounded-md flex items-center justify-end gap-2">
+      <div className="bg-blue-900 p-3 rounded-md flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-8 w-8 text-white hover:bg-white/10"
+                  onClick={() => setTeamActivityOpen(true)}
+                >
+                  <Activity className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Team Activity</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-8 w-8 text-white hover:bg-white/10"
+                  onClick={() => setChatOpen(true)}
+                >
+                  <MessageSquare className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Chat & Audit Trail</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        <div className="flex items-center gap-2">
+
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -123,7 +163,9 @@ const FormHeader = () => {
             <TooltipContent>Close this assessment</TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        </div>
       </div>
+
 
       {/* Risk Information */}
       <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -251,6 +293,16 @@ const FormHeader = () => {
       <CollaborationModal 
         open={collaborationModalOpen} 
         onOpenChange={setCollaborationModalOpen} 
+      />
+
+      <TeamActivityPanel 
+        open={teamActivityOpen}
+        onOpenChange={setTeamActivityOpen}
+      />
+
+      <ChatPanel 
+        open={chatOpen}
+        onOpenChange={setChatOpen}
       />
     </div>
   );
