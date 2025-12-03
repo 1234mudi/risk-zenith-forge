@@ -679,6 +679,8 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         onRemoveRow={handleRemoveControl}
         onAIAutofill={handleAIAutofill}
         aiLoadingCells={loadingCells}
+        sectionId="control"
+        enableCellComments
         className="border-collapse [&_th]:bg-yellow-50 [&_td]:border [&_th]:border [&_th]:border-slate-200 [&_td]:border-slate-200"
         allowBulkEdit={true}
       />
