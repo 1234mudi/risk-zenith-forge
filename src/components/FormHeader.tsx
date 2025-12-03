@@ -1,13 +1,12 @@
 
 import React, { useState } from "react";
 import { useForm } from "@/contexts/FormContext";
-import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Activity, ClipboardCheck } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Activity } from "lucide-react";
 import { CollaborationModal } from "@/components/CollaborationModal";
 import TeamActivityPanel from "@/components/panels/TeamActivityPanel";
 import ChatPanel from "@/components/panels/ChatPanel";
 import CommentActivityPanel from "@/components/collaboration/CommentActivityPanel";
 import ReviewStatusBadge from "@/components/review/ReviewStatusBadge";
-import ReviewActionDialog from "@/components/review/ReviewActionDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,17 +22,13 @@ import RelatedRisks from "./RelatedRisks";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
 
 const FormHeader = () => {
-  const { formState, approveAssessment, challengeAssessment } = useForm();
+  const { formState } = useForm();
   const { toast } = useToast();
   const { setActiveTab } = useRiskAssessment();
   const isWithinAppetite = formState.isWithinAppetite;
   const [collaborationModalOpen, setCollaborationModalOpen] = useState(false);
   const [teamActivityOpen, setTeamActivityOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
-  
-  const canReview = formState.rcsaStatus === "Pending Review" || formState.rcsaStatus === "Returned for Rework/Challenged";
-  const isApproved = formState.rcsaStatus === "Approved/Finalized";
   
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -121,25 +116,6 @@ const FormHeader = () => {
             <TooltipContent>Manage collaborators and section access</TooltipContent>
           </Tooltip>
         </TooltipProvider>
-
-        {/* Prominent Review Button */}
-        {canReview && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  size="sm"
-                  onClick={() => setReviewDialogOpen(true)}
-                  className="h-8 text-xs bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse"
-                >
-                  <ClipboardCheck className="h-3.5 w-3.5 mr-1" />
-                  Review RCSA
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Approve or challenge this assessment</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
 
         <DropdownMenu>
           <TooltipProvider>
@@ -321,14 +297,6 @@ const FormHeader = () => {
       <ChatPanel 
         open={chatOpen}
         onOpenChange={setChatOpen}
-      />
-
-      <ReviewActionDialog
-        open={reviewDialogOpen}
-        onOpenChange={setReviewDialogOpen}
-        onApprove={approveAssessment}
-        onChallenge={challengeAssessment}
-        riskName={formState.risk}
       />
     </div>
   );

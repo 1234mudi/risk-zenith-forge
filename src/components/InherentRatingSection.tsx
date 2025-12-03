@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LineChart, Eye, EyeOff, TrendingUp, Sparkles } from "lucide-react";
+import { LineChart, Eye, EyeOff, TrendingUp, Sparkles, ClipboardCheck } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Card } from "@/components/ui/card";
 import { FactorProps, FactorType } from "@/types/control-types";
@@ -10,6 +10,7 @@ import RiskTrendChart from "./charts/RiskTrendChart";
 import { SectionHeader } from "@/components/collaboration/SectionHeader";
 import { useAIAutofill } from "@/hooks/useAIAutofill";
 import { isSectionChallenged } from "@/components/review/ReviewChallengeIndicator";
+import ReviewActionDialog from "@/components/review/ReviewActionDialog";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   {
@@ -281,10 +282,11 @@ const InherentRatingSection = ({
   showWeights
 }: InherentRatingSectionProps) => {
   const [factors, setFactors] = useState<FactorProps[]>(DEFAULT_IMPACT_FACTORS);
-  const { updateForm, formState } = useForm();
+  const { updateForm, formState, approveAssessment, challengeAssessment } = useForm();
   const [overallScore, setOverallScore] = useState<string>(formState.inherentRatingScore || "0.0");
   const [localShowWeights, setLocalShowWeights] = useState(showWeights);
   const [showTrendChart, setShowTrendChart] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   
   const { autofillRating, autofillComment, autofillAll, isLoading, isCellLoading, loadingCells } = useAIAutofill();
   
@@ -652,24 +654,36 @@ const InherentRatingSection = ({
         <div className="text-xs text-slate-600">
           Configure impact factors and ratings for inherent risk assessment
         </div>
-        <Button 
-          onClick={handleAIAutofillAll}
-          disabled={isLoading}
-          size="sm"
-          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-8 text-xs"
-        >
-          {isLoading ? (
-            <>
-              <Sparkles className="h-3.5 w-3.5 mr-1.5 animate-pulse" />
-              AI Autofilling...
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-              AI Autofill All
-            </>
-          )}
-        </Button>
+        <div className="flex items-center gap-2">
+          {formState.rcsaStatus === "Pending Review" || formState.rcsaStatus === "Returned for Rework/Challenged" ? (
+            <Button 
+              onClick={() => setReviewDialogOpen(true)}
+              size="sm"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-8 text-xs"
+            >
+              <ClipboardCheck className="h-3.5 w-3.5 mr-1.5" />
+              Review RCSA
+            </Button>
+          ) : null}
+          <Button 
+            onClick={handleAIAutofillAll}
+            disabled={isLoading}
+            size="sm"
+            className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 h-8 text-xs"
+          >
+            {isLoading ? (
+              <>
+                <Sparkles className="h-3.5 w-3.5 mr-1.5 animate-pulse" />
+                AI Autofilling...
+              </>
+            ) : (
+              <>
+                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                AI Autofill All
+              </>
+            )}
+          </Button>
+        </div>
       </div>
       
       <EditableGrid
@@ -696,6 +710,14 @@ const InherentRatingSection = ({
       <div className="flex justify-end">
         <Button onClick={onNext}>Continue to Control Effectiveness</Button>
       </div>
+
+      <ReviewActionDialog
+        open={reviewDialogOpen}
+        onOpenChange={setReviewDialogOpen}
+        onApprove={approveAssessment}
+        onChallenge={challengeAssessment}
+        riskName={formState.risk}
+      />
     </div>
   );
 };
