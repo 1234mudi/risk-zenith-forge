@@ -44,6 +44,7 @@ type EditableGridProps = {
   aiLoadingCells?: Set<string>;
   sectionId?: string; // For cell comments
   enableCellComments?: boolean;
+  isSectionChallenged?: boolean; // Visual highlight when section needs review
 };
 
 const EditableGrid = ({
@@ -60,6 +61,7 @@ const EditableGrid = ({
   aiLoadingCells = new Set(),
   sectionId,
   enableCellComments = false,
+  isSectionChallenged = false,
 }: EditableGridProps) => {
   const cellComments = enableCellComments ? useCellComments() : null;
   const [editingCell, setEditingCell] = useState<{ rowIndex: number; field: string } | null>(null);
@@ -545,6 +547,16 @@ const EditableGrid = ({
 
   return (
     <div className="space-y-3">
+      {/* Challenge Warning Banner */}
+      {isSectionChallenged && (
+        <div className="bg-amber-50 border border-amber-300 rounded-md p-3 flex items-center gap-2 animate-pulse">
+          <div className="h-2 w-2 bg-amber-500 rounded-full" />
+          <span className="text-sm text-amber-800 font-medium">
+            This section has been flagged for review. Please address the reviewer's feedback.
+          </span>
+        </div>
+      )}
+      
       {allowBulkEdit && selectedRows.length > 0 && (
         <div className="bg-slate-100 p-3 rounded border flex items-center justify-between">
           <div className="text-sm font-medium">
@@ -570,7 +582,7 @@ const EditableGrid = ({
 
       {renderBulkEditControls()}
 
-      <div className={`rounded-md border ${className || ""}`}>
+      <div className={`rounded-md border ${isSectionChallenged ? 'border-amber-400 ring-2 ring-amber-200' : ''} ${className || ""}`}>
         <ScrollArea className={`max-h-[${maxHeight}]`}>
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
