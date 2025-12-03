@@ -64,6 +64,13 @@ const EditableGrid = ({
   isSectionChallenged = false,
 }: EditableGridProps) => {
   const cellComments = enableCellComments ? useCellComments() : null;
+  
+  // Check if a row has unread notifications (user was tagged for review)
+  const getRowHasUnreadTag = (rowId: string): boolean => {
+    if (!cellComments || !sectionId) return false;
+    const unreadNotifications = cellComments.notifications.filter(n => !n.read && n.toUserId === 'current');
+    return unreadNotifications.some(n => n.cellKey.startsWith(`${sectionId}-${rowId}-`));
+  };
   const [editingCell, setEditingCell] = useState<{ rowIndex: number; field: string } | null>(null);
   const [editValue, setEditValue] = useState<any>('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
@@ -609,8 +616,15 @@ const EditableGrid = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((row, rowIndex) => (
-                <TableRow key={row[keyField] || rowIndex}>
+              {data.map((row, rowIndex) => {
+                const rowId = row[keyField];
+                const hasUnreadTag = getRowHasUnreadTag(rowId);
+                
+                return (
+                <TableRow 
+                  key={rowId || rowIndex}
+                  className={hasUnreadTag ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''}
+                >
                   {allowBulkEdit && (
                     <TableCell>
                       <Checkbox
@@ -659,7 +673,8 @@ const EditableGrid = ({
                     )}
                   </TableCell>
                 </TableRow>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
         </ScrollArea>
