@@ -15,6 +15,7 @@ import RiskAssessmentNavigation from "@/components/RiskAssessmentNavigation";
 import RiskAssessmentFooter from "@/components/RiskAssessmentFooter";
 import MetricsAndLossesSection from "./MetricsAndLossesSection";
 import NextSectionCallout from "@/components/NextSectionCallout";
+import ChallengeNotificationBanner from "@/components/review/ChallengeNotificationBanner";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
 import { useForm } from "@/contexts/FormContext";
 
@@ -27,7 +28,7 @@ const RiskAssessmentForm = () => {
     navigateToPreviousRiskAssessment
   } = useRiskAssessment();
   
-  const { formState } = useForm();
+  const { formState, dismissChallenge } = useForm();
 
   const handleNext = () => {
     const tabOrder = ["general", "inherent", "control", "residual", "heatmap", "treatment", "metrics", "issues", "comments"];
@@ -60,7 +61,11 @@ const RiskAssessmentForm = () => {
           <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <RiskAssessmentNavigation />
             
-            <div className="px-4 pt-3">
+          <div className="px-4 pt-3">
+              <ChallengeNotificationBanner 
+                challenge={formState.challengeDetails}
+                onDismiss={dismissChallenge}
+              />
               <NextSectionCallout activeTab={activeTab} onNavigate={setActiveTab} />
             </div>
             
