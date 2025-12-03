@@ -12,39 +12,27 @@ export interface SectionProgress {
 }
 
 export interface FormProgress {
-  general: SectionProgress;
   inherent: SectionProgress;
   control: SectionProgress;
   residual: SectionProgress;
   heatmap: SectionProgress;
-  treatment: SectionProgress;
-  metrics: SectionProgress;
   issues: SectionProgress;
-  comments: SectionProgress;
 }
 
 export const TAB_ORDER = [
-  "general",
   "inherent", 
   "control",
   "residual",
   "heatmap",
-  "treatment",
-  "metrics",
-  "issues",
-  "comments"
+  "issues"
 ] as const;
 
 export const TAB_LABELS: Record<string, string> = {
-  general: "Details",
   inherent: "Inherent Rating",
   control: "Control Effectiveness",
   residual: "Residual Rating",
   heatmap: "Heat Map",
-  treatment: "Treatment",
-  metrics: "Metrics and Losses",
-  issues: "Issues",
-  comments: "Additional Details"
+  issues: "Issues"
 };
 
 export const useFormProgress = () => {
@@ -78,14 +66,6 @@ export const useFormProgress = () => {
   };
 
   const progress: FormProgress = {
-    general: calculateProgress([
-      "riskDescription",
-      "organization",
-      "assessableItem",
-      "assessmentDate",
-      "assessmentOwner",
-      "riskOwner"
-    ], "main"),
     inherent: calculateProgress([
       "inherentImpactFinancial",
       "inherentImpactReputation",
@@ -115,26 +95,11 @@ export const useFormProgress = () => {
       status: "completed",
       hasCollaborators: collaborationState.heatmap?.collaborators.length > 0
     },
-    treatment: calculateProgress([
-      "treatmentStrategy",
-      "treatmentPlan",
-      "treatmentOwner",
-      "treatmentDeadline"
-    ], "treatment"),
-    metrics: calculateProgress([
-      "keyRiskIndicator",
-      "threshold",
-      "currentValue"
-    ], "metrics"),
     issues: calculateProgress([
       "issueDescription",
       "issueSeverity",
       "issueStatus"
-    ], "issues"),
-    comments: calculateProgress([
-      "additionalComments",
-      "attachments"
-    ], "comments")
+    ], "issues")
   };
 
   // Find the next required section (first incomplete section in order)

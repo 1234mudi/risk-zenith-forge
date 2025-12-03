@@ -50,7 +50,7 @@ export const MOCK_RISK_ASSESSMENTS = [
 ];
 
 export const useRiskAssessment = () => {
-  const [activeTab, setActiveTab] = useState("general");
+  const [activeTab, setActiveTab] = useState("inherent");
   const [currentRiskIndex, setCurrentRiskIndex] = useState(0);
   const [showHeatMap, setShowHeatMap] = useState(false);
   const { toast } = useToast();
@@ -142,7 +142,7 @@ export const useRiskAssessment = () => {
       residualRatingScore: riskData.residualRatingScore
     });
     
-    setActiveTab("general");
+    setActiveTab("inherent");
   };
 
   return {

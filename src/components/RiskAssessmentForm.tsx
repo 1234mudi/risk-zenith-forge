@@ -2,18 +2,14 @@
 import React from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import MainFormSection from "@/components/MainFormSection";
 import InherentRatingSection from "@/components/InherentRatingSection";
 import ControlEffectivenessSection from "@/components/ControlEffectivenessSection";
 import ResidualRatingSection from "@/components/ResidualRatingSection";
 import IssuesSection from "@/components/IssuesSection";
-import CommentsAttachmentsSection from "@/components/CommentsAttachmentsSection";
-import TreatmentSection from "@/components/TreatmentSection";
 import RiskHeatMapSection from "@/components/RiskHeatMapSection";
 import FormHeader from "@/components/FormHeader";
 import RiskAssessmentNavigation from "@/components/RiskAssessmentNavigation";
 import RiskAssessmentFooter from "@/components/RiskAssessmentFooter";
-import MetricsAndLossesSection from "./MetricsAndLossesSection";
 import NextSectionCallout from "@/components/NextSectionCallout";
 import ChallengeNotificationBanner from "@/components/review/ChallengeNotificationBanner";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
@@ -31,7 +27,7 @@ const RiskAssessmentForm = () => {
   const { formState, dismissChallenge } = useForm();
 
   const handleNext = () => {
-    const tabOrder = ["general", "inherent", "control", "residual", "heatmap", "treatment", "metrics", "issues", "comments"];
+    const tabOrder = ["inherent", "control", "residual", "heatmap", "issues"];
     const currentIndex = tabOrder.indexOf(activeTab);
     if (currentIndex < tabOrder.length - 1) {
       setActiveTab(tabOrder[currentIndex + 1]);
@@ -41,7 +37,7 @@ const RiskAssessmentForm = () => {
   };
 
   const handlePrevious = () => {
-    const tabOrder = ["general", "inherent", "control", "residual", "heatmap", "treatment", "metrics", "issues", "comments"];
+    const tabOrder = ["inherent", "control", "residual", "heatmap", "issues"];
     const currentIndex = tabOrder.indexOf(activeTab);
     if (currentIndex > 0) {
       setActiveTab(tabOrder[currentIndex - 1]);
@@ -51,17 +47,17 @@ const RiskAssessmentForm = () => {
   };
 
   return (
-    <div className="container mx-auto pb-4">
+    <div className="container mx-auto pb-4 pr-14">
       <Card className="shadow-md">
         <CardHeader className="bg-slate-50 border-b py-3 px-4">
           <FormHeader />
         </CardHeader>
         
         <CardContent className="p-0">
-          <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs defaultValue="inherent" value={activeTab} onValueChange={setActiveTab} className="w-full">
             <RiskAssessmentNavigation />
             
-          <div className="px-4 pt-3">
+            <div className="px-4 pt-3">
               <ChallengeNotificationBanner 
                 challenge={formState.challengeDetails}
                 onDismiss={dismissChallenge}
@@ -70,10 +66,6 @@ const RiskAssessmentForm = () => {
             </div>
             
             <div className="p-4">
-              <TabsContent value="general">
-                <MainFormSection onNext={handleNext} />
-              </TabsContent>
-              
               <TabsContent value="inherent">
                 <InherentRatingSection onNext={handleNext} showWeights={true} />
               </TabsContent>
@@ -98,20 +90,8 @@ const RiskAssessmentForm = () => {
                 />
               </TabsContent>
               
-              <TabsContent value="treatment">
-                <TreatmentSection onNext={handleNext} />
-              </TabsContent>
-              
-              <TabsContent value="metrics">
-                <MetricsAndLossesSection />
-              </TabsContent>
-              
               <TabsContent value="issues">
                 <IssuesSection onNext={handleNext} />
-              </TabsContent>
-              
-              <TabsContent value="comments">
-                <CommentsAttachmentsSection />
               </TabsContent>
             </div>
           </Tabs>

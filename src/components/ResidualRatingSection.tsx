@@ -55,21 +55,6 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
         icon={<Target className="h-5 w-5 text-blue-600" />}
       />
       
-      <PreviousAssessmentsSection
-        title="Previous Residual Risk Assessments"
-        assessmentHistory={assessmentHistory}
-        factors={modifiedHistoricalAssessments[0]?.factors.map(factor => ({
-          ...factor,
-          type: factor.type as FactorType
-        }))}
-        showWeights={localShowWeights}
-        onCopyLatest={copyFromPrevious}
-        getScoreColor={getScoreColor}
-        getScoreLabel={getScoreLabel}
-        getRatingColor={getRatingColor}
-        type="residual"
-      />
-      
       <ResidualRatingHeader
         overallScore={overallScore}
         showTrendChart={showTrendChart}

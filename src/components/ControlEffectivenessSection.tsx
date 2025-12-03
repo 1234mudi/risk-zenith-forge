@@ -497,18 +497,6 @@ const ControlEffectivenessSection = ({ onNext, showWeights }: ControlEffectivene
         icon={<Shield className="h-5 w-5 text-green-600" />}
       />
       
-      <PreviousAssessmentsSection
-        title="Previous Control Effectiveness Assessments"
-        assessmentHistory={assessmentHistory}
-        controls={SAMPLE_HISTORICAL_CONTROL_ASSESSMENTS[0]?.controls}
-        showWeights={localShowWeights}
-        onCopyLatest={copyFromPrevious}
-        getScoreColor={getScoreColor}
-        getScoreLabel={getScoreLabel}
-        getRatingColor={getRatingColor}
-        type="control"
-      />
-      
       <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-md border">
         <div>
           <h3 className="font-medium text-slate-700 text-sm">Overall Control Effectiveness</h3>

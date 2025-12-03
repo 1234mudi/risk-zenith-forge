@@ -2,6 +2,7 @@ import React from "react";
 import { FormProvider } from "@/contexts/FormContext";
 import { CollaborationProvider } from "@/contexts/CollaborationContext";
 import RiskAssessmentForm from "@/components/RiskAssessmentForm";
+import RightSidePanel from "@/components/panels/RightSidePanel";
 
 const Index = () => {
   return (
@@ -11,6 +12,7 @@ const Index = () => {
           <div className="container mx-auto py-6 px-4 max-w-7xl space-y-6">
             <RiskAssessmentForm />
           </div>
+          <RightSidePanel />
         </CollaborationProvider>
       </FormProvider>
     </div>
