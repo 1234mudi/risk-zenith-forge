@@ -3,7 +3,7 @@ import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFormProgress, TAB_ORDER, TAB_LABELS, SectionStatus } from "@/hooks/useFormProgress";
 import { useCollaboration } from "@/contexts/CollaborationContext";
 import { cn } from "@/lib/utils";
-import { Check, Users, Play } from "lucide-react";
+import { Check, Users } from "lucide-react";
 
 const RiskAssessmentNavigation = () => {
   const progress = useFormProgress();
@@ -25,7 +25,6 @@ const RiskAssessmentNavigation = () => {
     value,
     label: TAB_LABELS[value],
     progress: progress[value as keyof typeof progress] as { total: number; completed: number; percentage: number; status: SectionStatus; hasCollaborators: boolean },
-    isNextRequired: progress.nextRequiredSection === value,
     index
   }));
 
@@ -51,21 +50,9 @@ const RiskAssessmentNavigation = () => {
             className={cn(
               "relative flex flex-col items-start gap-0.5 px-2.5 py-1.5 rounded-md transition-all duration-200 overflow-visible",
               "data-[state=active]:bg-slate-100 data-[state=active]:shadow-sm",
-              "data-[state=inactive]:bg-transparent hover:bg-slate-50",
-              tab.isNextRequired && "data-[state=inactive]:bg-gradient-to-r data-[state=inactive]:from-amber-100 data-[state=inactive]:to-amber-50 border-2 border-amber-400"
+              "data-[state=inactive]:bg-transparent hover:bg-slate-50"
             )}
           >
-            {/* Animated arrow pointer for next required */}
-            {tab.isNextRequired && (
-              <div className="absolute -left-3 top-1/2 -translate-y-1/2">
-                <Play 
-                  className="w-4 h-4 text-amber-500 fill-amber-500 animate-[bounce-right_1s_ease-in-out_infinite]" 
-                  style={{ 
-                    animation: 'bounce-right 1s ease-in-out infinite',
-                  }}
-                />
-              </div>
-            )}
 
             {/* Step indicator dot */}
             <div className={cn(
@@ -74,16 +61,14 @@ const RiskAssessmentNavigation = () => {
                 ? "bg-green-500" 
                 : tab.progress.status === "in-progress"
                   ? "bg-amber-500"
-                  : tab.isNextRequired
-                    ? "bg-amber-500"
-                    : "bg-slate-200"
+                  : "bg-slate-200"
             )}>
               {tab.progress.status === "completed" ? (
                 <Check className="w-2 h-2 text-white" />
               ) : (
                 <span className={cn(
                   "text-[7px] font-bold",
-                  tab.isNextRequired || tab.progress.status === "in-progress" ? "text-white" : "text-slate-500"
+                  tab.progress.status === "in-progress" ? "text-white" : "text-slate-500"
                 )}>
                   {tab.index + 1}
                 </span>
