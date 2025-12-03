@@ -119,6 +119,8 @@ const ResidualFactorsTable = ({
         }}
         onAIAutofill={handleAIAutofill}
         aiLoadingCells={loadingCells}
+        sectionId="residual"
+        enableCellComments
         allowBulkEdit
       />
     </div>

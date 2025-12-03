@@ -5,6 +5,7 @@ import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertC
 import { CollaborationModal } from "@/components/CollaborationModal";
 import TeamActivityPanel from "@/components/panels/TeamActivityPanel";
 import ChatPanel from "@/components/panels/ChatPanel";
+import CommentActivityPanel from "@/components/collaboration/CommentActivityPanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,6 +82,8 @@ const FormHeader = () => {
             <MessageSquare className="h-4 w-4 mr-1.5" />
             Chat
           </Button>
+
+          <CommentActivityPanel />
         </div>
 
         <div className="flex items-center gap-2">

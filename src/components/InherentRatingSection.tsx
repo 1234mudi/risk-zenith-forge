@@ -681,6 +681,8 @@ const InherentRatingSection = ({
         onAIAutofill={handleAIAutofill}
         aiLoadingCells={loadingCells}
         allowBulkEdit
+        sectionId="inherent"
+        enableCellComments
         className="border-collapse [&_th]:bg-yellow-50 [&_td]:border [&_th]:border [&_td]:border-slate-200 [&_th]:border-slate-200"
       />
       

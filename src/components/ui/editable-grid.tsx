@@ -7,11 +7,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { Check, X, Edit, Plus, Trash2, Calendar, Pencil, Sparkles, Loader2 } from "lucide-react";
+import { Check, X, Edit, Plus, Trash2, Calendar, Pencil, Sparkles, Loader2, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import CellCommentPopover from "@/components/collaboration/CellCommentPopover";
+import { useCellComments } from "@/contexts/CellCommentsContext";
 
 export type EditableGridColumn = {
   field: string;
@@ -25,6 +27,7 @@ export type EditableGridColumn = {
   render?: (row: any) => React.ReactNode;
   enableAI?: boolean;
   aiType?: 'rating' | 'comment';
+  enableComments?: boolean;
 };
 
 type EditableGridProps = {
@@ -39,6 +42,8 @@ type EditableGridProps = {
   className?: string;
   onAIAutofill?: (rowIndex: number, field: string, aiType: 'rating' | 'comment') => Promise<void>;
   aiLoadingCells?: Set<string>;
+  sectionId?: string; // For cell comments
+  enableCellComments?: boolean;
 };
 
 const EditableGrid = ({
@@ -53,7 +58,10 @@ const EditableGrid = ({
   className,
   onAIAutofill,
   aiLoadingCells = new Set(),
+  sectionId,
+  enableCellComments = false,
 }: EditableGridProps) => {
+  const cellComments = enableCellComments ? useCellComments() : null;
   const [editingCell, setEditingCell] = useState<{ rowIndex: number; field: string } | null>(null);
   const [editValue, setEditValue] = useState<any>('');
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
@@ -395,9 +403,31 @@ const EditableGrid = ({
     const cellKey = `${rowData[keyField]}-${column.field}`;
     const isAILoading = aiLoadingCells.has(cellKey);
     
+    // Generate comment cell key
+    const commentCellKey = sectionId ? `${sectionId}-${rowData[keyField]}-${column.field}` : '';
+    const hasComments = cellComments && commentCellKey ? cellComments.getCommentsForCell(commentCellKey).length > 0 : false;
+    
+    const wrapWithComments = (content: React.ReactNode) => {
+      if (enableCellComments && sectionId && (column.enableComments !== false)) {
+        return (
+          <CellCommentPopover
+            cellKey={commentCellKey}
+            sectionId={sectionId}
+            rowId={rowData[keyField]}
+            field={column.field}
+          >
+            <div className={hasComments ? 'ring-1 ring-amber-300 ring-offset-1 rounded' : ''}>
+              {content}
+            </div>
+          </CellCommentPopover>
+        );
+      }
+      return content;
+    };
+    
     // Show pencil icon for editable cells (excluding special types)
     if (column.editable) {
-      return (
+      const editableContent = (
         <div 
           className={`flex items-center justify-between group cursor-pointer hover:bg-slate-50 px-2 py-1 rounded ${cellClass}`}
           onClick={() => startEditing(rowIndex, column.field, value)}
@@ -426,14 +456,15 @@ const EditableGrid = ({
           </div>
         </div>
       );
+      return wrapWithComments(editableContent);
     }
     
     // Check if column has custom render function
     if (column.render) {
-      return <div className={cellClass}>{column.render(rowData)}</div>;
+      return wrapWithComments(<div className={cellClass}>{column.render(rowData)}</div>);
     }
     
-    return <div className={cellClass}>{value}</div>;
+    return wrapWithComments(<div className={cellClass}>{value}</div>);
   };
 
   const renderBulkEditControls = () => {
