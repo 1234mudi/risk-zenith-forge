@@ -10,7 +10,6 @@ import RiskHeatMapSection from "@/components/RiskHeatMapSection";
 import FormHeader from "@/components/FormHeader";
 import RiskAssessmentNavigation from "@/components/RiskAssessmentNavigation";
 import RiskAssessmentFooter from "@/components/RiskAssessmentFooter";
-import NextSectionCallout from "@/components/NextSectionCallout";
 import ChallengeNotificationBanner from "@/components/review/ChallengeNotificationBanner";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
 import { useForm } from "@/contexts/FormContext";
@@ -62,7 +61,6 @@ const RiskAssessmentForm = () => {
                 challenge={formState.challengeDetails}
                 onDismiss={dismissChallenge}
               />
-              <NextSectionCallout activeTab={activeTab} onNavigate={setActiveTab} />
             </div>
             
             <div className="p-4">
