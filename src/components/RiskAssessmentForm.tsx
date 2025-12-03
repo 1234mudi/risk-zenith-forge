@@ -27,8 +27,8 @@ const RiskAssessmentForm = () => {
   const { formState, dismissChallenge } = useForm();
 
   const handleNext = () => {
-    const tabOrder = ["inherent", "control", "residual", "heatmap", "issues"];
-    const currentIndex = tabOrder.indexOf(activeTab);
+    const tabOrder = ["inherent", "control", "residual", "heatmap", "issues"] as const;
+    const currentIndex = tabOrder.indexOf(activeTab as typeof tabOrder[number]);
     if (currentIndex < tabOrder.length - 1) {
       setActiveTab(tabOrder[currentIndex + 1]);
     } else {
@@ -37,8 +37,8 @@ const RiskAssessmentForm = () => {
   };
 
   const handlePrevious = () => {
-    const tabOrder = ["inherent", "control", "residual", "heatmap", "issues"];
-    const currentIndex = tabOrder.indexOf(activeTab);
+    const tabOrder = ["inherent", "control", "residual", "heatmap", "issues"] as const;
+    const currentIndex = tabOrder.indexOf(activeTab as typeof tabOrder[number]);
     if (currentIndex > 0) {
       setActiveTab(tabOrder[currentIndex - 1]);
     } else {

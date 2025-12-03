@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "@/contexts/FormContext";
+import { useAssessmentNavigation } from "@/contexts/AssessmentNavigationContext";
 
 export const MOCK_RISK_ASSESSMENTS = [
   { 
@@ -50,7 +51,7 @@ export const MOCK_RISK_ASSESSMENTS = [
 ];
 
 export const useRiskAssessment = () => {
-  const [activeTab, setActiveTab] = useState("inherent");
+  const { activeTab, setActiveTab } = useAssessmentNavigation();
   const [currentRiskIndex, setCurrentRiskIndex] = useState(0);
   const [showHeatMap, setShowHeatMap] = useState(false);
   const { toast } = useToast();
