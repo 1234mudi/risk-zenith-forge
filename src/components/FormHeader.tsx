@@ -2,9 +2,8 @@
 import React, { useState } from "react";
 import { useForm } from "@/contexts/FormContext";
 import { useCollaboration } from "@/contexts/CollaborationContext";
-import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Activity, Eye } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Eye } from "lucide-react";
 import { CollaborationModal } from "@/components/CollaborationModal";
-import TeamActivityPanel from "@/components/panels/TeamActivityPanel";
 import ChatPanel from "@/components/panels/ChatPanel";
 import CommentActivityPanel from "@/components/collaboration/CommentActivityPanel";
 import ReviewStatusBadge from "@/components/review/ReviewStatusBadge";
@@ -31,7 +30,6 @@ const FormHeader = () => {
   const { setActiveTab } = useRiskAssessment();
   const isWithinAppetite = formState.isWithinAppetite;
   const [collaborationModalOpen, setCollaborationModalOpen] = useState(false);
-  const [teamActivityOpen, setTeamActivityOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
   // Aggregate all unique collaborators across all sections
@@ -107,23 +105,6 @@ const FormHeader = () => {
         <div className="flex items-center gap-3">
           {hasCollaborators && (
             <div className="flex items-center gap-2">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge 
-                      variant="secondary" 
-                      className="h-7 px-2.5 gap-1.5 bg-white/20 text-white border-white/30 hover:bg-white/30 transition-colors"
-                    >
-                      <Users className="h-3.5 w-3.5" />
-                      <span className="text-xs font-medium">Shared</span>
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs">This form is shared with {collaborators.length} collaborator{collaborators.length > 1 ? 's' : ''}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
               <div className="flex -space-x-2">
                 {collaborators.slice(0, 4).map((collab, idx) => {
                   const isActive = activeEditors.includes(collab.id);
@@ -213,16 +194,6 @@ const FormHeader = () => {
 
         {/* Right side - Action buttons */}
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline"
-            size="sm"
-            className="h-8 px-3 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30 text-xs"
-            onClick={() => setTeamActivityOpen(true)}
-          >
-            <Activity className="h-4 w-4 mr-1.5" />
-            Activity
-          </Button>
-
           <Button 
             variant="outline"
             size="sm"
@@ -434,11 +405,6 @@ const FormHeader = () => {
       <CollaborationModal 
         open={collaborationModalOpen} 
         onOpenChange={setCollaborationModalOpen} 
-      />
-
-      <TeamActivityPanel 
-        open={teamActivityOpen}
-        onOpenChange={setTeamActivityOpen}
       />
 
       <ChatPanel 
