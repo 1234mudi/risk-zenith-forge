@@ -1,7 +1,8 @@
 
 import React, { useState } from "react";
 import { useForm } from "@/contexts/FormContext";
-import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Activity } from "lucide-react";
+import { useCollaboration } from "@/contexts/CollaborationContext";
+import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Activity, Eye } from "lucide-react";
 import { CollaborationModal } from "@/components/CollaborationModal";
 import TeamActivityPanel from "@/components/panels/TeamActivityPanel";
 import ChatPanel from "@/components/panels/ChatPanel";
@@ -9,6 +10,7 @@ import CommentActivityPanel from "@/components/collaboration/CommentActivityPane
 import ReviewStatusBadge from "@/components/review/ReviewStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,15 +22,53 @@ import { useToast } from "@/hooks/use-toast";
 import RiskSummary from "./RiskSummary";
 import RelatedRisks from "./RelatedRisks";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
+import { cn } from "@/lib/utils";
 
 const FormHeader = () => {
   const { formState } = useForm();
+  const { collaborationState } = useCollaboration();
   const { toast } = useToast();
   const { setActiveTab } = useRiskAssessment();
   const isWithinAppetite = formState.isWithinAppetite;
   const [collaborationModalOpen, setCollaborationModalOpen] = useState(false);
   const [teamActivityOpen, setTeamActivityOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+
+  // Aggregate all unique collaborators across all sections
+  const getAllCollaborators = () => {
+    const allCollaborators = new Map();
+    const allActiveEditors = new Set<string>();
+    
+    Object.values(collaborationState).forEach((section) => {
+      if (section && section.collaborators) {
+        section.collaborators.forEach((collab) => {
+          if (!allCollaborators.has(collab.id)) {
+            allCollaborators.set(collab.id, collab);
+          }
+        });
+        section.activeEditors?.forEach((id) => allActiveEditors.add(id));
+      }
+    });
+    
+    return {
+      collaborators: Array.from(allCollaborators.values()),
+      activeEditors: Array.from(allActiveEditors)
+    };
+  };
+
+  const { collaborators, activeEditors } = getAllCollaborators();
+  const hasCollaborators = collaborators.length > 0;
+  const activeCount = activeEditors.length;
+  const viewerCount = collaborators.length - activeCount;
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+  };
   
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -61,8 +101,117 @@ const FormHeader = () => {
   
   return (
     <div className="space-y-3">
-      {/* Action Buttons Bar - Moved to Top */}
+      {/* Action Buttons Bar */}
       <div className="bg-blue-900 p-2.5 rounded-md flex items-center justify-between gap-2">
+        {/* Left side - Collaboration info */}
+        <div className="flex items-center gap-3">
+          {hasCollaborators && (
+            <div className="flex items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge 
+                      variant="secondary" 
+                      className="h-7 px-2.5 gap-1.5 bg-white/20 text-white border-white/30 hover:bg-white/30 transition-colors"
+                    >
+                      <Users className="h-3.5 w-3.5" />
+                      <span className="text-xs font-medium">Shared</span>
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">This form is shared with {collaborators.length} collaborator{collaborators.length > 1 ? 's' : ''}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <div className="flex -space-x-2">
+                {collaborators.slice(0, 4).map((collab, idx) => {
+                  const isActive = activeEditors.includes(collab.id);
+                  return (
+                    <TooltipProvider key={collab.id}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="relative" style={{ animationDelay: `${idx * 50}ms` }}>
+                            <Avatar 
+                              className={cn(
+                                "h-7 w-7 border-2 border-blue-900 ring-2 transition-all duration-200",
+                                isActive 
+                                  ? "ring-green-400 shadow-lg shadow-green-500/30" 
+                                  : "ring-white/40"
+                              )}
+                            >
+                              <AvatarFallback className={cn(
+                                "text-xs font-semibold",
+                                isActive 
+                                  ? "bg-green-100 text-green-700" 
+                                  : "bg-blue-100 text-blue-700"
+                              )}>
+                                {getInitials(collab.name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            {isActive && (
+                              <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-green-400 border-2 border-blue-900 rounded-full animate-pulse" />
+                            )}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div className="text-xs">
+                            <p className="font-semibold">{collab.name}</p>
+                            <p className="text-muted-foreground">{collab.role}</p>
+                            {isActive && (
+                              <p className="text-green-600 mt-1 flex items-center gap-1">
+                                <span className="inline-block h-1.5 w-1.5 bg-green-500 rounded-full" />
+                                Editing now
+                              </p>
+                            )}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                })}
+                {collaborators.length > 4 && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="h-7 w-7 rounded-full bg-white/20 border-2 border-blue-900 ring-2 ring-white/40 flex items-center justify-center">
+                          <span className="text-xs font-semibold text-white">
+                            +{collaborators.length - 4}
+                          </span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">{collaborators.length - 4} more collaborators</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+
+              {activeCount > 0 && (
+                <Badge 
+                  variant="outline" 
+                  className="h-6 px-2 gap-1 bg-green-500/20 text-green-300 border-green-400/50"
+                >
+                  <span className="h-1.5 w-1.5 bg-green-400 rounded-full animate-pulse" />
+                  <span className="text-xs font-medium">{activeCount} editing</span>
+                </Badge>
+              )}
+
+              {viewerCount > 0 && (
+                <Badge 
+                  variant="outline" 
+                  className="h-6 px-2 gap-1 bg-white/10 text-white/80 border-white/30"
+                >
+                  <Eye className="h-3 w-3" />
+                  <span className="text-xs font-medium">{viewerCount} viewing</span>
+                </Badge>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Right side - Action buttons */}
         <div className="flex items-center gap-2">
           <Button 
             variant="outline"
@@ -71,7 +220,7 @@ const FormHeader = () => {
             onClick={() => setTeamActivityOpen(true)}
           >
             <Activity className="h-4 w-4 mr-1.5" />
-            Team Activity
+            Activity
           </Button>
 
           <Button 
@@ -85,77 +234,75 @@ const FormHeader = () => {
           </Button>
 
           <CommentActivityPanel />
-        </div>
 
-        <div className="flex items-center gap-2">
+          <div className="w-px h-6 bg-white/20 mx-1" />
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="secondary" size="sm" onClick={handleSave} className="h-8 text-xs">
-                <Save className="h-3.5 w-3.5 mr-1" />
-                Save
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Save the current assessment</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="sm"
-                className="h-8 text-xs bg-[hsl(var(--collaborate))] hover:bg-[hsl(var(--collaborate))]/90 text-[hsl(var(--collaborate-foreground))]"
-                onClick={() => setCollaborationModalOpen(true)}
-              >
-                <Users className="h-3.5 w-3.5 mr-1" />
-                Collaborate
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Manage collaborators and section access</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-
-        <DropdownMenu>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="default" size="sm" className="h-8 text-xs bg-green-700 hover:bg-green-800">
-                    <Send className="h-3.5 w-3.5 mr-1" />
-                    Submit
-                    <ChevronDown className="h-3.5 w-3.5 ml-1" />
-                  </Button>
-                </DropdownMenuTrigger>
+                <Button 
+                  size="sm"
+                  className="h-8 text-xs bg-[hsl(var(--collaborate))] hover:bg-[hsl(var(--collaborate))]/90 text-[hsl(var(--collaborate-foreground))]"
+                  onClick={() => setCollaborationModalOpen(true)}
+                >
+                  <Users className="h-3.5 w-3.5 mr-1" />
+                  Collaborate
+                </Button>
               </TooltipTrigger>
-              <TooltipContent>Submit the assessment</TooltipContent>
+              <TooltipContent>Manage collaborators</TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleWorkflowAction("Sent for Review")}>
-              Send for Review
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleWorkflowAction("Sent for Approval")}>
-              Send for Approval
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleWorkflowAction("Reassigned")}>
-              Reassign
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="secondary" size="sm" onClick={handleClose} className="h-8 text-xs">
-                <X className="h-3.5 w-3.5 mr-1" />
-                Close
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Close this assessment</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="secondary" size="sm" onClick={handleSave} className="h-8 text-xs">
+                  <Save className="h-3.5 w-3.5 mr-1" />
+                  Save
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Save the current assessment</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <DropdownMenu>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="default" size="sm" className="h-8 text-xs bg-green-700 hover:bg-green-800">
+                      <Send className="h-3.5 w-3.5 mr-1" />
+                      Submit
+                      <ChevronDown className="h-3.5 w-3.5 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Submit the assessment</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleWorkflowAction("Sent for Review")}>
+                Send for Review
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleWorkflowAction("Sent for Approval")}>
+                Send for Approval
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleWorkflowAction("Reassigned")}>
+                Reassign
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="secondary" size="sm" onClick={handleClose} className="h-8 text-xs">
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Close this assessment</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
