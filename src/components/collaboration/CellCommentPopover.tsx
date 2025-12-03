@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageSquare, Send, Check, AtSign, X } from "lucide-react";
+import { MessageSquare, Send, Check, AtSign, Reply, CheckCircle2 } from "lucide-react";
 import { useCellComments, AVAILABLE_USERS, CURRENT_USER, CellComment } from "@/contexts/CellCommentsContext";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -18,16 +18,30 @@ interface CellCommentPopoverProps {
 }
 
 const CellCommentPopover = ({ cellKey, sectionId, rowId, field, children }: CellCommentPopoverProps) => {
-  const { getCommentsForCell, addComment, resolveComment } = useCellComments();
+  const { getCommentsForCell, addComment, resolveComment, notifications, markNotificationRead } = useCellComments();
   const [open, setOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [showMentions, setShowMentions] = useState(false);
   const [mentionFilter, setMentionFilter] = useState("");
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const comments = getCommentsForCell(cellKey);
   const hasComments = comments.length > 0;
+
+  // Check if this cell has unread notifications for current user
+  const unreadNotificationsForCell = notifications.filter(
+    n => !n.read && n.cellKey === cellKey && n.toUserId === 'current'
+  );
+  const hasUnreadTag = unreadNotificationsForCell.length > 0;
+
+  // Mark notifications as read when popover opens
+  useEffect(() => {
+    if (open && unreadNotificationsForCell.length > 0) {
+      unreadNotificationsForCell.forEach(n => markNotificationRead(n.id));
+    }
+  }, [open, unreadNotificationsForCell, markNotificationRead]);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -85,16 +99,30 @@ const CellCommentPopover = ({ cellKey, sectionId, rowId, field, children }: Cell
       sectionId,
       rowId,
       field,
-      content: newComment,
+      content: replyingTo ? `[Reply] ${newComment}` : newComment,
       author: CURRENT_USER,
       taggedUsers,
     });
 
     setNewComment("");
+    setReplyingTo(null);
   };
 
   const handleResolve = (commentId: string) => {
     resolveComment(commentId);
+  };
+
+  const handleReplyAndResolve = (commentId: string) => {
+    if (newComment.trim()) {
+      handleSubmit();
+    }
+    resolveComment(commentId);
+  };
+
+  const startReply = (commentId: string, authorName: string) => {
+    setReplyingTo(commentId);
+    setNewComment(`@${authorName} `);
+    textareaRef.current?.focus();
   };
 
   return (
@@ -103,11 +131,14 @@ const CellCommentPopover = ({ cellKey, sectionId, rowId, field, children }: Cell
         <div className="relative cursor-pointer">
           {children}
           {hasComments && (
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border border-white shadow-sm" />
+            <div className={cn(
+              "absolute -top-1 -right-1 w-3 h-3 rounded-full border border-white shadow-sm",
+              hasUnreadTag ? "bg-blue-500 animate-pulse" : "bg-amber-400"
+            )} />
           )}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="start">
+      <PopoverContent className="w-96 p-0" align="start">
         <div className="p-3 border-b bg-muted/30">
           <div className="flex items-center gap-2 text-sm font-medium">
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -122,10 +153,38 @@ const CellCommentPopover = ({ cellKey, sectionId, rowId, field, children }: Cell
 
         {/* Existing comments */}
         {hasComments && (
-          <div className="max-h-48 overflow-y-auto divide-y">
+          <div className="max-h-64 overflow-y-auto divide-y">
             {comments.map((comment) => (
-              <CommentItem key={comment.id} comment={comment} onResolve={handleResolve} />
+              <CommentItem 
+                key={comment.id} 
+                comment={comment} 
+                onResolve={handleResolve}
+                onReply={startReply}
+                onReplyAndResolve={handleReplyAndResolve}
+                isReplying={replyingTo === comment.id}
+              />
             ))}
+          </div>
+        )}
+
+        {/* Reply indicator */}
+        {replyingTo && (
+          <div className="px-3 py-2 bg-blue-50 border-t border-blue-100 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs text-blue-700">
+              <Reply className="h-3 w-3" />
+              <span>Replying to comment</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 text-xs text-blue-600 hover:text-blue-800"
+              onClick={() => {
+                setReplyingTo(null);
+                setNewComment("");
+              }}
+            >
+              Cancel
+            </Button>
           </div>
         )}
 
@@ -134,7 +193,7 @@ const CellCommentPopover = ({ cellKey, sectionId, rowId, field, children }: Cell
           <div className="relative">
             <Textarea
               ref={textareaRef}
-              placeholder="Add a comment... Use @ to tag"
+              placeholder={replyingTo ? "Write your reply..." : "Add a comment... Use @ to tag"}
               value={newComment}
               onChange={handleTextChange}
               className="min-h-[60px] pr-10 text-sm resize-none"
@@ -183,10 +242,20 @@ const CellCommentPopover = ({ cellKey, sectionId, rowId, field, children }: Cell
   );
 };
 
-const CommentItem = ({ comment, onResolve }: { comment: CellComment; onResolve: (id: string) => void }) => {
+interface CommentItemProps {
+  comment: CellComment;
+  onResolve: (id: string) => void;
+  onReply: (id: string, authorName: string) => void;
+  onReplyAndResolve: (id: string) => void;
+  isReplying: boolean;
+}
+
+const CommentItem = ({ comment, onResolve, onReply, onReplyAndResolve, isReplying }: CommentItemProps) => {
   // Highlight mentions in content
   const renderContent = (content: string) => {
-    const parts = content.split(/(@\w+(?:\s\w+)?)/g);
+    // Remove [Reply] prefix for display
+    const displayContent = content.startsWith('[Reply] ') ? content.slice(8) : content;
+    const parts = displayContent.split(/(@\w+(?:\s\w+)?)/g);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return (
@@ -199,8 +268,13 @@ const CommentItem = ({ comment, onResolve }: { comment: CellComment; onResolve: 
     });
   };
 
+  const isReply = comment.content.startsWith('[Reply]');
+
   return (
-    <div className="p-3 hover:bg-muted/30 transition-colors">
+    <div className={cn(
+      "p-3 hover:bg-muted/30 transition-colors",
+      isReplying && "bg-blue-50/50 ring-1 ring-blue-200"
+    )}>
       <div className="flex items-start gap-2">
         <Avatar className="h-6 w-6 flex-shrink-0">
           <AvatarFallback className="text-[10px] bg-primary/10">
@@ -210,6 +284,11 @@ const CommentItem = ({ comment, onResolve }: { comment: CellComment; onResolve: 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium">{comment.author.name}</span>
+            {isReply && (
+              <Badge variant="outline" className="text-[9px] px-1 py-0 text-blue-600 border-blue-200">
+                Reply
+              </Badge>
+            )}
             <span className="text-xs text-muted-foreground">
               {format(comment.createdAt, 'MMM d, h:mm a')}
             </span>
@@ -226,16 +305,38 @@ const CommentItem = ({ comment, onResolve }: { comment: CellComment; onResolve: 
               ))}
             </div>
           )}
+          
+          {/* Action buttons */}
+          <div className="flex items-center gap-1 mt-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 px-2 text-xs text-muted-foreground hover:text-blue-600"
+              onClick={() => onReply(comment.id, comment.author.name)}
+            >
+              <Reply className="h-3 w-3 mr-1" />
+              Reply
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 px-2 text-xs text-muted-foreground hover:text-green-600"
+              onClick={() => onResolve(comment.id)}
+            >
+              <Check className="h-3 w-3 mr-1" />
+              Resolve
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 px-2 text-xs text-muted-foreground hover:text-emerald-600"
+              onClick={() => onReplyAndResolve(comment.id)}
+            >
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+              Reply & Resolve
+            </Button>
+          </div>
         </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-6 w-6 flex-shrink-0 hover:bg-green-50 hover:text-green-600"
-          onClick={() => onResolve(comment.id)}
-          title="Resolve"
-        >
-          <Check className="h-3 w-3" />
-        </Button>
       </div>
     </div>
   );
