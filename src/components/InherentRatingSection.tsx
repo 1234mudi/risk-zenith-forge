@@ -592,21 +592,6 @@ const InherentRatingSection = ({
         icon={<TrendingUp className="h-5 w-5 text-orange-600" />}
       />
       
-      <PreviousAssessmentsSection
-        title="Previous Inherent Risk Assessments"
-        assessmentHistory={assessmentHistory}
-        factors={SAMPLE_HISTORICAL_ASSESSMENTS[0]?.factors.map(factor => ({
-          ...factor,
-          type: factor.type as FactorType
-        }))}
-        showWeights={localShowWeights}
-        onCopyLatest={copyFromPrevious}
-        getScoreColor={getScoreColor}
-        getScoreLabel={getScoreLabel}
-        getRatingColor={getRatingColor}
-        type="inherent"
-      />
-      
       <div className="flex justify-between items-center p-3 bg-slate-50 rounded-md border">
         <div>
           <h3 className="font-medium text-slate-700 text-sm">Overall Inherent Risk Rating</h3>
