@@ -6,6 +6,7 @@ import { CollaborationModal } from "@/components/CollaborationModal";
 import TeamActivityPanel from "@/components/panels/TeamActivityPanel";
 import ChatPanel from "@/components/panels/ChatPanel";
 import CommentActivityPanel from "@/components/collaboration/CommentActivityPanel";
+import ReviewStatusBadge from "@/components/review/ReviewStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -165,6 +166,7 @@ const FormHeader = () => {
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <Shield className="h-5 w-5 text-blue-600" />
             <span>Assess Risk: {formState.risk}</span>
+            <ReviewStatusBadge status={formState.rcsaStatus} />
             <Badge 
               variant="outline" 
               className="ml-2 text-xs font-normal cursor-pointer hover:bg-accent transition-colors"

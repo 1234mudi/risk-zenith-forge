@@ -14,6 +14,21 @@ type HistoricalAssessment = {
   notes?: string;
 };
 
+// RCSA Status type
+export type RCSAStatus = 
+  | "Draft" 
+  | "Pending Review" 
+  | "Approved/Finalized" 
+  | "Returned for Rework/Challenged";
+
+// Challenge details type
+export type ChallengeDetails = {
+  reviewer: string;
+  date: Date;
+  reasons: string[];
+  justification: string;
+} | null;
+
 type FormState = {
   // System generated IDs
   referenceId: string;
@@ -82,12 +97,19 @@ type FormState = {
 
   // UI state
   showWeights: boolean;
+  
+  // Review status
+  rcsaStatus: RCSAStatus;
+  challengeDetails: ChallengeDetails;
 };
 
 type FormContextType = {
   formState: FormState;
   updateForm: (update: Partial<FormState>) => void;
   addAppetiteBreachIssue: (issue: any) => void;
+  approveAssessment: () => void;
+  challengeAssessment: (justification: string, reasons: string[]) => void;
+  dismissChallenge: () => void;
 };
 
 // Mock historical assessment data
@@ -536,7 +558,11 @@ const initialFormState: FormState = {
   isWithinAppetite: true,
   appetiteBreachIssues: [],
 
-  showWeights: true
+  showWeights: true,
+  
+  // Review status
+  rcsaStatus: "Pending Review" as RCSAStatus,
+  challengeDetails: null,
 };
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
@@ -572,8 +598,46 @@ export const FormProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
+  // Approve the assessment
+  const approveAssessment = () => {
+    setFormState((prevState) => ({
+      ...prevState,
+      rcsaStatus: "Approved/Finalized" as RCSAStatus,
+      challengeDetails: null,
+    }));
+  };
+
+  // Challenge the assessment
+  const challengeAssessment = (justification: string, reasons: string[]) => {
+    setFormState((prevState) => ({
+      ...prevState,
+      rcsaStatus: "Returned for Rework/Challenged" as RCSAStatus,
+      challengeDetails: {
+        reviewer: "Sarah Johnson, Risk Manager", // Mock reviewer
+        date: new Date(),
+        reasons,
+        justification,
+      },
+    }));
+  };
+
+  // Dismiss challenge notification
+  const dismissChallenge = () => {
+    setFormState((prevState) => ({
+      ...prevState,
+      challengeDetails: null,
+    }));
+  };
+
   return (
-    <FormContext.Provider value={{ formState, updateForm, addAppetiteBreachIssue }}>
+    <FormContext.Provider value={{ 
+      formState, 
+      updateForm, 
+      addAppetiteBreachIssue,
+      approveAssessment,
+      challengeAssessment,
+      dismissChallenge,
+    }}>
       {children}
     </FormContext.Provider>
   );
