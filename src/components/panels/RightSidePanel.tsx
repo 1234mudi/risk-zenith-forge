@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { History, Scale, Target, Shield, Clipboard, BarChart3, FileText, MessageSquareWarning, Clock, Info, Copy } from "lucide-react";
+import { History, Scale, Target, Shield, Clipboard, BarChart3, FileText, MessageSquareWarning, Clock, Info, Copy, Bell, MessageSquare, AtSign, CheckCircle, Check, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TreatmentSection from "@/components/TreatmentSection";
@@ -10,7 +10,11 @@ import { getRatingColor } from "@/utils/control-utils";
 import { FactorType, Control } from "@/types/control-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useForm } from "@/contexts/FormContext";
+import { useCellComments, CellComment, CellNotification } from "@/contexts/CellCommentsContext";
+import { format, formatDistanceToNow } from "date-fns";
 import { useAssessmentNavigation } from "@/contexts/AssessmentNavigationContext";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -79,6 +83,237 @@ const TABS: TabConfig[] = [
   { id: "metrics", label: "Metrics & Losses", icon: <BarChart3 className="h-4 w-4" /> },
   { id: "details", label: "Additional Details", icon: <FileText className="h-4 w-4" /> },
 ];
+
+const SECTION_LABELS: Record<string, string> = {
+  inherent: "Inherent Risk",
+  control: "Control Effectiveness",
+  residual: "Residual Rating",
+};
+
+const NotificationsList = ({ 
+  notifications, 
+  onMarkRead,
+  onResolve,
+  comments
+}: { 
+  notifications: CellNotification[]; 
+  onMarkRead: (id: string) => void;
+  onResolve: (commentId: string) => void;
+  comments: CellComment[];
+}) => {
+  if (notifications.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+        <Bell className="h-6 w-6 mb-2 opacity-50" />
+        <p className="text-xs">No notifications</p>
+      </div>
+    );
+  }
+
+  const getRelatedComment = (notification: CellNotification) => {
+    return comments.find(c => c.id === notification.commentId && !c.resolved);
+  };
+
+  return (
+    <div className="divide-y">
+      {notifications.map(notification => {
+        const relatedComment = getRelatedComment(notification);
+        return (
+          <div
+            key={notification.id}
+            className={cn(
+              "p-2.5 hover:bg-muted/50 transition-colors cursor-pointer",
+              !notification.read && "bg-blue-50/50"
+            )}
+            onClick={() => onMarkRead(notification.id)}
+          >
+            <div className="flex items-start gap-2">
+              <div className={cn(
+                "p-1 rounded-full flex-shrink-0",
+                notification.type === 'tag' && "bg-blue-100",
+                notification.type === 'reply' && "bg-green-100",
+                notification.type === 'resolve' && "bg-amber-100",
+              )}>
+                {notification.type === 'tag' && <AtSign className="h-3 w-3 text-blue-600" />}
+                {notification.type === 'reply' && <MessageSquare className="h-3 w-3 text-green-600" />}
+                {notification.type === 'resolve' && <CheckCircle className="h-3 w-3 text-amber-600" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs">{notification.message}</p>
+                <span className="text-[10px] text-muted-foreground">
+                  {formatDistanceToNow(notification.createdAt, { addSuffix: true })}
+                </span>
+                {relatedComment && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-1.5 h-6 text-[10px] gap-1 hover:bg-green-50 hover:text-green-600 hover:border-green-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onResolve(relatedComment.id);
+                      onMarkRead(notification.id);
+                    }}
+                  >
+                    <Check className="h-2.5 w-2.5" />
+                    Resolve
+                  </Button>
+                )}
+              </div>
+              {!notification.read && (
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0 mt-1" />
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const CommentsList = ({ comments, resolved = false, onResolve }: { comments: CellComment[]; resolved?: boolean; onResolve?: (id: string) => void }) => {
+  if (comments.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+        <MessageSquare className="h-6 w-6 mb-2 opacity-50" />
+        <p className="text-xs">{resolved ? "No resolved comments" : "No active comments"}</p>
+      </div>
+    );
+  }
+
+  const groupedComments = comments.reduce((acc, comment) => {
+    if (!acc[comment.sectionId]) acc[comment.sectionId] = [];
+    acc[comment.sectionId].push(comment);
+    return acc;
+  }, {} as Record<string, CellComment[]>);
+
+  return (
+    <div className="divide-y">
+      {Object.entries(groupedComments).map(([sectionId, sectionComments]) => (
+        <div key={sectionId}>
+          <div className="px-2.5 py-1.5 bg-muted/30 sticky top-0">
+            <span className="text-[10px] font-medium text-muted-foreground">
+              {SECTION_LABELS[sectionId] || sectionId}
+            </span>
+          </div>
+          {sectionComments.map(comment => (
+            <div key={comment.id} className="p-2.5 hover:bg-muted/30 transition-colors">
+              <div className="flex items-start gap-2">
+                <Avatar className="h-5 w-5 flex-shrink-0">
+                  <AvatarFallback className="text-[8px] bg-primary/10">
+                    {comment.author.name.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] font-medium">{comment.author.name}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {format(comment.createdAt, 'MMM d, h:mm a')}
+                    </span>
+                    {resolved && (
+                      <Badge variant="secondary" className="text-[8px] px-1 py-0 bg-green-50 text-green-700">
+                        Resolved
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs mt-0.5 text-foreground/90 break-words">
+                    {comment.content}
+                  </p>
+                  <div className="flex items-center justify-between mt-1">
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <ExternalLink className="h-2.5 w-2.5" />
+                      <span>{comment.field}</span>
+                    </div>
+                    {!resolved && onResolve && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-5 text-[10px] gap-0.5 hover:bg-green-50 hover:text-green-600"
+                        onClick={() => onResolve(comment.id)}
+                      >
+                        <Check className="h-2.5 w-2.5" />
+                        Resolve
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const ActivityCommentsSection = () => {
+  const { comments, notifications, unreadCount, markNotificationRead, markAllNotificationsRead, resolveComment } = useCellComments();
+  
+  const activeComments = comments.filter(c => !c.resolved);
+  const resolvedComments = comments.filter(c => c.resolved);
+
+  return (
+    <div className="border-t pt-3 mt-3">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+          <Bell className="h-4 w-4" />
+          Activity & Comments
+        </h4>
+        {unreadCount > 0 && (
+          <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={markAllNotificationsRead}>
+            Mark all read
+          </Button>
+        )}
+      </div>
+      
+      <Tabs defaultValue="notifications" className="w-full">
+        <TabsList className="w-full justify-start h-8 bg-slate-100 p-0.5 rounded-md">
+          <TabsTrigger value="notifications" className="text-[10px] h-7 px-2 gap-1 data-[state=active]:bg-white">
+            <AtSign className="h-3 w-3" />
+            Notifications
+            {unreadCount > 0 && (
+              <Badge variant="secondary" className="ml-0.5 h-4 px-1 text-[8px]">
+                {unreadCount}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="comments" className="text-[10px] h-7 px-2 gap-1 data-[state=active]:bg-white">
+            <MessageSquare className="h-3 w-3" />
+            Comments
+            <Badge variant="secondary" className="ml-0.5 h-4 px-1 text-[8px]">
+              {activeComments.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="resolved" className="text-[10px] h-7 px-2 gap-1 data-[state=active]:bg-white">
+            <CheckCircle className="h-3 w-3" />
+            Resolved
+            <Badge variant="secondary" className="ml-0.5 h-4 px-1 text-[8px]">
+              {resolvedComments.length}
+            </Badge>
+          </TabsTrigger>
+        </TabsList>
+
+        <div className="mt-2 border rounded-md max-h-[300px] overflow-auto">
+          <TabsContent value="notifications" className="m-0">
+            <NotificationsList 
+              notifications={notifications} 
+              onMarkRead={markNotificationRead}
+              onResolve={resolveComment}
+              comments={comments}
+            />
+          </TabsContent>
+
+          <TabsContent value="comments" className="m-0">
+            <CommentsList comments={activeComments} onResolve={resolveComment} />
+          </TabsContent>
+
+          <TabsContent value="resolved" className="m-0">
+            <CommentsList comments={resolvedComments} resolved />
+          </TabsContent>
+        </div>
+      </Tabs>
+    </div>
+  );
+};
 
 const RightSidePanel = () => {
   const [activeTab, setActiveTab] = useState<PanelTab | null>(null);
@@ -283,12 +518,12 @@ const RightSidePanel = () => {
     );
   };
 
-  const renderReviewContent = () => {
+const renderReviewContent = () => {
     const challenge = formState.challengeDetails;
     
     return (
       <div className="space-y-4">
-        {challenge ? (
+        {challenge && (
           <div className="space-y-4">
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
@@ -315,20 +550,10 @@ const RightSidePanel = () => {
               </div>
             )}
           </div>
-        ) : (
-          <div className="text-center py-8 text-slate-500">
-            <MessageSquareWarning className="h-10 w-10 mx-auto mb-3 text-slate-300" />
-            <p className="text-sm font-medium">No Active Challenges</p>
-            <p className="text-xs mt-1">This assessment has not been challenged</p>
-          </div>
         )}
         
-        <div className="border-t pt-4">
-          <h4 className="text-sm font-semibold text-slate-700 mb-3">Comment Activity</h4>
-          <div className="text-sm text-slate-500">
-            <p>View and manage comments through the Activity panel in the header.</p>
-          </div>
-        </div>
+        {/* Activity & Comments Section */}
+        <ActivityCommentsSection />
       </div>
     );
   };
