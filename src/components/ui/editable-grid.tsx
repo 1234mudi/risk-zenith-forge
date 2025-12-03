@@ -315,6 +315,28 @@ const EditableGrid = ({
       );
     }
 
+    // Generate comment cell key - moved up for all cell types
+    const commentCellKey = sectionId ? `${sectionId}-${rowData[keyField]}-${column.field}` : '';
+    const hasComments = cellComments && commentCellKey ? cellComments.getCommentsForCell(commentCellKey).length > 0 : false;
+    
+    const wrapWithComments = (content: React.ReactNode) => {
+      if (enableCellComments && sectionId && (column.enableComments !== false)) {
+        return (
+          <CellCommentPopover
+            cellKey={commentCellKey}
+            sectionId={sectionId}
+            rowId={rowData[keyField]}
+            field={column.field}
+          >
+            <div className={hasComments ? 'ring-1 ring-amber-300 ring-offset-1 rounded' : ''}>
+              {content}
+            </div>
+          </CellCommentPopover>
+        );
+      }
+      return content;
+    };
+
     if (column.type === 'rating') {
       const numValue = parseInt(value || '0');
       let ratingClass = 'px-2 py-1 rounded text-sm font-medium ';
@@ -334,7 +356,7 @@ const EditableGrid = ({
       const cellKey = `${rowData[keyField]}-${column.field}`;
       const isAILoading = aiLoadingCells.has(cellKey);
       
-      return (
+      const ratingContent = (
         <div className="flex items-center justify-between group">
           <div className={ratingClass}>{label}</div>
           {column.enableAI && onAIAutofill && (
@@ -357,11 +379,12 @@ const EditableGrid = ({
           )}
         </div>
       );
+      return wrapWithComments(ratingContent);
     }
     
     if (column.type === 'select' && column.options) {
       const option = column.options.find(opt => opt.value === value?.toString());
-      return <div>{option?.label || value}</div>;
+      return wrapWithComments(<div>{option?.label || value}</div>);
     }
 
     if (column.type === 'date' && value) {
@@ -402,28 +425,6 @@ const EditableGrid = ({
     const cellClass = column.cellClassName ? column.cellClassName(value) : '';
     const cellKey = `${rowData[keyField]}-${column.field}`;
     const isAILoading = aiLoadingCells.has(cellKey);
-    
-    // Generate comment cell key
-    const commentCellKey = sectionId ? `${sectionId}-${rowData[keyField]}-${column.field}` : '';
-    const hasComments = cellComments && commentCellKey ? cellComments.getCommentsForCell(commentCellKey).length > 0 : false;
-    
-    const wrapWithComments = (content: React.ReactNode) => {
-      if (enableCellComments && sectionId && (column.enableComments !== false)) {
-        return (
-          <CellCommentPopover
-            cellKey={commentCellKey}
-            sectionId={sectionId}
-            rowId={rowData[keyField]}
-            field={column.field}
-          >
-            <div className={hasComments ? 'ring-1 ring-amber-300 ring-offset-1 rounded' : ''}>
-              {content}
-            </div>
-          </CellCommentPopover>
-        );
-      }
-      return content;
-    };
     
     // Show pencil icon for editable cells (excluding special types)
     if (column.editable) {
