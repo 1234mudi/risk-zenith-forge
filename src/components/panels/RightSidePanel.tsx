@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { History, Scale, Target, Clipboard, BarChart3, FileText, MessageSquareWarning } from "lucide-react";
+import { History, Scale, Target, Shield, Clipboard, BarChart3, FileText, MessageSquareWarning } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import PreviousAssessmentsSection from "@/components/PreviousAssessmentsSection";
@@ -12,6 +12,7 @@ import { FactorType, Control } from "@/types/control-types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@/contexts/FormContext";
+import { useAssessmentNavigation } from "@/contexts/AssessmentNavigationContext";
 
 // Sample data for previous assessments
 const INHERENT_HISTORICAL = [
@@ -62,12 +63,114 @@ const TABS: TabConfig[] = [
 const RightSidePanel = () => {
   const [activeTab, setActiveTab] = useState<PanelTab | null>(null);
   const { formState } = useForm();
+  const { activeTab: activeFormSection } = useAssessmentNavigation();
 
   const handleTabClick = (tabId: PanelTab) => {
     if (activeTab === tabId) {
       setActiveTab(null);
     } else {
       setActiveTab(tabId);
+    }
+  };
+
+  const getAssessmentTitle = () => {
+    switch (activeFormSection) {
+      case "inherent":
+        return "Previous Inherent Risk Assessments";
+      case "control":
+        return "Previous Control Effectiveness";
+      case "residual":
+        return "Previous Residual Risk";
+      default:
+        return "Previous Assessments";
+    }
+  };
+
+  const getAssessmentIcon = () => {
+    switch (activeFormSection) {
+      case "inherent":
+        return <Scale className="h-4 w-4 text-amber-600" />;
+      case "control":
+        return <Shield className="h-4 w-4 text-green-600" />;
+      case "residual":
+        return <Target className="h-4 w-4 text-blue-600" />;
+      default:
+        return <History className="h-4 w-4 text-slate-600" />;
+    }
+  };
+
+  const renderAssessmentsContent = () => {
+    // Show section-specific history based on active form section
+    switch (activeFormSection) {
+      case "inherent":
+        return (
+          <div>
+            <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              {getAssessmentIcon()}
+              {getAssessmentTitle()}
+            </h3>
+            <PreviousAssessmentsSection
+              title="Inherent Risk History"
+              assessmentHistory={INHERENT_HISTORICAL.map(a => ({ date: a.date, score: a.score }))}
+              factors={INHERENT_HISTORICAL[0].factors}
+              showWeights={true}
+              onCopyLatest={() => {}}
+              getScoreColor={getScoreColor}
+              getScoreLabel={getScoreLabel}
+              getRatingColor={getRatingColor}
+              type="inherent"
+            />
+          </div>
+        );
+      case "control":
+        return (
+          <div>
+            <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              {getAssessmentIcon()}
+              {getAssessmentTitle()}
+            </h3>
+            <PreviousAssessmentsSection
+              title="Control History"
+              assessmentHistory={CONTROL_HISTORICAL.map(a => ({ date: a.date, score: a.score }))}
+              controls={CONTROL_HISTORICAL[0].controls}
+              showWeights={true}
+              onCopyLatest={() => {}}
+              getScoreColor={getScoreColor}
+              getScoreLabel={getScoreLabel}
+              getRatingColor={getRatingColor}
+              type="control"
+            />
+          </div>
+        );
+      case "residual":
+        return (
+          <div>
+            <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+              {getAssessmentIcon()}
+              {getAssessmentTitle()}
+            </h3>
+            <PreviousAssessmentsSection
+              title="Residual Risk History"
+              assessmentHistory={RESIDUAL_HISTORICAL.map(a => ({ date: a.date, score: a.score }))}
+              factors={RESIDUAL_HISTORICAL[0].factors}
+              showWeights={true}
+              onCopyLatest={() => {}}
+              getScoreColor={getScoreColor}
+              getScoreLabel={getScoreLabel}
+              getRatingColor={getRatingColor}
+              type="residual"
+            />
+          </div>
+        );
+      default:
+        // For heatmap and issues, show a message
+        return (
+          <div className="text-center py-8 text-slate-500">
+            <History className="h-10 w-10 mx-auto mb-3 text-slate-300" />
+            <p className="text-sm font-medium">No Historical Data</p>
+            <p className="text-xs mt-1">Select Inherent Rating, Control Effectiveness, or Residual Rating to view historical assessments</p>
+          </div>
+        );
     }
   };
 
@@ -124,63 +227,7 @@ const RightSidePanel = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "assessments":
-        return (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                <Scale className="h-4 w-4 text-amber-600" />
-                Previous Inherent Risk Assessments
-              </h3>
-              <PreviousAssessmentsSection
-                title="Inherent Risk History"
-                assessmentHistory={INHERENT_HISTORICAL.map(a => ({ date: a.date, score: a.score }))}
-                factors={INHERENT_HISTORICAL[0].factors}
-                showWeights={true}
-                onCopyLatest={() => {}}
-                getScoreColor={getScoreColor}
-                getScoreLabel={getScoreLabel}
-                getRatingColor={getRatingColor}
-                type="inherent"
-              />
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                <Target className="h-4 w-4 text-green-600" />
-                Previous Control Effectiveness
-              </h3>
-              <PreviousAssessmentsSection
-                title="Control History"
-                assessmentHistory={CONTROL_HISTORICAL.map(a => ({ date: a.date, score: a.score }))}
-                controls={CONTROL_HISTORICAL[0].controls}
-                showWeights={true}
-                onCopyLatest={() => {}}
-                getScoreColor={getScoreColor}
-                getScoreLabel={getScoreLabel}
-                getRatingColor={getRatingColor}
-                type="control"
-              />
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                <Target className="h-4 w-4 text-blue-600" />
-                Previous Residual Risk
-              </h3>
-              <PreviousAssessmentsSection
-                title="Residual Risk History"
-                assessmentHistory={RESIDUAL_HISTORICAL.map(a => ({ date: a.date, score: a.score }))}
-                factors={RESIDUAL_HISTORICAL[0].factors}
-                showWeights={true}
-                onCopyLatest={() => {}}
-                getScoreColor={getScoreColor}
-                getScoreLabel={getScoreLabel}
-                getRatingColor={getRatingColor}
-                type="residual"
-              />
-            </div>
-          </div>
-        );
+        return renderAssessmentsContent();
       case "review":
         return renderReviewContent();
       case "treatment":
@@ -203,7 +250,7 @@ const RightSidePanel = () => {
         <div className="w-[380px] bg-white border-l border-slate-200 shadow-xl overflow-hidden flex flex-col">
           <div className="px-4 py-3 border-b border-slate-100 bg-white flex items-center justify-between">
             <h2 className="font-semibold text-slate-800 text-sm">
-              {TABS.find(t => t.id === activeTab)?.label}
+              {activeTab === "assessments" ? getAssessmentTitle() : TABS.find(t => t.id === activeTab)?.label}
             </h2>
             <Button 
               variant="ghost" 
