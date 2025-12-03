@@ -9,6 +9,7 @@ import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid"
 import RiskTrendChart from "./charts/RiskTrendChart";
 import { SectionHeader } from "@/components/collaboration/SectionHeader";
 import { useAIAutofill } from "@/hooks/useAIAutofill";
+import { isSectionChallenged } from "@/components/review/ReviewChallengeIndicator";
 
 const DEFAULT_IMPACT_FACTORS: FactorProps[] = [
   {
@@ -286,6 +287,11 @@ const InherentRatingSection = ({
   const [showTrendChart, setShowTrendChart] = useState(false);
   
   const { autofillRating, autofillComment, autofillAll, isLoading, isCellLoading, loadingCells } = useAIAutofill();
+  
+  // Check if this section is challenged
+  const isInherentChallenged = formState.rcsaStatus === "Returned for Rework/Challenged" && 
+    formState.challengeDetails?.reasons ? 
+    isSectionChallenged("inherent", formState.challengeDetails.reasons) : false;
   
   const assessmentHistory = SAMPLE_HISTORICAL_ASSESSMENTS.map(assessment => ({
     date: assessment.date,
@@ -683,6 +689,7 @@ const InherentRatingSection = ({
         allowBulkEdit
         sectionId="inherent"
         enableCellComments
+        isSectionChallenged={isInherentChallenged}
         className="border-collapse [&_th]:bg-yellow-50 [&_td]:border [&_th]:border [&_td]:border-slate-200 [&_th]:border-slate-200"
       />
       

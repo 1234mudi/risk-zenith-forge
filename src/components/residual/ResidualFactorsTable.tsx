@@ -5,6 +5,8 @@ import { PlusCircle, Sparkles } from "lucide-react";
 import { FactorProps } from "@/types/control-types";
 import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid";
 import { useAIAutofill } from "@/hooks/useAIAutofill";
+import { useForm } from "@/contexts/FormContext";
+import { isSectionChallenged } from "@/components/review/ReviewChallengeIndicator";
 
 interface ResidualFactorsTableProps {
   factors: FactorProps[];
@@ -24,8 +26,14 @@ const ResidualFactorsTable = ({
 }: ResidualFactorsTableProps) => {
   
   const { autofillRating, autofillComment, autofillAll, isLoading, loadingCells } = useAIAutofill();
+  const { formState } = useForm();
   
-  const gridData = factors.flatMap(parent => 
+  // Check if this section is challenged
+  const isResidualChallenged = formState.rcsaStatus === "Returned for Rework/Challenged" && 
+    formState.challengeDetails?.reasons ? 
+    isSectionChallenged("residual", formState.challengeDetails.reasons) : false;
+  
+  const gridData = factors.flatMap(parent =>
     parent.children?.map(child => ({
       ...child,
       parentId: parent.id
@@ -122,6 +130,7 @@ const ResidualFactorsTable = ({
         sectionId="residual"
         enableCellComments
         allowBulkEdit
+        isSectionChallenged={isResidualChallenged}
       />
     </div>
   );

@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ReviewChallengeIndicator from "@/components/review/ReviewChallengeIndicator";
 
 interface SectionHeaderProps {
   title: string;
@@ -33,6 +34,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   const activeCount = sectionCollab?.activeEditors.length || 0;
   const viewerCount = sectionCollab ? sectionCollab.collaborators.length - activeCount : 0;
 
+  // Check if this section can have challenge indicator
+  const canHaveChallengeIndicator = ["inherent", "control", "residual"].includes(sectionId);
+
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -48,6 +52,11 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         {icon}
         <h3 className="text-base font-semibold">{title}</h3>
         {children}
+        
+        {/* Challenge Indicator */}
+        {canHaveChallengeIndicator && (
+          <ReviewChallengeIndicator sectionId={sectionId as "inherent" | "control" | "residual"} />
+        )}
         
         {hasCollaborators && (
           <div className="flex items-center gap-2 animate-fade-in">
