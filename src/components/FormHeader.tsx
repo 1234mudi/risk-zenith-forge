@@ -5,7 +5,6 @@ import { useCollaboration } from "@/contexts/CollaborationContext";
 import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Eye } from "lucide-react";
 import { CollaborationModal } from "@/components/CollaborationModal";
 import ChatPanel from "@/components/panels/ChatPanel";
-import CommentActivityPanel from "@/components/collaboration/CommentActivityPanel";
 import ReviewStatusBadge from "@/components/review/ReviewStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -203,8 +202,6 @@ const FormHeader = () => {
             <MessageSquare className="h-4 w-4 mr-1.5" />
             Chat
           </Button>
-
-          <CommentActivityPanel />
 
           <div className="w-px h-6 bg-white/20 mx-1" />
 
