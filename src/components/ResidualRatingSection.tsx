@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LineChart } from "lucide-react";
+import { Lock, AlertCircle } from "lucide-react";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 import ResidualRatingHeader from "./residual/ResidualRatingHeader";
 import ResidualFactorsTable from "./residual/ResidualFactorsTable";
@@ -12,6 +12,8 @@ import { getRatingColor } from "@/utils/control-utils";
 import { FactorType } from "@/types/control-types";
 import RiskTrendChart from "./charts/RiskTrendChart";
 import { useAIAutofill } from "@/hooks/useAIAutofill";
+import { useFormProgress } from "@/hooks/useFormProgress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type ResidualRatingSectionProps = {
   onNext: () => void;
@@ -19,6 +21,9 @@ type ResidualRatingSectionProps = {
 };
 
 const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionProps) => {
+  const progress = useFormProgress();
+  const isUnlocked = progress.inherent.percentage === 100 && progress.control.percentage === 100;
+
   const {
     factors,
     overallScore,
@@ -45,6 +50,35 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
     date: assessment.date,
     score: assessment.score
   }));
+
+  if (!isUnlocked) {
+    return (
+      <div className="space-y-4">
+        <Card className="p-8 border-dashed border-2 border-muted-foreground/30 bg-muted/20">
+          <div className="flex flex-col items-center justify-center text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+              <Lock className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">Residual Rating Locked</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                Complete the Inherent Risk Rating and Control Effectiveness sections to unlock this section.
+              </p>
+            </div>
+            <Alert className="max-w-md">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-xs">
+                <div className="flex flex-col gap-1">
+                  <span>Inherent Risk: {progress.inherent.percentage}% complete</span>
+                  <span>Control Effectiveness: {progress.control.percentage}% complete</span>
+                </div>
+              </AlertDescription>
+            </Alert>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
