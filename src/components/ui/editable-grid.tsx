@@ -14,6 +14,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import CellCommentPopover from "@/components/collaboration/CellCommentPopover";
 import { useCellComments } from "@/contexts/CellCommentsContext";
+import { useCellPresence } from "@/hooks/useCellPresence";
+import { CellPresenceBadge, CollaborationBanner } from "@/components/ui/cell-presence-badge";
 
 export type EditableGridColumn = {
   field: string;
@@ -42,9 +44,10 @@ type EditableGridProps = {
   className?: string;
   onAIAutofill?: (rowIndex: number, field: string, aiType: 'rating' | 'comment') => Promise<void>;
   aiLoadingCells?: Set<string>;
-  sectionId?: string; // For cell comments
+  sectionId?: string; // For cell comments and presence
   enableCellComments?: boolean;
   isSectionChallenged?: boolean; // Visual highlight when section needs review
+  enablePresence?: boolean; // Enable real-time collaboration presence
 };
 
 const EditableGrid = ({
@@ -62,8 +65,17 @@ const EditableGrid = ({
   sectionId,
   enableCellComments = false,
   isSectionChallenged = false,
+  enablePresence = true,
 }: EditableGridProps) => {
   const cellComments = enableCellComments ? useCellComments() : null;
+  
+  // Real-time presence tracking
+  const { 
+    trackCellFocus, 
+    getCellPresence, 
+    isConnected, 
+    activeUsers 
+  } = useCellPresence(sectionId || 'default-grid');
   
   // Check if a row has unread notifications (user was tagged for review)
   const getRowHasUnreadTag = (rowId: string): boolean => {
@@ -79,18 +91,27 @@ const EditableGrid = ({
   const [bulkEditValue, setBulkEditValue] = useState<any>('');
   const cellRef = useRef<HTMLDivElement>(null);
 
-  const startEditing = (rowIndex: number, field: string, value: any) => {
+  const startEditing = (rowIndex: number, field: string, value: any, rowId?: string) => {
     // If any rows are selected, trigger bulk edit instead of single cell edit
     if (selectedRows.length > 0) {
       startBulkEdit(field);
     } else {
       setEditingCell({ rowIndex, field });
       setEditValue(value);
+      // Track cell presence for real-time collaboration
+      if (enablePresence && rowId) {
+        const cellKey = `${sectionId || 'grid'}-${rowId}-${field}`;
+        trackCellFocus(cellKey);
+      }
     }
   };
 
   const cancelEditing = () => {
     setEditingCell(null);
+    // Clear cell presence when editing is cancelled
+    if (enablePresence) {
+      trackCellFocus(null);
+    }
   };
 
   const saveEdit = () => {
@@ -115,6 +136,10 @@ const EditableGrid = ({
     }
     onDataChange(newData);
     setEditingCell(null);
+    // Clear cell presence when edit is saved
+    if (enablePresence) {
+      trackCellFocus(null);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -440,7 +465,7 @@ const EditableGrid = ({
       const editableContent = (
         <div 
           className={`flex items-center justify-between group cursor-pointer hover:bg-slate-50 px-2 py-1 rounded ${cellClass}`}
-          onClick={() => startEditing(rowIndex, column.field, value)}
+          onClick={() => startEditing(rowIndex, column.field, value, rowData[keyField])}
         >
           <span className="flex-1">{value || <span className="text-gray-400">Click to edit</span>}</span>
           <div className="flex items-center gap-1">
@@ -554,6 +579,11 @@ const EditableGrid = ({
 
   return (
     <div className="space-y-3">
+      {/* Real-time Collaboration Banner */}
+      {enablePresence && (
+        <CollaborationBanner isConnected={isConnected} activeUsers={activeUsers} />
+      )}
+      
       {/* Challenge Warning Banner */}
       {isSectionChallenged && (
         <div className="bg-amber-50 border border-amber-300 rounded-md p-3 flex items-center gap-2 animate-pulse">
@@ -634,14 +664,22 @@ const EditableGrid = ({
                     </TableCell>
                   )}
                   
-                  {columns.map((column) => (
-                    <TableCell 
-                      key={`${rowIndex}-${column.field}`} 
-                      className={`${column.className} ${column.editable ? 'cursor-pointer' : ''}`}
-                    >
-                      {renderCellContent(column, row, rowIndex)}
-                    </TableCell>
-                  ))}
+                  {columns.map((column) => {
+                    const presenceCellKey = `${sectionId || 'grid'}-${rowId}-${column.field}`;
+                    const cellPresences = enablePresence ? getCellPresence(presenceCellKey) : [];
+                    
+                    return (
+                      <TableCell 
+                        key={`${rowIndex}-${column.field}`} 
+                        className={`${column.className || ''} ${column.editable ? 'cursor-pointer' : ''} relative`}
+                      >
+                        {enablePresence && cellPresences.length > 0 && (
+                          <CellPresenceBadge presences={cellPresences} />
+                        )}
+                        {renderCellContent(column, row, rowIndex)}
+                      </TableCell>
+                    );
+                  })}
                   
                   <TableCell className="text-right space-x-1">
                     {columns.some(col => col.editable) && (
@@ -652,7 +690,7 @@ const EditableGrid = ({
                           const editableCol = columns.find(col => col.editable);
                           if (editableCol) {
                             const value = getNestedValue(row, editableCol.field);
-                            startEditing(rowIndex, editableCol.field, value);
+                            startEditing(rowIndex, editableCol.field, value, rowId);
                           }
                         }}
                         className="h-8 w-8 text-blue-500"
