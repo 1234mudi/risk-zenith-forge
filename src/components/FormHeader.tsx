@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useForm } from "@/contexts/FormContext";
 import { useCollaboration } from "@/contexts/CollaborationContext";
-import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Eye } from "lucide-react";
+import { Shield, AlertTriangle, CheckCircle2, Save, Send, X, ChevronDown, AlertCircle, Users, MessageSquare, Eye, FileDown, Loader2 } from "lucide-react";
 import { CollaborationModal } from "@/components/CollaborationModal";
 import ChatPanel from "@/components/panels/ChatPanel";
 import ReviewStatusBadge from "@/components/review/ReviewStatusBadge";
@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import RiskSummary from "./RiskSummary";
 import RelatedRisks from "./RelatedRisks";
 import { useRiskAssessment } from "@/hooks/useRiskAssessment";
+import { useExportPPT } from "@/hooks/useExportPPT";
 import { cn } from "@/lib/utils";
 
 const FormHeader = () => {
@@ -27,9 +28,25 @@ const FormHeader = () => {
   const { collaborationState } = useCollaboration();
   const { toast } = useToast();
   const { setActiveTab } = useRiskAssessment();
+  const { exportToPPT, isExporting } = useExportPPT();
   const isWithinAppetite = formState.isWithinAppetite;
   const [collaborationModalOpen, setCollaborationModalOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+
+  const handleExport = () => {
+    exportToPPT({
+      risk: formState.risk,
+      eraId: formState.eraId,
+      assessmentId: formState.assessmentId,
+      assessmentDate: formState.assessmentDate,
+      inherentScore: formState.inherentRatingScore,
+      controlScore: formState.controlEffectivenessScore,
+      residualScore: formState.residualRatingScore,
+      riskAppetite: formState.riskAppetite.level,
+      isWithinAppetite: formState.isWithinAppetite,
+      riskHierarchy: formState.riskHierarchy,
+    });
+  };
 
   // Aggregate all unique collaborators across all sections
   const getAllCollaborators = () => {
@@ -204,6 +221,28 @@ const FormHeader = () => {
           </Button>
 
           <div className="w-px h-6 bg-white/20 mx-1" />
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30"
+                  onClick={handleExport}
+                  disabled={isExporting}
+                >
+                  {isExporting ? (
+                    <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                  ) : (
+                    <FileDown className="h-3.5 w-3.5 mr-1" />
+                  )}
+                  Export
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Summarize & Export to PowerPoint</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <TooltipProvider>
             <Tooltip>
