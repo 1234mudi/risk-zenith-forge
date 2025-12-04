@@ -581,28 +581,28 @@ const renderReviewContent = () => {
     <div className="fixed right-0 top-[140px] bottom-0 flex z-30">
       {/* Expanded Panel Content */}
       {isExpanded && (
-        <div className="w-[380px] bg-white border-l border-slate-200 shadow-xl overflow-hidden flex flex-col">
-          <div className="px-4 py-3 border-b border-slate-100 bg-white flex items-center justify-between">
-            <h2 className="font-semibold text-slate-800 text-sm">
+        <div className="w-[380px] bg-background border-l border-border shadow-md overflow-hidden flex flex-col rounded-l-lg">
+          <div className="px-4 py-3 border-b border-border bg-slate-50 flex items-center justify-between">
+            <h2 className="font-semibold text-slate-700 text-sm">
               {activeTab === "assessments" ? getAssessmentTitle() : TABS.find(t => t.id === activeTab)?.label}
             </h2>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-7 w-7 p-0"
+              className="h-7 w-7 p-0 hover:bg-slate-200"
               onClick={() => setActiveTab(null)}
             >
               ×
             </Button>
           </div>
-          <ScrollArea className="flex-1 p-4">
+          <ScrollArea className="flex-1 p-4 bg-background">
             {renderContent()}
           </ScrollArea>
         </div>
       )}
       
       {/* Vertical Tab Strip */}
-      <div className="w-11 bg-white border-l border-slate-200 flex flex-col items-center pt-2 gap-0.5">
+      <div className="w-11 bg-slate-50 border-l border-border flex flex-col items-center pt-2 gap-0.5 shadow-md">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -611,7 +611,7 @@ const renderReviewContent = () => {
               "w-9 py-3 flex flex-col items-center justify-center rounded-l-md transition-all duration-200",
               "hover:bg-slate-100",
               activeTab === tab.id
-                ? "bg-slate-100 text-primary border-r-2 border-primary"
+                ? "bg-white text-primary border-r-2 border-primary shadow-sm"
                 : "text-slate-500"
             )}
             title={tab.label}
