@@ -237,10 +237,10 @@ const FormHeader = () => {
                   ) : (
                     <FileDown className="h-3.5 w-3.5 mr-1" />
                   )}
-                  Export
+                  Summarize & Export
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Summarize & Export to PowerPoint</TooltipContent>
+              <TooltipContent>Generate AI summary & export to PowerPoint</TooltipContent>
             </Tooltip>
           </TooltipProvider>
 

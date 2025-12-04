@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LineChart, Eye, EyeOff, TrendingUp, Sparkles } from "lucide-react";
+import { LineChart, Eye, EyeOff, Sparkles } from "lucide-react";
 import { useForm } from "@/contexts/FormContext";
 import { Card } from "@/components/ui/card";
 import { FactorProps, FactorType } from "@/types/control-types";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 import EditableGrid, { EditableGridColumn } from "@/components/ui/editable-grid";
 import RiskTrendChart from "./charts/RiskTrendChart";
-import { SectionHeader } from "@/components/collaboration/SectionHeader";
 import { useAIAutofill } from "@/hooks/useAIAutofill";
 import { isSectionChallenged } from "@/components/review/ReviewChallengeIndicator";
 
@@ -586,12 +585,6 @@ const InherentRatingSection = ({
 
   return (
     <div className="space-y-4">
-      <SectionHeader 
-        title="Inherent Risk Rating" 
-        sectionId="inherent"
-        icon={<TrendingUp className="h-5 w-5 text-orange-600" />}
-      />
-      
       <div className="flex justify-between items-center p-3 bg-slate-50 rounded-md border">
         <div>
           <h3 className="font-medium text-slate-700 text-sm">Overall Inherent Risk Rating</h3>

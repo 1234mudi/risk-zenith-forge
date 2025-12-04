@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { LineChart, Target, Sparkles } from "lucide-react";
+import { LineChart } from "lucide-react";
 import PreviousAssessmentsSection from "./PreviousAssessmentsSection";
 import ResidualRatingHeader from "./residual/ResidualRatingHeader";
 import ResidualFactorsTable from "./residual/ResidualFactorsTable";
@@ -11,7 +11,6 @@ import { getScoreColor, getScoreLabel, getCellColor } from "@/utils/rating-utils
 import { getRatingColor } from "@/utils/control-utils";
 import { FactorType } from "@/types/control-types";
 import RiskTrendChart from "./charts/RiskTrendChart";
-import { SectionHeader } from "@/components/collaboration/SectionHeader";
 import { useAIAutofill } from "@/hooks/useAIAutofill";
 
 type ResidualRatingSectionProps = {
@@ -49,12 +48,6 @@ const ResidualRatingSection = ({ onNext, showWeights }: ResidualRatingSectionPro
 
   return (
     <div className="space-y-4">
-      <SectionHeader 
-        title="Residual Risk Rating" 
-        sectionId="residual"
-        icon={<Target className="h-5 w-5 text-blue-600" />}
-      />
-      
       <ResidualRatingHeader
         overallScore={overallScore}
         showTrendChart={showTrendChart}
